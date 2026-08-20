@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+groq
+spacy
+supabase
+pytest
+pytest-asyncio
+httpx<0.28
+python-dotenv
+openai
