@@ -84,8 +84,15 @@ export default function Dashboard() {
           
           <div className="w-full flex flex-col mt-12 relative">
             
-            {/* The continuous thread line */}
-            <div className="absolute left-[7px] top-6 bottom-12 w-[2px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent"></div>
+            {/* The continuous thread line with animated signal pulse */}
+            <div className="absolute left-[7px] top-6 bottom-12 w-[2px] bg-primary/10 overflow-hidden">
+              <motion.div
+                initial={{ y: "-100%" }}
+                animate={{ y: "200%" }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+                className="h-1/3 w-full bg-gradient-to-b from-transparent via-cyan to-transparent shadow-[0_0_10px_rgba(92,200,215,1)]"
+              ></motion.div>
+            </div>
             
             {/* Journey Step 1 (Past - Blue/Learning) */}
             <div className="flex gap-8 items-start mb-12 relative group">
@@ -126,10 +133,10 @@ export default function Dashboard() {
         <motion.div variants={fadeUp} className="lg:col-span-3 flex flex-col justify-between h-full pl-8 py-4 relative">
           
           {/* Subtle Signal Waveform background */}
-          <div className="absolute top-10 right-0 opacity-[0.03] pointer-events-none -z-10 text-[100px] font-light text-cyan leading-none tracking-tighter whitespace-pre">
-            ╱╲<br/>
-            ╱  ╲<br/>
-     ╱─────╯    ╰──
+          <div className="absolute top-10 right-0 opacity-[0.03] pointer-events-none -z-10 text-cyan">
+             <svg width="300" height="150" viewBox="0 0 300 150" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M0 75 H50 L80 20 L120 130 L160 50 L190 75 H300" />
+             </svg>
           </div>
 
           <div>
