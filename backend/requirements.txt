@@ -8,3 +8,8 @@ pytest-asyncio
 httpx<0.28
 python-dotenv
 openai
+
+langchain
+langchain-community
+pypdf
+tiktoken

@@ -72,52 +72,67 @@ if __name__ == "__main__":
     org_data = [
         {
             "category": "policy",
-            "content": "FIN-SEC-04: All urgent wire transfers exceeding $10,000 must be verified via a secondary communication channel (phone call to known number or in-person). Email approvals are not sufficient.",
-            "metadata": {"source": "Employee Handbook 2026", "department": "Finance"}
+            "content": "FIN-SEC-04: All urgent wire transfers exceeding $10,000 must be verified via a secondary communication channel (phone call to known number or in-person). Email approvals are not sufficient, even if sent by the CEO.",
+            "metadata": {"source": "NovaTech Employee Handbook 2026", "department": "Finance"}
+        },
+        {
+            "category": "policy",
+            "content": "HR-SEC-02: Identity Verification for Payroll. Employees requesting changes to direct deposit must verify their identity by providing their employee ID and confirming via their registered secondary phone number. Do not reply directly to the request email.",
+            "metadata": {"source": "NovaTech HR Policy"}
         },
         {
             "category": "workflow",
             "content": "IT support will NEVER ask for your password or MFA code via email. Official IT requests are routed through the internal Jira Service Desk portal.",
             "metadata": {"source": "IT Security Policy v2"}
-        },
-        {
-            "category": "hierarchy",
-            "content": "The CEO is David Chen. The CFO is Maria Rodriguez. They frequently travel and use the internal Slack for quick approvals, but never email for wire transfers without prior notice.",
-            "metadata": {"source": "Org Chart"}
         }
     ]
 
     # -------------------------------------------------------------
     # 2. CYBER THREATS (For the Evaluation Agent)
-    # Technical attack patterns and real-world indicators
+    # Technical attack patterns and real-world indicators (Sourced from CISA/FBI)
     # -------------------------------------------------------------
     threat_data = [
         {
             "category": "threat_definition",
-            "content": "Business Email Compromise (BEC): An attacker spoofs or compromises an executive's email account to request fraudulent wire transfers. Indicators include high urgency, demands for secrecy, and sudden changes in payment details.",
-            "metadata": {"source": "FBI IC3 Report 2025"}
+            "content": "Business Email Compromise (BEC): An attacker spoofs or compromises an executive's email account to request fraudulent wire transfers or W-2 information. Indicators include high urgency, demands for secrecy, and sudden changes in payment details.",
+            "metadata": {"source": "FBI IC3 Report 2025", "url": "ic3.gov/AnnualReport"}
         },
         {
             "category": "attack_pattern",
-            "content": "MFA Fatigue / Prompt Bombing: Attackers spam a user with Multi-Factor Authentication push notifications in the middle of the night, hoping the user approves it just to stop the noise.",
+            "content": "Spear-Phishing: Highly targeted phishing attempts that use personalized information (e.g., referencing a recent company event or an employee's specific role) to trick the victim into clicking a malicious link or downloading malware.",
+            "metadata": {"source": "CISA Phishing Guidance", "url": "cisa.gov/stopransomware"}
+        },
+        {
+            "category": "attack_pattern",
+            "content": "MFA Fatigue / Prompt Bombing: Attackers spam a user with Multi-Factor Authentication push notifications in the middle of the night, hoping the user approves it out of frustration just to stop the noise.",
             "metadata": {"source": "CISA Advisory"}
         }
     ]
 
     # -------------------------------------------------------------
     # 3. CYBER TRAINING (For the Coach Agent)
-    # Pedagogical approaches and behavioral correction
+    # Pedagogical approaches and behavioral correction (Sourced from CISA/NIST)
     # -------------------------------------------------------------
     training_data = [
         {
             "category": "best_practice",
-            "content": "When dealing with 'urgency' signals in emails, the best defense is to 'Slow Down'. Attackers use artificial urgency to bypass logical thinking.",
+            "content": "CISA 'Recognize, Resist, Delete' Framework: Recognize red flags like urgent/threatening language. Resist the urge to click links or download attachments; always verify out-of-band. Delete the suspicious email immediately without replying or clicking 'unsubscribe'.",
+            "metadata": {"source": "CISA Secure Our World Initiative"}
+        },
+        {
+            "category": "best_practice",
+            "content": "When dealing with 'urgency' signals in emails, the best defense is to 'Slow Down'. Attackers use artificial urgency to bypass logical thinking and force immediate action.",
             "metadata": {"source": "SANS Security Awareness"}
         },
         {
             "category": "behavioral_guidance",
-            "content": "If a user falls for a phishing simulation, do not shame them. Explain *why* the lure worked (e.g., 'The attacker used authority to make you nervous') and show them the exact missing clue.",
+            "content": "If a user falls for a phishing simulation, do not shame them. Explain *why* the lure worked (e.g., 'The attacker used authority to make you nervous') and show them the exact missing clue. Focus on positive reinforcement.",
             "metadata": {"source": "NIST SP 800-50"}
+        },
+        {
+            "category": "behavioral_guidance",
+            "content": "Do not simply label user actions as 'wrong'. If a user attempted verification but used the wrong channel (e.g. replying to the scammer), praise the instinct to verify but correct the execution.",
+            "metadata": {"source": "CyberGuard Pedagogical Guidelines"}
         }
     ]
 
