@@ -1,0 +1,102 @@
+[
+  {
+    "category": "threat_definition",
+    "content": "Business Email Compromise (BEC) is a sophisticated scam that targets organisations that regularly perform wire transfers. Attackers either spoof or compromise an executive's email account and use it to request fraudulent fund transfers. Key indicators: high urgency, demands for secrecy, unexpected changes to payment details, and sender domain that looks similar but differs slightly from the real one.",
+    "metadata": {
+      "source": "FBI IC3 Annual Report 2025",
+      "url": "https://ic3.gov/AnnualReport",
+      "attack_type": "BEC",
+      "extracted_by": "manual"
+    }
+  },
+  {
+    "category": "incident_report",
+    "content": "Business Email Compromise caused over $3.04 billion in losses in 2024 — the highest of any single cybercrime category tracked by the FBI IC3. Losses from all cybercrime combined exceeded $20 billion in 2025. BEC disproportionately targets the finance, legal, and real estate sectors due to their regular handling of large wire transfers.",
+    "metadata": {
+      "source": "FBI IC3 Annual Report 2025",
+      "url": "https://ic3.gov/AnnualReport",
+      "attack_type": "BEC",
+      "extracted_by": "manual"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Spear-Phishing via Email (MITRE ATT&CK T1566.001): Attackers send highly personalised phishing emails that reference specific information about the victim — their manager's name, a recent company event, or their job title. This targeted approach significantly raises the probability of success compared to mass phishing campaigns. The goal is typically credential theft or malware delivery via malicious attachment or link.",
+    "metadata": {
+      "source": "MITRE ATT&CK T1566.001",
+      "url": "https://attack.mitre.org/techniques/T1566/001/",
+      "attack_type": "Spear-Phishing",
+      "extracted_by": "manual"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "MFA Fatigue (Push Bombing): After obtaining a valid username and password, attackers repeatedly send MFA push notification requests — often in the middle of the night — hoping the victim approves one out of frustration or confusion. This technique bypasses MFA without needing to steal the OTP. It was used in the 2022 Uber breach and by the Lapsus$ threat group. Mitigation: configure MFA to require number matching rather than simple push approval.",
+    "metadata": {
+      "source": "CISA Advisory AA22-119A + Verizon DBIR 2025",
+      "url": "https://cisa.gov/news-events/cybersecurity-advisories/aa22-119a",
+      "attack_type": "MFA Fatigue",
+      "extracted_by": "manual"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "Vishing (Voice Phishing) is a social engineering attack conducted over a phone call. Attackers impersonate IT helpdesk staff, bank fraud teams, or government officials to extract credentials, one-time passwords, or sensitive information. Red flags: unsolicited inbound call, high urgency, caller insists you act immediately, caller refuses to let you hang up and verify via official contact number.",
+    "metadata": {
+      "source": "NCSC UK — Phishing Guidance 2025",
+      "url": "https://www.ncsc.gov.uk/guidance/phishing",
+      "attack_type": "Vishing",
+      "extracted_by": "manual"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "Smishing (SMS Phishing) is a phishing attack delivered via text message. Attackers impersonate banks, delivery companies, or government agencies with messages containing malicious links. The link leads to a fake login page or triggers a malware download. Red flags: unexpected text from an unknown number, urgent call to action (e.g., 'your package could not be delivered'), shortened or suspicious URL.",
+    "metadata": {
+      "source": "CISA Phishing Guidance 2025",
+      "url": "https://www.cisa.gov/phishing",
+      "attack_type": "Smishing",
+      "extracted_by": "manual"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Pretexting is a social engineering technique where the attacker creates a fabricated scenario (a 'pretext') to manipulate the victim into providing information or performing an action. Common pretexts include impersonating IT support requesting remote access, HR requesting payroll information for an audit, or a vendor requesting invoice banking detail updates. Verizon DBIR 2025 identifies pretexting as involved in 89% of social engineering breaches.",
+    "metadata": {
+      "source": "Verizon DBIR 2025 — Social Engineering Chapter",
+      "url": "https://verizon.com/business/resources/reports/dbir",
+      "attack_type": "Pretexting",
+      "extracted_by": "manual"
+    }
+  },
+  {
+    "category": "incident_report",
+    "content": "The human element was involved in approximately 60% of all data breaches analysed in the Verizon DBIR 2025. Social engineering attacks — primarily phishing and pretexting — accounted for the majority of human-element incidents. Security awareness training that includes simulated phishing exercises has been shown to increase employee reporting rates of real phishing attempts by four times.",
+    "metadata": {
+      "source": "Verizon DBIR 2025",
+      "url": "https://verizon.com/business/resources/reports/dbir",
+      "attack_type": "General",
+      "extracted_by": "manual"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Display Name Spoofing: An attacker sets the display name of their email to match a trusted person (e.g., 'David Chen — CEO') while using a completely different sending email address (e.g., attacker@gmail.com). On mobile clients that hide the email address, recipients see only the display name and are deceived. This is a core BEC technique. Defence: always expand the sender field to verify the actual email address.",
+    "metadata": {
+      "source": "NCSC UK — Email Security Guidance",
+      "url": "https://www.ncsc.gov.uk/guidance/email-security-and-anti-spoofing",
+      "attack_type": "BEC / Spoofing",
+      "extracted_by": "manual"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Credential Harvesting via Fake Login Pages: Attackers clone the login page of a corporate application (Microsoft 365, Google Workspace, banking portals) and host it on a lookalike domain. The victim is directed to this page via a phishing email link. When they enter credentials, the attacker captures them in real-time and immediately uses them to log in to the legitimate service. MITRE technique T1056.003.",
+    "metadata": {
+      "source": "CISA + MITRE ATT&CK T1056.003",
+      "url": "https://attack.mitre.org/techniques/T1056/003/",
+      "attack_type": "Credential Harvesting",
+      "extracted_by": "manual"
+    }
+  }
+]
