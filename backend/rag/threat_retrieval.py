@@ -4,8 +4,12 @@ from supabase import create_client, Client
 from openai import OpenAI
 from typing import List, Dict, Any
 
-# Load .env from project root (backend directory is subdirectory)
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
+# Load .env from project root (go up 3 levels from backend/rag/ to project root)
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+env_path = os.path.join(project_root, '.env')
+print(f"Loading .env from: {env_path}")
+print(f".env exists: {os.path.exists(env_path)}")
+load_dotenv(env_path)
 
 class ThreatRetriever:
     """Retrieves relevant threat knowledge from the cyber_threats knowledge base using RAG."""
