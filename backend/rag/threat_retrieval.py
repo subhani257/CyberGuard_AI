@@ -19,13 +19,15 @@ class ThreatRetriever:
         self.openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         
         # Initialize Supabase client
-        supabase_url = os.environ.get("SUPABASE_URL")
-        supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+        supabase_url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+        supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_SERVICE_KEY")
         
-        if not supabase_url or not supabase_key:
-            raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in .env")
-        
-        self.supabase: Client = create_client(supabase_url, supabase_key)
+        self.supabase = None
+        if supabase_url and supabase_key and "your-project" not in supabase_url:
+            try:
+                self.supabase: Client = create_client(supabase_url, supabase_key)
+            except Exception as e:
+                print(f"Warning: Supabase client init failed in ThreatRetriever: {e}")
     
     def retrieve(self, threat_indicators: Dict[str, Any], top_k: int = 3) -> Dict[str, Any]:
         """

@@ -48,7 +48,7 @@ export default function LandingPage() {
             <span className="text-xl leading-none font-light text-cyan opacity-80 group-hover:opacity-100 transition-opacity">◉</span>
             <span className="font-semibold text-lg tracking-tight">CyberGuard AI</span>
           </Link>
-          <Link href="/dashboard" className="text-sm font-medium text-muted hover:text-primary transition-colors tracking-wide">
+          <Link href="/login" className="text-sm font-medium text-muted hover:text-primary transition-colors tracking-wide">
             Sign in
           </Link>
         </div>
