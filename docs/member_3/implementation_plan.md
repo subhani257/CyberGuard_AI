@@ -1,761 +1,458 @@
-# MEMBER 3 IMPLEMENTATION PLAN
+# 👤 Member 3 Implementation Plan — Adaptive Training & User Security
 
-## 1. Project Analysis: What the Current Workspace Already Implements
-
-The current project is a FastAPI + Next.js cybersecurity training platform with a Supabase/PostgreSQL backend. The implemented code shows three major visible modules already in place:
-
-- `backend/main.py`
-  - FastAPI application entry point.
-  - Includes two routers:
-    - `api.scenario_routes`
-    - `api.evaluation_routes`
-  - No auth router or middleware is currently included.
-
-- `backend/api/scenario_routes.py`
-  - Exposes `POST /api/generate-scenario`
-  - Accepts `user_id`, `role`, and `difficulty`
-  - Calls `get_org_context()`, sanitizes text, calls AI scenario generator, returns scenario JSON.
-  - This is clearly part of Member 1’s scenario-generation pipeline.
-
-- `backend/api/evaluation_routes.py`
-  - Exposes `POST /api/agents/evaluate`
-  - Loads scenario content from Supabase `scenarios`
-  - Runs threat extraction, safe behavior analysis, RAG lookup, reasoning classification, and evaluation
-  - Saves results into `public.decisions`
-  - This is clearly part of Member 2’s evaluation pipeline.
-
-- `backend/agents/scenario_agent.py`
-  - Uses OpenAI API to create scenario JSON with `scenario_text`, `choices`, and `threat_type`.
-  - This is a scenario-generation AI agent.
-
-- `backend/agents/security_analysis.py`
-  - Contains safe-behavior mapping for threat types such as:
-    - `spoofed_domains`
-    - `financial_requests`
-    - `urgency_indicators`
-    - `authority_abuse`
-    - `suspicious_urls`
-    - `attachment_requests`
-
-- `backend/agents/evaluation_agent.py`
-  - Contains scoring logic, safety thresholds, and LLM-based evaluation output.
-  - Uses `OpenAI_API_KEY` and returns a structured evaluation payload with scores and human review flagging.
-
-- `backend/nlp/ner.py`
-  - Contains `sanitize_input()` for masking entities.
-  - This is clearly Member 1’s input sanitization work.
-
-- `backend/rag/retrieval.py`
-  - Contains mock role-based retrieval logic for org context.
-  - This is Member 1’s retrieval/knowledge-layer work.
-
-- `backend/rag/threat_retrieval.py`
-  - Implements retrieval from `cyber_threats` with Supabase vector search.
-  - This belongs to Member 2.
-
-- Existing frontend pages:
-  - `frontend/app/page.tsx` — landing page
-  - `frontend/app/dashboard/page.tsx` — dashboard UI
-  - `frontend/app/scenario/page.tsx` — scenario challenge flow
-  - `frontend/app/evaluation/page.tsx` — evaluation/results flow
-  - `frontend/app/admin/page.tsx` — admin review console mock UI
-
-The current project is not yet implementing authentication or authorization:
-- No `login`, `register`, `logout`, `JWT`, `Bearer`, or middleware code exists in the workspace.
-- `Depends` is imported in `backend/api/evaluation_routes.py` but not used.
-- `backend/database/schema.sql` includes RLS policies using `auth.uid()`, which indicates the intended architecture expects authenticated Supabase users, but the actual auth layer is not implemented yet.
-- `docs/README.md` and `docs/TECH_STACK.md` explicitly say:
-  - “Auth: JWT / managed authentication”
-  - “Supabase Auth (handles login, JWT tokens, and Row Level Security for data isolation).”
-- That means Member 3 should implement the missing auth layer aligned with the project’s existing architecture, not invent a separate custom stack.
+> **Official Project Implementation Plan — CyberGuard AI**  
+> **Author:** Member 3  
+> **Specification Standard:** 100% Compliant with [3-Member Balanced Contribution Model](../../docs/3-Member%20Balanced%20Contribution%20Model.pdf)  
+> **Core Identity for the Viva:**  
+> *"I build the system that converts the user's weaknesses into personalized training and secures the platform end-to-end."*
 
 ---
 
-## 2. Member 3 Core Responsibility
+## 🧭 Executive Summary & Balanced Model Alignment
 
-### Member 3 Core Responsibility
+In accordance with the **3-Member Balanced Contribution Model**, every team member builds one complete functional slice of the system from end-to-end:
+$$\text{Each Member} = \text{1 Agent} + \text{NLP/IR Work} + \text{API Integration} + \text{Security} + \text{UI} + \text{Testing} + \text{Documentation}$$
 
-Member 3 owns the authentication and authorization layer for the platform. In the current project, this is the missing but required security foundation. The project documentation names this as:
+This implementation plan establishes Member 3's complete domain: **Adaptive Training & User Security**. It closes the critical multi-agent feedback loop by ingesting evaluation scores from Member 2, retrieving authoritative NIST/SANS remediation guidance, generating personalized coaching insights using a **Training Coach Agent**, updating the learner's longitudinal profile, and securing the entire application with Supabase Auth and Role-Based Access Control (RBAC).
 
-- “Adaptive Training & User Security”
-- “Auth, RBAC, data protection”
-- “Secure login & role-based dashboards”
-- “Authentication (JWT/session-based)”
-- “Role-Based Access Control (Learner / Trainer / Admin)”
+```mermaid
+flowchart TD
+    subgraph M1 ["Member 1: Scenario Pipeline"]
+        SA[Scenario Agent\nGroq / Llama-3] --> |Scenario JSON| SC[Scenario UI]
+    end
 
-This means Member 3 must own:
-- User identity verification
-- Secure login flow
-- JWT/session handling
-- Protected API routes
-- Role-based authorization
-- Protected frontend routes/pages
-- Security hardening for tokens, secrets, and access enforcement
+    subgraph M2 ["Member 2: Evaluation Pipeline"]
+        SC --> |Decision + Reasoning| EA[Evaluation Agent\nOpenAI / GPT-4o]
+        EA --> |Evaluation JSON\nScore + Weaknesses| CA
+    end
 
-What Member 3 must implement:
-- Login endpoint(s) for user authentication
-- Session/token validation for protected API routes
-- Role checks for protected endpoints
-- Integration with Supabase Auth and/or JWT validation
-- Frontend authentication state and route protection
-- Security policies and error handling for unauthorized or invalid sessions
+    subgraph M3 ["Member 3: Adaptive Training & Security Pipeline"]
+        CA[Training Coach Agent\nLLM + Adaptive Logic]
+        SUM[NLP Weakness Summarizer\nCognitive Profiling] --> CA
+        TR[Training RAG\npgvector / cyber_training] --> CA
+        CA --> |Updates Profile| ULP[(user_learning_profile)]
+        CA --> |Coaching + Next Path| UD[User Dashboard\nNext Challenge & Visualizer]
+        AUTH[Auth & RBAC Middleware\nSupabase JWT] -. Secures .-> M1
+        AUTH -. Secures .-> M2
+        AUTH -. Secures .-> M3
+    end
 
-What Member 3 should reuse:
-- `public.users` table from `backend/database/schema.sql`
-- `public.user_learning_profile` and `public.agent_audit_logs`
-- Supabase Auth as the intended managed authentication system
-- Existing FastAPI app structure in `backend/main.py`
-- Existing Next.js app structure under `frontend/app`
-- Existing RLS assumptions already described in the database schema
-
-What is outside Member 3’s responsibility:
-- Scenario generation is Member 1
-- Threat extraction and evaluation scoring are Member 2
-- AI scenario creation, threat intelligence retrieval, and decision evaluation logic remain outside Member 3’s scope
-- Member 3 does not redesign the training engine or scenario/decision logic
-
-Dependencies on Member 1:
-- Member 3 must protect scenario-generation endpoints and user-facing scenario pages if they are intended to be authenticated
-- Member 3 must align user identity with `users.role` and any role metadata used by scenarios
-
-Dependencies on Member 2:
-- Member 2’s `POST /api/agents/evaluate` endpoint should be protected and should reject unauthenticated users
-- Member 2’s decision records must be associated with the authenticated user and not accepted from a different user
-- Member 2 should reuse Member 3’s auth middleware for checks
-
-Integration points with the final system:
-- Frontend login -> token/session -> protected dashboard
-- Protected scenario pages and evaluation endpoints
-- Authenticated user context used by scenario generation and adaptive training
-- Admin-only review pages and privileged actions
+    UD -. Loops Back .-> SA
+```
 
 ---
 
-## 3. Review of Member 1 and Member 2 Work
+## 📊 Cross-Check Verification Matrix
 
-### Components already implemented by Member 1
-From the docs and code:
-- `backend/agents/scenario_agent.py`
-- `backend/nlp/ner.py`
-- `backend/rag/retrieval.py`
-- `backend/api/scenario_routes.py`
-- `frontend/app/scenario/page.tsx`
-- `frontend/components/ScenarioCard.tsx` is referenced in docs but not yet visible in the actual workspace; the actual page is the scenario flow in `frontend/app/scenario/page.tsx`
-
-Member 1 owns:
-- Scenario generation
-- PII masking/sanitization
-- Organizational context retrieval
-- Scenario UI
-- Input sanitization for AI prompts
-
-### Components already implemented by Member 2
-From the code:
-- `backend/nlp/threat_extractor.py`
-- `backend/nlp/classifier.py`
-- `backend/agents/security_analysis.py`
-- `backend/agents/evaluation_agent.py`
-- `backend/rag/threat_retrieval.py`
-- `backend/api/evaluation_routes.py`
-- `frontend/app/evaluation/page.tsx`
-- `frontend/app/admin/page.tsx` is a review dashboard for ambiguous decisions and likely belongs to the higher-level evaluation/admin flow
-
-Member 2 owns:
-- Threat extraction
-- Security-analysis rules
-- Reasoning classification
-- Score generation
-- Evaluation API
-- Admin review flow
-
-### Shared database tables/models already in use
-From `backend/database/schema.sql` and `seed.sql`:
-- `public.users`
-- `public.scenarios`
-- `public.decisions`
-- `public.org_knowledge`
-- `public.cyber_threats`
-- `public.cyber_training`
-- `public.user_learning_profile`
-- `public.agent_audit_logs`
-
-### Existing security/sanitization mechanisms
-- `sanitize_input()` in `backend/nlp/ner.py`
-- RLS policies in `backend/database/schema.sql`
-- Service role use for backend RAG operations
-- Prompt restrictions in AI scripts
-
-### Existing authentication or JWT verification
-- There is no real auth middleware or JWT verifier in the current workspace.
-- `auth.uid()` is referenced only in SQL RLS, which shows the intended architecture but not the actual Python auth layer.
-
-This means Member 3 must create the missing auth layer without duplicating Member 1 or Member 2 functionality.
+| Architecture Area | 3-Member Balanced Model Mandate | Member 3 Implementation Deliverables | File / Artifact Reference |
+| :--- | :--- | :--- | :--- |
+| **1. AI / Agent** | **Training Coach Agent (`CoachAgent`)**<br>• Adaptive recommendation logic<br>• Next-scenario difficulty & topic selection<br>• Structured LLM prompt & response control | • `CoachAgent` class implementing multi-metric adaptive scoring<br>• Dynamic difficulty scaling (Beginner → Intermediate → Advanced)<br>• Structured JSON feedback generation | [backend/agents/coach_agent.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/agents/coach_agent.py) |
+| **2. NLP Layer** | **NLP Summarization**<br>• Summarize user weaknesses across past decisions<br>• Identify recurring vulnerability patterns<br>• Generate concise cognitive feedback | • Extractive & abstractive weakness summarization<br>• Synthesize decision history to identify bias traps (e.g., *urgency*, *authority bias*) | [backend/nlp/summarizer.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/nlp/summarizer.py)<br>*(See [NLP Differentiation Analysis](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/docs/member_3/NLP_DIFFERENTIATION.md))* |
+| **3. Information Retrieval (IR / RAG)** | **Training Knowledge RAG**<br>• Retrieve NIST SP 800-50 & SANS training materials<br>• Connect identified weaknesses to educational remediation | • Vector similarity search on `public.cyber_training`<br>• Top-k semantic retrieval using `pgvector` & SentenceTransformers | [backend/rag/training_retrieval.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/rag/training_retrieval.py) |
+| **4. Security Layer** | **Authentication + RBAC + User Data Protection**<br>• Secure token verification (JWT)<br>• Role separation (Learner / Trainer / Admin)<br>• Row Level Security (RLS) enforcement | • Supabase Auth JWT validation middleware<br>• Strict separation of `users.role` (job) vs `users.access_role` (RBAC)<br>• Route-level authorization guards for FastAPI & Next.js | [backend/api/auth_routes.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/api/auth_routes.py)<br>[backend/security/auth_bearer.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/security/auth_bearer.py) |
+| **5. Agent Communication** | **REST API + JSON Inter-Agent Protocol**<br>• Ingest Member 2 evaluation payload<br>• Output coaching feedback & next scenario params | • `POST /api/coach/process-decision`<br>• Ingests `{scenario_id, score, weaknesses, threat_type}`<br>• Emits `{feedback, recommended_topic, next_difficulty}` | [backend/api/coach_routes.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/api/coach_routes.py) |
+| **6. Database Ownership** | **User State & Knowledge Tables**<br>• `public.user_learning_profile`<br>• `public.cyber_training`<br>• `public.users` (auth & progress) | • Full CRUD & update pipeline on `user_learning_profile`<br>• Vector embeddings index on `cyber_training`<br>• Auth audit logging in `agent_audit_logs` | [backend/database/schema.sql](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/database/schema.sql) |
+| **7. Frontend Application** | **User Dashboard & Auth UI**<br>• Interactive progress & radar visualization<br>• Personalized next challenge launcher<br>• Login & session management UI | • Dynamic Next.js dashboard connecting to Coach API<br>• Weakness breakdown bars (Phishing, BEC, Urgency)<br>• Login/Logout flow with token persistence | [frontend/app/dashboard/page.tsx](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/frontend/app/dashboard/page.tsx)<br>[frontend/app/login/page.tsx](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/frontend/app/login/page.tsx) |
+| **8. Testing Suite** | **Testing & Validation**<br>• Auth & RBAC access tests<br>• Coach Agent adaptive logic tests<br>• Vector retrieval tests | • Pytest test suite covering authentication, token tampering, RBAC privilege escalation, adaptive scoring, and RAG retrieval | [backend/tests/test_auth_routes.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/tests/test_auth_routes.py)<br>[backend/tests/test_coach_agent.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/tests/test_coach_agent.py) |
+| **9. Responsible AI** | **Privacy & Transparency**<br>• Explainable training recommendations<br>• Learner performance data isolation | • Transparent algorithmic justification for difficulty adjustments<br>• Supabase RLS policies preventing cross-user data leakage | [docs/RESPONSIBLE_AI_PLAN.md](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/docs/RESPONSIBLE_AI_PLAN.md) |
 
 ---
 
-## 4. Database Architecture and Member 3 Impact
+## 🛠️ Member 3 Tech Stack Focus
 
-### Actual database architecture already present
-The schema already defines:
-- `public.users`
-- `public.scenarios`
-- `public.decisions`
-- `public.org_knowledge`
-- `public.cyber_threats`
-- `public.cyber_training`
-- `public.user_learning_profile`
-- `public.agent_audit_logs`
-
-The important point: the current schema uses `users.role` as a text field and clearly stores a user’s job role like “Finance Manager” or “HR Officer”, which is different from system access role such as “learner”, “trainer”, or “admin”.
-
-### What Member 3 needs to use
-Member 3 should rely on:
-- `public.users.id` as the user identity key
-- `public.users.email` for login identity
-- `public.users.full_name` for display
-- `public.users.role` for business/role-based personalization
-- `public.user_learning_profile.user_id` for adaptive learning association
-- `public.agent_audit_logs` for auth/audit logging
-
-### Minimal database changes required for Member 3
-The project already implies Supabase Auth usage, so the best fit is to avoid creating a custom auth schema unless absolutely necessary.
-
-Recommended minimal change:
-| Table | Column | Data type | Relationship | Purpose | Why Member 3 needs it |
-|---|---|---|---|---|---|
-| `public.users` | `access_role` | `TEXT` | Same row as user | Stores access level: `learner`, `trainer`, `admin` | Allows RBAC without redefining the user profile table |
-| `public.users` | `is_active` | `BOOLEAN` | Same row as user | Tracks whether the account is enabled | Prevents disabled users from logging in |
-| `public.users` | `last_login_at` | `TIMESTAMP WITH TIME ZONE` | Same row as user | Records latest successful login | Useful for audit and security review |
-
-Why no large auth schema:
-- `docs/TECH_STACK.md` explicitly states that Supabase Auth manages login, JWT, and RLS.
-- The current workspace does not contain a custom custom-auth database design.
-- Adding custom tables like `refresh_tokens` or `user_sessions` would be unnecessary unless the project deliberately rejects Supabase Auth.
-
-Important design distinction:
-- `users.role` = business role / scenario target role (e.g., Finance Manager)
-- `users.access_role` = system access/authorization role (e.g., learner, trainer, admin)
-
-This distinction is required so that Member 3 can protect system access without breaking Member 1/2 scenario personalization.
+* **LLM Engine:** OpenAI API (`gpt-4o-mini` / `gpt-4o`) — Structured JSON generation for coaching guidance and pedagogical feedback.
+* **NLP Processing:** `spaCy` (`en_core_web_sm`) / Extractive Frequency Synthesizer for weakness summarization across past training attempts.
+* **Information Retrieval (RAG):** Supabase `pgvector` with SentenceTransformers (`all-MiniLM-L6-v2` / OpenAI `text-embedding-3-small`) querying `public.cyber_training`.
+* **Security & Auth:** Supabase Auth (managed JWT tokens), FastAPI HTTPBearer dependency injection, PBKDF2/Argon2 password safeguards, and PostgreSQL Row-Level Security (RLS).
+* **Backend Framework:** FastAPI with Pydantic v2 schemas and asynchronous database interaction via `supabase-py`.
+* **Frontend Framework:** Next.js 14 (App Router), TailwindCSS, Framer Motion for dashboard telemetry and journey visualization.
 
 ---
 
-## 5. Final System Architecture and Member 3 Placement
+## 📋 Comprehensive Step-by-Step Implementation Plan
 
-The final architecture should be:
-
-Frontend
-↓
-Authentication / session handling
-↓
-Backend API
-↓
-Supabase Auth / PostgreSQL / RLS
-↓
-Scenario generation / evaluation / adaptive learning modules
-
-Current actual architecture:
-- Frontend: Next.js pages under `frontend/app`
-- Backend: FastAPI routers in `backend/api`
-- Database: Supabase/PostgreSQL tables in `backend/database`
-- AI modules:
-  - scenario generation (Member 1)
-  - evaluation/threat analysis (Member 2)
-  - adaptive training/coach logic (not yet implemented in visible code, but represented in docs as part of the system)
-
-Member 3 sits between the end user and the rest of the system:
-- validates identity
-- determines access rights
-- grants access to routes
-- ensures protected routes use authenticated user identity
-- provides the user context required by the other modules
-
-Example flow:
-- User opens app
-- Frontend checks auth state
-- If unauthenticated, redirect to login
-- Login uses Supabase Auth or backend JWT exchange
-- Session token is attached to every request
-- API route checks auth
-- Route checks RBAC
-- Then calls scenario/evaluation service
-- Database queries enforce user-level access or admin access through RLS
+```mermaid
+gantt
+    title Member 3 Implementation Timeline
+    dateFormat  YYYY-MM-DD
+    section Phase 1: Security & Auth
+    Define RBAC & User Model       :p1_1, 2026-09-10, 2d
+    Build JWT Auth & Middleware     :p1_2, after p1_1, 3d
+    Protect Scenario & Eval Routes  :p1_3, after p1_2, 2d
+    section Phase 2: RAG & NLP
+    Implement cyber_training RAG    :p2_1, after p1_3, 3d
+    Build NLP Weakness Summarizer  :p2_2, after p2_1, 2d
+    section Phase 3: Coach Agent & API
+    Build Training Coach Agent     :p3_1, after p2_2, 3d
+    Expose Coach API Endpoints      :p3_2, after p3_1, 2d
+    section Phase 4: Frontend & Tests
+    Build Login & Route Guards      :p4_1, after p3_2, 2d
+    Wire Dynamic User Dashboard    :p4_2, after p4_1, 3d
+    Automated Test Suite Execution  :p4_3, after p4_2, 2d
+```
 
 ---
 
-## 6. Authentication Plan
+### Phase 1: Authentication, RBAC & Security Infrastructure
 
-### Recommended approach
-Because the project already documents Supabase Auth and the database schema already references `auth.uid()`, Member 3 should use Supabase Auth as the primary authentication mechanism.
+#### Step 1.1: Database Schema Hardening for RBAC
+To protect the system without breaking Member 1's role-based scenario generator (which relies on `users.role` for job positions like "Finance Manager"), Member 3 separates **Business Role** from **System Access Role**.
 
-This is the most consistent with:
-- `docs/TECH_STACK.md`
-- `backend/database/schema.sql`
-- the project’s stated “managed authentication” stack
-- the existing database structure
+* **Target File:** [backend/database/schema.sql](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/database/schema.sql)
+* **Action:** Ensure `public.users` includes:
+  ```sql
+  ALTER TABLE public.users 
+  ADD COLUMN IF NOT EXISTS access_role TEXT DEFAULT 'learner' CHECK (access_role IN ('learner', 'trainer', 'admin')),
+  ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true,
+  ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP WITH TIME ZONE;
+  ```
+* **Row-Level Security (RLS) Rule:** Enforce that learners can only read their own profile and decisions (`auth.uid() = user_id`), while admins have oversight capabilities.
 
-### Authentication capabilities to implement
-Member 3 should implement:
-- User login
-- Token verification
-- Authenticated user identity resolution
-- Current-user extraction
-- Protected route enforcement
-- Logout/session termination
-- Invalid/expired token handling
+#### Step 1.2: Implement FastAPI Authentication Middleware & JWT Validator
+* **Target File:** `backend/security/auth_bearer.py` [NEW]
+* **Logic:**
+  1. Inspect `Authorization: Bearer <token>` on all incoming requests.
+  2. Verify cryptographic signature and expiration against Supabase Auth public keys / JWT secret.
+  3. Extract `sub` (user UUID) and query `public.users` to fetch active status and `access_role`.
+  4. Inject `CurrentUser(id, email, access_role, job_role)` into the FastAPI request dependency chain.
+  5. Raise HTTP `401 Unauthorized` for expired/tampered tokens, and HTTP `403 Forbidden` if an endpoint's required role is not satisfied.
 
-### Minimal auth flow
-1. Frontend submits credentials
-2. Backend or Supabase Auth verifies credentials
-3. Auth service returns access token and refresh token or Supabase session
-4. Frontend stores the token securely
-5. API requests include token in `Authorization` header
-6. Backend validates token and resolves user ID
-7. Auth context is available for downstream route logic
+#### Step 1.3: Build Authentication Endpoints
+* **Target File:** `backend/api/auth_routes.py` [NEW]
+* **Endpoints:**
+  * `POST /api/auth/login`: Accepts credentials, authenticates with Supabase Auth, logs audit event, and returns access/refresh tokens.
+  * `POST /api/auth/logout`: Revokes active session.
+  * `GET /api/auth/me`: Returns current user identity, system access role, and job profile.
+  * `POST /api/auth/refresh`: Issues a refreshed session token.
 
-### Login requirements
-For the current project, the required login should be:
-- email + password
-- optional username/email form if needed
-- fallback to Supabase Auth email/password flow
-
-### Password handling
-If using Supabase Auth:
-- Member 3 does not need to implement password hashing manually
-- Supabase Auth handles hashing and secure storage
-- project docs already anticipate managed auth; this is the correct fit
-
-### Token handling
-- Access token validation in backend
-- Token store managed by Supabase Auth
-- Refresh token handling if using a session-based flow
-- Expiration behavior and 401 errors on expired or missing tokens
-
-### Required auth-related failure cases
-- Missing token
-- Invalid token format
-- Expired token
-- User disabled / inactive
-- Wrong password
-- Account not found
-- Role mismatch / unauthorized
-
-### Auth-only database operations
-- Read current user from `public.users` using `auth.uid()`
-- Create or update profile metadata when user signs up
-- Log auth events in `public.agent_audit_logs`
-- Keep user’s access role consistent with login context
+#### Step 1.4: Protect Member 1 & Member 2 API Endpoints
+* **Target Files:** [backend/api/scenario_routes.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/api/scenario_routes.py), [backend/api/evaluation_routes.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/api/evaluation_routes.py)
+* **Integration:**
+  * Bind `current_user: CurrentUser = Depends(require_authenticated_user)` to both routes.
+  * In `/api/agents/evaluate`, replace untrusted request body `user_id` with `current_user.id` so a learner cannot submit evaluations or tamper with records belonging to other users.
 
 ---
 
-## 7. Authorization Plan
+### Phase 2: Information Retrieval (RAG) on `cyber_training`
 
-### Authentication = Who is the user?
-Authentication answers:
-- Is this user valid?
-- Who are they?
-- What identity is attached to this request?
+#### Step 2.1: Training Knowledge Base Vector Retrieval
+While Member 1 queries company workflows (`org_knowledge`) and Member 2 queries threat patterns (`cyber_threats`), Member 3 owns the **Training Guidance** knowledge base (`cyber_training`).
 
-### Authorization = What is this user allowed to do?
-Authorization answers:
-- Can this user access this route?
-- Can they access this dashboard?
-- Can they create scenarios?
-- Can they view admin review data?
-- Can they submit scenario evaluations?
-
-### Role model
-The project documentation describes:
-- Learner
-- Trainer
-- Admin
-
-However, the actual database currently stores a different `role` concept:
-- `users.role` is job role in scenarios, e.g. Finance Manager, HR Officer
-
-Therefore, Member 3 must separate:
-- business role used for scenario personalization
-- system access role used for admin/learner/trainer access
-
-### Recommended authorization design
-Use:
-- `access_role` for system authorization
-- `role` as scenario/business role
-
-Rules:
-- `learner`: access dashboard, scenario participation, evaluation submission
-- `trainer`: access learner analytics or scenario monitoring
-- `admin`: access admin review console, governance, escalation handling
-
-### Protected routes
-Member 3 should enforce:
-- Authenticated user required for `/dashboard`, `/scenario`, `/evaluation`
-- Role-gated access for admin-only paths
-- Protected API routes such as:
-  - scenario generation endpoints
-  - evaluation endpoints
-  - user profile and learning endpoints
-  - admin review functions
-
-### Unauthorized vs unauthenticated behavior
-- Missing token or invalid session = `401 Unauthorized`
-- Valid token but insufficient permissions = `403 Forbidden`
-- This should be clearly separated for both API and frontend
-
-### Preventing privilege escalation
-- Never trust client-provided role data
-- Resolve role from verified auth context only
-- Check role server-side for every protected action
-- Do not allow a learner to manually change role in request body
+* **Target File:** `backend/rag/training_retrieval.py` [NEW]
+* **Database Target:** `public.cyber_training` (schema defined in [schema.sql](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/database/schema.sql#L73-L83)).
+* **Logic:**
+  1. Receive identified weakness category (e.g., `urgency_bias`, `sender_spoofing`, `credential_harvesting`).
+  2. Compute vector embedding of the query using the shared embedding model (`text-embedding-3-small` or `all-MiniLM-L6-v2`).
+  3. Perform cosine similarity search via `pgvector`:
+     ```sql
+     SELECT content, category, source, metadata, 1 - (embedding <=> query_embedding) AS similarity
+     FROM public.cyber_training
+     WHERE category = :category OR 1 - (embedding <=> query_embedding) > 0.70
+     ORDER BY similarity DESC
+     LIMIT 3;
+     ```
+  4. Return authoritative NIST SP 800-50 and SANS training guidance to ground the Coach Agent's recommendations.
 
 ---
 
-## 8. Security Controls
+### Phase 3: NLP Weakness Summarization Layer
 
-Because Member 3 owns auth and authorization, the security plan should stay focused and practical.
+#### Step 3.1: Historical Decision Analysis & Weakness Profiling
+Every team member has a dedicated NLP responsibility:
+* Member 1: Named Entity Recognition & Input Sanitization ([backend/nlp/ner.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/nlp/ner.py))
+* Member 2: Text Classification for Reasoning ([backend/nlp/classifier.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/nlp/classifier.py))
+* **Member 3: Weakness Summarization & Trend Synthesis**
 
-Required controls:
-- Use Supabase Auth or equivalent secure token issuance
-- Store tokens in secure frontend storage or secure cookies, not insecure local variables
-- Validate every request server-side
-- Reject missing, expired, malformed, or rejected tokens
-- Use `Authorization: Bearer ...` headers consistently
-- Restrict access to protected endpoints with explicit role checks
-- Sanitize input on all user-auth endpoints
-- Rate-limit repeated login attempts if the project has a local custom auth implementation
-- Keep secrets in `.env` and do not hardcode JWT secrets
-- Do not expose sensitive auth errors to the frontend beyond generic messages
-- Log auth failures and successful authorization events in `agent_audit_logs` or a dedicated audit table if required
-- Keep admin-only routes off the public route tree
-
-Additional project-specific concerns:
-- The project stores sensitive employee/training data and threat intelligence in Supabase.
-- RLS is already intended for data isolation, so Member 3 must verify that auth context is correctly mapped to user identity before RLS is used.
-- Avoid client-side role checks as the only line of defense; they must be duplicated in the backend.
+* **Target File:** `backend/nlp/summarizer.py` [NEW] *(Detailed boundary comparison in [NLP Differentiation Analysis](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/docs/member_3/NLP_DIFFERENTIATION.md))*
+* **Logic:**
+  1. Fetch the user's last 5–10 decision records from `public.decisions`.
+  2. Parse the evaluated weaknesses, reasoning classifications, and errors.
+  3. Extract recurring linguistic and psychological patterns (e.g., *Authority Obedience*, *False Urgency*, *Omission of Verification*).
+  4. Generate a concise, human-readable summary of the learner's behavioral tendency:
+     > *"User consistently identifies spoofed domain names but exhibits vulnerability to urgent transfer requests from simulated executive authority figures."*
+  5. Pass this summary to the Coach Agent to prevent repetitive training on already mastered concepts.
 
 ---
 
-## 9. File-by-File Implementation Plan
+### Phase 4: Training Coach Agent & Adaptive Logic (AI Core)
 
-This is the actual file plan based on the real project structure.
+#### Step 4.1: The Training Coach Agent Implementation
+The Coach Agent is the central AI component of Member 3. It answers: *"What should this user learn next, and how do we guide them?"*
 
-### Likely actual files to modify/create
-| File | Purpose | Change required | Why | Depends on | Used by |
-|---|---|---|---|---|---|
-| `backend/main.py` | FastAPI application entry | Include auth router and middleware | Authentication must be in the main app pipeline | `backend/api/auth_routes.py` | Frontend and all protected routes |
-| `backend/api/auth_routes.py` | Authentication endpoints | Create login, logout, me, and token validation endpoints | Missing auth API layer | Existing FastAPI app and Supabase Auth | Frontend login flow |
-| `backend/database/schema.sql` | DB schema | Add/adjust role fields for access roles and optional auth metadata | Necessary for RBAC and user verification | Existing `public.users` table | Backend auth logic and RLS |
-| `backend/database/seed.sql` | Seed data | Add sample user accounts with access roles and metadata | Realistic auth testing | `public.users` schema | Local testing and demos |
-| `backend/tests/test_auth_routes.py` | Auth tests | Add login, missing token, invalid token, access control tests | Required to validate auth and authorization | `backend/api/auth_routes.py` | CI/test pipeline |
-| `frontend/app/login/page.tsx` | Frontend authentication UI | Create login form and redirect flow | No login page exists currently | Auth API | User users |
-| `frontend/app/dashboard/page.tsx` | User dashboard | Add auth state check and route protection | Current dashboard is mock UI with no auth logic | Auth state provider / token handling | End users |
-| `frontend/app/scenario/page.tsx` | Scenario page | Protect route, bind user to session | Scenario participation should be authenticated | Auth guard | Learner flow |
-| `frontend/app/evaluation/page.tsx` | Evaluation page | Protect route and require learner permission | Decision submission should be protected | Auth guard | User evaluation flow |
-| `frontend/app/admin/page.tsx` | Admin UI | Restrict access to admin role only | Admin review console should be protected | Auth + RBAC | Admins only |
-| `frontend/app/layout.tsx` | App-level shell | Add auth provider or layout guard if needed | Consistent auth state across the app | auth client state | All frontend pages |
+* **Target File:** `backend/agents/coach_agent.py` [NEW]
+* **Core Class:** `TrainingCoachAgent`
+* **Workflow:**
+  1. **Ingest Evaluation:** Reads Member 2's evaluation JSON (`score`, `threat_indicators`, `reasoning_category`, `is_safe`).
+  2. **Fetch History & Context:** Pulls NLP weakness summary and relevant NIST remediation guidance from `training_retrieval.py`.
+  3. **Adaptive Difficulty Scaling Engine:**
+     $$\text{Next Difficulty} = f(\text{Historical Average}, \text{Latest Score}, \text{Consecutive Safe Decisions})$$
+     * Score $< 50$: Lower difficulty or repeat current level with targeted foundational guidance.
+     * $50 \le \text{Score} < 80$: Maintain difficulty level; focus on specific vulnerability nuance.
+     * Score $\ge 80$: Escalate difficulty (e.g., `beginner` $\to$ `medium`, `medium` $\to$ `advanced-multi-stage`).
+  4. **LLM Coaching Generation:** Calls OpenAI with a prompt structured for constructive pedagogical feedback.
 
-### Files not required for Member 3
-These should remain owned by other members:
-- `backend/agents/scenario_agent.py`
-- `backend/agents/security_analysis.py`
-- `backend/agents/evaluation_agent.py`
-- `backend/nlp/threat_extractor.py`
-- `backend/nlp/classifier.py`
-- `backend/rag/threat_retrieval.py`
-- `backend/api/scenario_routes.py`
-- `backend/api/evaluation_routes.py`
+```python
+# backend/agents/coach_agent.py (Core Architecture)
 
-Member 3’s work should not duplicate or replace these.
+import json
+from typing import Dict, Any, List
+from openai import AsyncOpenAI
+from rag.training_retrieval import TrainingRetriever
+from nlp.summarizer import WeaknessSummarizer
 
----
+class TrainingCoachAgent:
+    def __init__(self, openai_client: AsyncOpenAI):
+        self.client = openai_client
+        self.retriever = TrainingRetriever()
+        self.summarizer = WeaknessSummarizer()
 
-## 10. API Design
+    def calculate_next_difficulty(self, recent_scores: List[int], current_diff: str) -> str:
+        avg_score = sum(recent_scores) / max(len(recent_scores), 1)
+        levels = ["beginner", "medium", "advanced"]
+        curr_idx = levels.index(current_diff.lower()) if current_diff.lower() in levels else 0
+        
+        if avg_score >= 80 and curr_idx < len(levels) - 1:
+            return levels[curr_idx + 1]
+        elif avg_score < 45 and curr_idx > 0:
+            return levels[curr_idx - 1]
+        return levels[curr_idx]
 
-### Authentication & authorization endpoints required by the project
+    async def generate_coaching(
+        self, 
+        user_id: str, 
+        evaluation_result: Dict[str, Any],
+        current_difficulty: str
+    ) -> Dict[str, Any]:
+        weaknesses = evaluation_result.get("weaknesses", [])
+        
+        # 1. RAG Retrieval from cyber_training
+        remediation_docs = await self.retriever.retrieve_guidance(weaknesses)
+        
+        # 2. NLP Weakness Summary
+        history_summary = await self.summarizer.summarize_user_tendencies(user_id)
+        
+        # 3. Adaptive Difficulty Calculation
+        next_difficulty = self.calculate_next_difficulty(
+            recent_scores=[evaluation_result.get("final_score", 50)],
+            current_diff=current_difficulty
+        )
 
-| Method | Endpoint | Purpose | Auth required? | Authz required? | Request data | Response data | Error responses | DB interaction |
-|---|---|---|---|---|---|---|---|---|
-| `POST` | `/api/auth/login` | Authenticate a user and return auth session/token | No | No | email, password | user info + token/session | 400 invalid input, 401 bad credentials | Validate credentials against Supabase Auth or backend auth provider |
-| `POST` | `/api/auth/logout` | End session | Yes | No | token/session identifier | success message | 401 invalid token, 400 malformed input | Invalidate session or revoke token |
-| `GET` | `/api/auth/me` | Return current authenticated user profile | Yes | No | none | user ID, email, full name, access role | 401 missing/invalid token | Read from `public.users` |
-| `POST` | `/api/auth/refresh` | Refresh existing session/token | Yes | No | refresh token | new access token/session | 401 invalid/expired refresh token | Token refresh via auth provider |
-| `GET` | `/api/admin/users` | Admin user listing if required | Yes | Admin | none | list of users | 403 forbidden, 401 unauthorized | Read from `public.users` |
-| `GET` | `/api/protected/profile` | Return user-specific data | Yes | Learner/Trainer/Admin | none | user profile data | 401, 403 | Query `public.users` and `public.user_learning_profile` |
+        # 4. LLM Generation
+        system_prompt = (
+            "You are the CyberGuard Training Coach Agent. Your mission is to provide constructive, "
+            "empowering, and actionable feedback based on cybersecurity standards (NIST SP 800-50). "
+            "Never mock the user. Explain the exact psychological trigger they missed and provide a 1-step rule."
+        )
+        
+        user_prompt = f"""
+        Evaluation Data: {json.dumps(evaluation_result)}
+        Historical Tendencies: {history_summary}
+        NIST Remediation Context: {remediation_docs}
+        
+        Output ONLY a JSON object with:
+        - "feedback": Concise 2-sentence coaching feedback
+        - "remediation_tip": A concrete actionable defense rule
+        - "recommended_topic": Next cybersecurity threat topic to address
+        - "next_difficulty": "{next_difficulty}"
+        - "reason_for_path": Why this training was selected
+        """
 
-### Protected existing endpoints that should be enforced
-The existing route from Member 2 should be protected:
-- `POST /api/agents/evaluate`
+        response = await self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.3
+        )
 
-This route should enforce:
-- valid authenticated user
-- optional learner-only access or role-appropriate access
-- user_id from auth context rather than a client-supplied value
-
-The scenario route should also be protected:
-- `POST /api/generate-scenario`
-
-Because it is user-specific and tied to a user profile and scenario history.
-
----
-
-## 11. Frontend Integration
-
-Member 3’s frontend work should not overlap with the AI modules built by Members 1 and 2.
-
-### Required frontend tasks
-- Create a login UI
-- Handle auth state and session persistence
-- Redirect unauthenticated users away from protected pages
-- Show role-based UI elements
-- Restrict admin UI visibility
-- Allow logout
-- Display clear auth-related errors
-- Prevent access to pages if the token is invalid or expired
-
-### Relevant existing frontend files
-- `frontend/app/page.tsx` — landing page currently uses “Sign in” link to `/dashboard`
-- `frontend/app/dashboard/page.tsx` — dashboard needs auth gating
-- `frontend/app/scenario/page.tsx` — protected scenario flow
-- `frontend/app/evaluation/page.tsx` — protected evaluation flow
-- `frontend/app/admin/page.tsx` — admin-only route
-
-### Frontend guard logic
-- If no valid session: redirect to login
-- If invalid session: show access error and prompt relogin
-- If user role is not allowed: show “Forbidden” or redirect to dashboard
-- Use a central auth store or helper rather than duplicating checks across pages
-
-### Important distinction
-- Frontend should not handle authorization by only hiding buttons; backend must enforce it.
-- UI protection is secondary, not primary security.
-
----
-
-## 12. Backend Integration
-
-Member 3 must integrate with the existing backend architecture without duplicating or overriding the work of other members.
-
-### Recommended integration model
-- Keep API auth responsibilities in `backend/api/auth_routes.py`
-- Use middleware or dependency injection for:
-  - token validation
-  - current user lookup
-  - role enforcement
-- Keep the logic separate from scenario generation and evaluation logic
-- Ensure any user-specific route uses `auth_context.user_id` instead of trusting a request parameter
-
-### Integration pattern
-1. Request comes in
-2. `Authorization` header is validated
-3. user identity is looked up from `public.users`
-4. authorized route check executes
-5. downstream Member 1/Member 2 service is called with the authenticated user context
-
-### Example usage for another member
-For Member 2’s evaluation endpoint:
-- the route should require auth
-- user identity is extracted from token
-- request must not rely on `user_id` from payload
-- evaluation is stored against the authenticated user, not arbitrary project data
-- a learner may evaluate their own actions; admin or trainer may review but not bypass core checks
-
-This creates secure boundaries between:
-- authentication infrastructure (Member 3)
-- decision evaluation logic (Member 2)
-- scenario generation and personalization (Member 1)
+        coaching_plan = json.loads(response.choices[0].message.content)
+        return coaching_plan
+```
 
 ---
 
-## 13. Testing Plan
+### Phase 5: Inter-Agent Communication & API Pipeline
 
-The current project has only a basic test for root health in `backend/tests/test_scenario_routes.py`. Member 3 must add authentication and authorization tests.
+#### Step 5.1: Coach Routes & Learning Profile Synchronization
+Connects Member 2's evaluation to Member 3's Coach Agent, and updates `public.user_learning_profile` for Member 1 to read.
 
-### Required test files
-- `backend/tests/test_auth_routes.py`
-- `backend/tests/test_auth_rbac.py`
-- Optional: extend `backend/tests/test_scenario_routes.py` to ensure protected scenario access
+* **Target File:** `backend/api/coach_routes.py` [NEW]
+* **Endpoint:** `POST /api/coach/process-decision`
+  * **Input:**
+    ```json
+    {
+      "scenario_id": "SC-102",
+      "score": 45,
+      "threat_type": "phishing",
+      "weaknesses": ["urgency_bias", "unverified_domain"]
+    }
+    ```
+  * **Processing:**
+    1. Authenticate user from JWT token (`auth.uid()`).
+    2. Invoke `TrainingCoachAgent.generate_coaching(...)`.
+    3. Persist coaching update into `public.user_learning_profile`:
+       ```sql
+       UPDATE public.user_learning_profile
+       SET next_difficulty = :next_difficulty,
+           next_focus = :recommended_topic,
+           tactic_to_target = :weakness,
+           updated_at = NOW()
+       WHERE user_id = :user_id;
+       ```
+    4. Record audit trail in `public.agent_audit_logs`.
+  * **Output:**
+    ```json
+    {
+      "feedback": "You recognized the strange sender address but acted quickly due to the artificial deadline.",
+      "remediation_tip": "When a financial request has an 'URGENT' tag, execute the two-channel verification protocol.",
+      "recommended_topic": "Urgency Indicators & BEC",
+      "next_difficulty": "medium",
+      "reason_for_path": "Focusing on urgency vulnerability identified across 2 consecutive sessions."
+    }
+    ```
 
-### Tests to include
-- successful login
-- incorrect password
-- invalid credentials
-- missing token
-- expired token
-- invalid token
-- protected endpoint access
-- correct role access
-- incorrect role access
-- privilege escalation attempts
-- unauthorized requests
-- input validation on login
-- password security behavior
-- logout/session invalidation if implemented
-- user profile retrieval using authenticated context
-
-### Test categories
-- Auth success path
-- Auth failure path
-- Role-check path
-- Security path
-- Regression path
-
----
-
-## 14. Git / Contribution Evidence
-
-Member 3 should keep work clearly separated and show a clean contribution trail.
-
-Recommended logical commits:
-- `feat(auth): add Supabase Auth integration and session validation`
-- `feat(auth): implement login and token verification endpoints`
-- `feat(auth): add current-user profile and logout flow`
-- `feat(rbac): enforce learner/trainer/admin access checks`
-- `feat(api): protect scenario and evaluation endpoints`
-- `feat(ui): add login and auth session handling in frontend`
-- `feat(security): harden auth errors and token validation`
-- `test(auth): add login, token, and RBAC test coverage`
-
-This gives a clear evidence trail without claiming work from Member 1 or Member 2.
+* **Target File:** `backend/api/coach_routes.py`
+* **Endpoint:** `GET /api/coach/dashboard-summary`
+  * Returns user's readiness score, weakness breakdown radar data (Phishing: 82%, BEC: 45%, Identity Verification: 38%), recent decision journey, and recommended next situation.
 
 ---
 
-## 15. Implementation Phases
+### Phase 6: Frontend Dashboard & Authentication Integration
 
-### Phase 1 – Authentication foundation
-Step 1: Audit current auth status and confirm intended provider  
-- Files: `backend/main.py`, `backend/database/schema.sql`, `docs/TECH_STACK.md`  
-- Purpose: confirm architecture must use Supabase Auth / JWT-managed auth  
-- Dependencies: existing DB and project documentation  
-- Expected output: auth approach approved  
-- Testing: confirm no conflicting auth implementation exists
+#### Step 6.1: Dedicated Login & Session Interface
+* **Target File:** `frontend/app/login/page.tsx` [NEW]
+* **Features:**
+  * Clean cyber-themed login form (Email & Password).
+  * Direct integration with Supabase Auth client (`supabase.auth.signInWithPassword`).
+  * Seamless token persistence in secure local storage or cookies.
+  * Role-based redirection (`learner` $\to$ `/dashboard`, `admin` $\to$ `/admin`).
 
-Step 2: Define auth contract and user identity model  
-- Files: `backend/database/schema.sql`, `backend/database/seed.sql`  
-- Purpose: decide how to represent access role vs business role  
-- Dependencies: DB architecture, docs, user roles  
-- Expected output: clear `access_role` design and user lookup logic  
-- Testing: SQL validation and role-mapping consistency
-
-### Phase 2 – User authentication
-Step 3: Build login endpoint  
-- Files: `backend/api/auth_routes.py`, `backend/main.py`  
-- Purpose: authenticate users and issue session/token  
-- Dependencies: auth provider, user table  
-- Expected output: login endpoint returning a valid session/token  
-- Testing: valid login, invalid credentials, locked users
-
-Step 4: Add current-user lookup and logout flow  
-- Files: `backend/api/auth_routes.py`  
-- Purpose: resolve the authenticated user and support session termination  
-- Dependencies: token verification  
-- Expected output: `/api/auth/me` and logout flow  
-- Testing: missing token, expired token, logout invalidation
-
-### Phase 3 – Authorization/RBAC
-Step 5: Define RBAC rules  
-- Files: `backend/database/schema.sql`, `backend/api/auth_routes.py`  
-- Purpose: map `learner`, `trainer`, `admin` to access permissions  
-- Dependencies: user metadata and access role  
-- Expected output: route-level role policy list  
-- Testing: correct-role and wrong-role access
-
-Step 6: Implement role-protected dependency logic  
-- Files: `backend/api/auth_routes.py` and later protected routes  
-- Purpose: verify access rules server-side  
-- Dependencies: auth validation  
-- Expected output: reusable auth/role dependency  
-- Testing: forbidden and unauthorized access responses
-
-### Phase 4 – Backend API protection
-Step 7: Protect existing user-facing endpoints  
-- Files: `backend/api/scenario_routes.py`, `backend/api/evaluation_routes.py`, `backend/main.py`  
-- Purpose: require existing behavior be accessible only to authenticated users  
-- Dependencies: auth middleware and RBAC  
-- Expected output: secured scenario and evaluation endpoints  
-- Testing: missing token, invalid token, learner/admin access scenarios
-
-### Phase 5 – Frontend integration
-Step 8: Implement login page and auth state  
-- Files: `frontend/app/login/page.tsx`, `frontend/app/layout.tsx`, `frontend/app/dashboard/page.tsx`  
-- Purpose: ensure user can log in and maintain session  
-- Dependencies: auth API and frontend state  
-- Expected output: secure login flow  
-- Testing: login success/failure, redirect behavior
-
-Step 9: Add route guards and role-based UI  
-- Files: `frontend/app/admin/page.tsx`, `frontend/app/scenario/page.tsx`, `frontend/app/evaluation/page.tsx`  
-- Purpose: protect pages based on auth and role  
-- Dependencies: auth state  
-- Expected output: restricted UI for unauthorized users  
-- Testing: unauthorized access to admin page and protected pages
-
-### Phase 6 – Security hardening
-Step 10: Harden secrets, token validation, and error handling  
-- Files: `.env` usage, auth route files, frontend auth logic  
-- Purpose: prevent token leakage and insecure auth behavior  
-- Dependencies: implemented auth flow  
-- Expected output: secure auth implementation  
-- Testing: invalid token, malicious or malformed headers, expired sessions
-
-### Phase 7 – Integration with Members 1 and 2
-Step 11: Integrate user identity with scenario and evaluation flows  
-- Files: `backend/api/scenario_routes.py`, `backend/api/evaluation_routes.py`, `backend/database/schema.sql`  
-- Purpose: tie each scenario/evaluation to the authenticated user  
-- Dependencies: auth and RBAC  
-- Expected output: protected and attributable user actions  
-- Testing: no cross-user access, consistent audit trails
-
-### Phase 8 – Testing and validation
-Step 12: Run auth and RBAC regression tests  
-- Files: `backend/tests/test_auth_routes.py`, `backend/tests/test_auth_rbac.py`  
-- Purpose: verify login, logout, token logic, and access control  
-- Dependencies: implemented auth flow  
-- Expected output: passing auth test suite  
-- Testing: full suite and manual review
+#### Step 6.2: Dynamic Learner Dashboard with Live Adaptive Feedback
+* **Target File:** [frontend/app/dashboard/page.tsx](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/frontend/app/dashboard/page.tsx)
+* **Transforming Existing Mock UI into Dynamic Reality:**
+  1. Replace static text (*"Good afternoon, Nimal"*, *"You're getting better at noticing when urgency..."*) with live data from `GET /api/coach/dashboard-summary`.
+  2. **Next Situation Card:** Displays the exact `recommended_topic` and `next_difficulty` chosen by the Coach Agent. The *"Enter situation"* button links to `/scenario` with preloaded query parameters.
+  3. **Decision Journey:** Renders historical decisions stored in `public.decisions` with chronological pulse indicators.
+  4. **Weakness Distribution Widget:** Displays user's real-time accuracy across threat vectors (Phishing, Social Engineering, Data Protection, Identity Verification).
+  5. **Auth Guards:** Checks session on mount; redirects to `/login` if unauthenticated.
 
 ---
 
-## 16. Member 3 vs Other Members
+### Phase 7: Responsible AI, Privacy & Security Controls
 
-| Area | Member 3 | Member 1 | Member 2 | Shared/Integration |
-|---|---|---|---|---|
-| Primary responsibility | Authentication and authorization | Scenario generation and personalization | Evaluation and security analysis | Shared user data and protected endpoints |
-| Main backend logic | Login, token validation, RBAC | Scenario generation route and agent | Evaluation route and scoring agent | User profile and role mapping |
-| Database ownership | `public.users` auth metadata and access roles | `public.scenarios` and org knowledge | `public.decisions` and threat tables | `public.user_learning_profile`, `public.agent_audit_logs` |
-| Frontend ownership | Login, session state, protected routes | Scenario UI | Evaluation/admin review UI | Shared dashboard |
-| Security responsibility | Auth, token validation, route protection | Input sanitization | API/agent security and scoring safeguards | RLS and audit logging |
-| Scope boundary | Identity and access control | AI scenario creation | AI decision scoring | Shared learning and platform user flow |
+* **Privacy & Isolation:** Enforce Supabase RLS so that no learner can view another learner's learning profile, score history, or coaching recommendations.
+* **Explainability (Transparency):** Every coaching recommendation provides the explicit `reason_for_path` so the learner understands why a specific topic or difficulty level was selected.
+* **Non-Punitive Coaching:** Prompts strictly forbid shaming language, focusing entirely on constructive skill building.
+* **Privilege Escalation Defense:** System access roles (`learner`, `trainer`, `admin`) are validated on the backend via cryptographic JWT claims and database lookup, preventing client-side parameter tampering.
 
 ---
 
-## 17. Viva / Contribution Explanation
+### Phase 8: Comprehensive Automated Testing Suite
 
-During the viva, Member 3 can explain contribution like this:
+#### Step 8.1: Auth & RBAC Test Suite
+* **Target File:** `backend/tests/test_auth_routes.py` [NEW]
+* **Coverage:**
+  * Valid login $\to$ 200 OK + JWT bearer token.
+  * Invalid password / nonexistent user $\to$ 401 Unauthorized.
+  * Tampered / expired JWT $\to$ 401 Unauthorized.
+  * Learner attempting to access admin route $\to$ 403 Forbidden.
+  * SQL injection and malformed input on login fields.
 
-- “I implemented the platform’s authentication and authorization layer.”
-- “The system uses secure identity verification rather than trusting client-side data.”
-- “Authentication answers who the user is; authorization answers what they are allowed to do.”
-- “I separated business role from access role to avoid mixing scenario personalization with user permissions.”
-- “Protected routes are enforced on the backend, not just hidden in the UI.”
-- “Supabase Auth is used because the project already documents managed authentication and RLS integration.”
-- “Passwords are handled by the auth provider; we do not reinvent password storage.”
-- “JWT/session validation ensures expired or invalid tokens are rejected.”
-- “My work protects Member 1 and Member 2 modules by ensuring only authenticated and authorized users can invoke their endpoints.”
-- “If a user has the wrong role, the API returns a 403 error and the frontend shows an access restriction.”
-- “I validated the work with login, token, and RBAC tests.”
+#### Step 8.2: Coach Agent & Adaptive Logic Test Suite
+* **Target File:** `backend/tests/test_coach_agent.py` [NEW]
+* **Coverage:**
+  * Deterministic difficulty progression (Consecutive high scores $\to$ difficulty escalation; low score $\to$ difficulty decrement).
+  * RAG knowledge retrieval correctly fetches relevant NIST entries from `cyber_training`.
+  * NLP Weakness Summarizer correctly aggregates common threat types.
+  * Inter-agent JSON schema validation matching the contract with Member 2.
 
 ---
 
-## Final conclusion
+## 🎯 Contribution Evidence & Git Commit Strategy
 
-The current workspace shows a mature scenario-generation and decision-evaluation foundation, but it does not yet implement the missing auth layer. The project documentation and schema strongly indicate the intended architecture is Supabase Auth + JWT-managed sessions + RLS + RBAC. The right Member 3 implementation is therefore not a full redesign, but a focused, low-risk auth and authorization layer that fits the current project exactly.
+To demonstrate individual contribution according to the [3-Member Balanced Contribution Model](../../docs/3-Member%20Balanced%20Contribution%20Model.pdf), Member 3 should commit the following sequence:
 
-Member 3 should:
-- use the existing `public.users` model as the foundation
-- add a clear separation between business role and access role
-- implement secure login, token validation, and RBAC
-- protect the existing scenario and evaluation routes
-- integrate frontend route guards and UI state
-- validate with auth-focused tests
+```bash
+# 1. Security & Authentication Layer
+git commit -m "feat(auth): implement Supabase JWT authentication and session handling"
+git commit -m "feat(security): add RBAC middleware with distinct business and access roles"
+git commit -m "feat(security): enforce route-level authorization guards on scenario and evaluation APIs"
 
-This keeps the work aligned with the project’s actual state, respects Member 1 and Member 2 ownership, and makes Member 3’s contribution clearly identifiable and defensible in the viva and contribution review.
+# 2. Knowledge Base & Information Retrieval Layer
+git commit -m "feat(rag): implement training_retrieval for cyber_training NIST vector search"
+
+# 3. NLP Summarization Layer
+git commit -m "feat(nlp): build cognitive weakness summarizer from user decision history"
+
+# 4. AI Coach Agent Layer
+git commit -m "feat(agent): implement Training Coach Agent with adaptive difficulty scaling"
+git commit -m "feat(api): create /api/coach routes for inter-agent pipeline and dashboard sync"
+
+# 5. Frontend Dashboard & User Interface
+git commit -m "feat(ui): build dedicated login screen with secure session storage"
+git commit -m "feat(ui): wire dashboard to live Coach Agent recommendations and decision journey"
+
+# 6. Automated Testing & Verification
+git commit -m "test(auth): add automated test suite for authentication and RBAC enforcement"
+git commit -m "test(coach): add unit and integration tests for adaptive learning logic"
+```
+
+---
+
+## 💡 Inter-Agent Communication Protocol (JSON Schemas)
+
+### Member 2 $\to$ Member 3 Payload
+Sent from Member 2's Evaluation Agent to Member 3's Coach Pipeline:
+```json
+{
+  "scenario_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+  "threat_type": "phishing",
+  "chosen_action": "Clicked link to verify account credentials",
+  "is_safe": false,
+  "action_score": 20,
+  "reasoning_score": 40,
+  "final_score": 28,
+  "threat_indicators": ["urgency", "spoofed_sender", "credential_harvesting"],
+  "weaknesses": ["urgency_bias", "sender_verification"],
+  "reasoning_category": "naive"
+}
+```
+
+### Member 3 $\to$ User / Dashboard & Member 1 Payload
+Emitted by Member 3's Coach Agent and saved to `public.user_learning_profile`:
+```json
+{
+  "feedback": "You noticed the email seemed odd, but the urgent deadline caused you to bypass domain verification.",
+  "remediation_tip": "Always hover over sender addresses. Authentic security teams never demand password verification within 15 minutes.",
+  "nist_reference": "NIST SP 800-50 Section 3.2: Recognizing Social Engineering Vectors",
+  "recommended_topic": "Identity & Domain Verification",
+  "next_difficulty": "beginner",
+  "reason_for_path": "Re-establishing fundamental sender verification habits before advancing to multi-stage spear phishing."
+}
+```
+
+---
+
+## 📝 Comprehensive Viva Preparation Guide for Member 3
+
+When the viva examination occurs, the evaluators will check individual contribution across the full stack. Use these defensible responses:
+
+### Q1: What was your specific contribution to the project?
+> *"I developed the **Adaptive Training & User Security** pipeline. My system creates the adaptive learning loop: when Member 2 evaluates a user's decision, my Coach Agent analyzes their performance, retrieves relevant NIST training standards using vector search, identifies psychological vulnerability patterns via NLP summarization, updates their adaptive learning profile, and renders their personalized dashboard. Additionally, I secured the entire multi-agent platform with Supabase Auth, JWT verification, and Role-Based Access Control."*
+
+### Q2: What AI / LLM work did you do?
+> *"I designed and implemented the **Training Coach Agent** in [coach_agent.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/agents/coach_agent.py). It uses an LLM alongside an adaptive difficulty algorithm. It takes the structured evaluation from Member 2, combines it with historical weakness summaries and retrieved NIST training data, and uses prompt engineering to generate structured, constructive coaching feedback and select the user's next scenario difficulty."*
+
+### Q3: What was your NLP contribution?
+> *"While Member 1 focused on Named Entity Recognition and PII masking, and Member 2 focused on text classification of user reasoning, I developed **NLP Summarization** in [summarizer.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/nlp/summarizer.py). My module synthesizes a learner's past 10 decisions to detect recurring cognitive biases—such as authority compliance or urgency traps—and summarizes them into a concise profile for the Coach Agent."*
+
+### Q4: Why do you have a RAG pipeline, and how is it different from Members 1 and 2?
+> *"The project divides Information Retrieval across three distinct use cases so no single person is the 'RAG person.' Member 1 retrieves organizational workflows from `org_knowledge` to make scenarios realistic. Member 2 retrieves attack patterns from `cyber_threats` to evaluate decisions. I own the **`cyber_training`** knowledge base in [training_retrieval.py](file:///c:/Users/user/Desktop/PROJECT/CyberGuard_AI/backend/rag/training_retrieval.py), retrieving authoritative NIST SP 800-50 and SANS educational content so our coaching guidance is grounded in established cybersecurity pedagogy."*
+
+### Q5: How did you implement security and authorization?
+> *"I implemented cryptographic JWT validation in FastAPI middleware and integrated Supabase Auth. Crucially, I separated business personas (`users.role`, e.g., 'Finance Manager' used for scenario customization) from system access roles (`users.access_role`, e.g., 'learner', 'trainer', 'admin'). I applied server-side route guards on both FastAPI endpoints and Next.js frontend pages, and configured PostgreSQL Row Level Security (RLS) to ensure learners can never access each other's training data or audit logs."*
+
+### Q6: How do the three agents communicate?
+> *"The agents communicate sequentially via REST API and structured JSON. Member 1's Scenario Agent outputs the scenario. The user responds, and Member 2's Evaluation Agent scores the decision and outputs a structured evaluation payload containing scores, threat indicators, and weaknesses. My Coach Agent consumes this payload, generates coaching advice, and updates the `user_learning_profile` table. When the user requests their next training session, Member 1 reads this updated profile to generate a scenario specifically tailored to their current weakness and difficulty."*

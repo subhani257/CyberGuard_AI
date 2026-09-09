@@ -6,7 +6,10 @@ class ThreatExtractor:
     """Extracts threat indicators from email scenarios using NLP and rule-based patterns."""
     
     def __init__(self):
-        self.nlp = spacy.load("en_core_web_sm")
+        try:
+            self.nlp = spacy.load("en_core_web_sm")
+        except Exception:
+            self.nlp = spacy.blank("en")
         
         # Keywords for different threat types
         self.financial_keywords = [
