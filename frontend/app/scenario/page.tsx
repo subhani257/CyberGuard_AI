@@ -25,14 +25,14 @@ function ScenarioFlow() {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [reasoning, setReasoning] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [scenarioId, setScenarioId] = useState<string>('SC004');
+  const [scenarioId, setScenarioId] = useState<string>('');
   const [scenario, setScenario] = useState<ScenarioContent>({
-    situation_title: "A payment request that cannot wait.",
-    situation_tagline: "Not everything urgent deserves an immediate response.",
-    sender_name: "David Perera",
-    sender_email: "d.perera@novatech-corp.net",
-    subject: "Payment required today",
-    body: "Hi Nimal,\n\nI need you to process the attached payment before 3:00 PM today.\n\nI'm currently in a meeting and can't take calls.\n\nRegards,\nDavid Perera",
+    situation_title: "Adaptive Threat Scenario",
+    situation_tagline: "Evaluating incoming workplace communication...",
+    sender_name: "Loading...",
+    sender_email: "analyzing@secure-gateway.internal",
+    subject: "Urgent Verification Request",
+    body: "Generating personalized scenario grounded in your organizational policies...",
     choices: [
       "Approve the request",
       "Ask the sender to confirm",

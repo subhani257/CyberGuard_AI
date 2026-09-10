@@ -6,8 +6,8 @@ import { motion } from 'framer-motion';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('nimal@novatech.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -17,7 +17,6 @@ export default function LoginPage() {
     setErrorMessage('');
 
     try {
-      // Direct call to Member 3 FastAPI auth route
       const res = await fetch('http://localhost:8000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -30,45 +29,31 @@ export default function LoginPage() {
       }
 
       const data = await res.json();
-      
-      // Store token and user profile securely in localStorage
+
       localStorage.setItem('cyberguard_token', data.access_token);
       localStorage.setItem('cyberguard_user', JSON.stringify(data.user));
 
-      // Role-based routing
       if (data.user.access_role === 'admin') {
         router.push('/admin');
       } else {
         router.push('/dashboard');
       }
     } catch (err: any) {
-      // Fallback demo authentication for offline testing / presentation
-      if (password === 'password123') {
-        const demoUser = {
-          id: '11111111-1111-1111-1111-111111111111',
-          email,
-          full_name: email.split('@')[0].toUpperCase(),
-          role: 'Finance Manager',
-          access_role: email.includes('admin') ? 'admin' : 'learner',
-          is_active: true
-        };
-        localStorage.setItem('cyberguard_token', 'demo_jwt_token_simulated');
-        localStorage.setItem('cyberguard_user', JSON.stringify(demoUser));
-        
-        if (demoUser.access_role === 'admin') {
-          router.push('/admin');
-        } else {
-          router.push('/dashboard');
-        }
-        return;
-      }
-      setErrorMessage(err.message || 'Unable to connect to authentication service.');
+      setErrorMessage(err.message || 'Unable to connect to the authentication service. Make sure the backend is running.');
     } finally {
       setLoading(false);
     }
   };
 
-  const setDemoAccount = (demoEmail: string) => {
+  const handleGoogleLogin = () => {
+    setLoading(true);
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ktivturksaummardilyu.supabase.co';
+    const redirectTo = `${window.location.origin}/dashboard`;
+    window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
+  };
+
+  // Only used for the demo presentation quick-fill bar
+  const fillDemoAccount = (demoEmail: string) => {
     setEmail(demoEmail);
     setPassword('password123');
     setErrorMessage('');
@@ -174,30 +159,12 @@ export default function LoginPage() {
           <span className="relative px-3 bg-surface text-[11px] uppercase tracking-widest text-muted">Or continue with</span>
         </div>
 
-        {/* Google Sign-In Button */}
+        {/* Google Sign-In with Supabase */}
         <button
           type="button"
-          onClick={async () => {
-            setLoading(true);
-            try {
-              const res = await fetch('http://localhost:8000/api/auth/google', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: 'alex.turner@techcorp.io', full_name: 'Alex Turner' })
-              });
-              const data = await res.json();
-              if (data.access_token) {
-                localStorage.setItem('cyberguard_token', data.access_token);
-                localStorage.setItem('cyberguard_user', JSON.stringify(data.user));
-                router.push('/onboarding');
-              }
-            } catch (e) {
-              setErrorMessage('Google Authentication failed. Using simulated fallback.');
-            } finally {
-              setLoading(false);
-            }
-          }}
-          className="w-full py-3 px-4 rounded-xl bg-background border border-primary/15 text-primary text-sm font-medium hover:bg-primary/5 transition-all flex items-center justify-center gap-3 shadow-sm group"
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          className="w-full py-3 px-4 rounded-xl bg-background border border-primary/15 text-primary text-sm font-medium hover:bg-primary/5 transition-all flex items-center justify-center gap-3 shadow-sm group active:scale-[0.98]"
         >
           <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -216,29 +183,32 @@ export default function LoginPage() {
           </Link>
         </p>
 
-        {/* Quick Demo Credentials Bar */}
+        {/* Demo Credentials Bar — for presentation only */}
         <div className="mt-8 pt-6 border-t border-primary/5">
-          <p className="text-[10px] uppercase tracking-widest text-muted font-bold text-center mb-3">
-            Quick Test Identities
+          <p className="text-[10px] uppercase tracking-widest text-muted font-bold text-center mb-1">
+            Demo Access
+          </p>
+          <p className="text-[10px] text-muted/60 text-center mb-3">
+            Pre-configured test accounts (password: password123)
           </p>
           <div className="flex flex-wrap gap-2 justify-center">
             <button
               type="button"
-              onClick={() => setDemoAccount('nimal@novatech.com')}
+              onClick={() => fillDemoAccount('nimal@novatech.com')}
               className="text-xs px-2.5 py-1 rounded-lg bg-primary/5 hover:bg-primary/10 text-muted hover:text-primary transition-colors"
             >
               Learner (Nimal)
             </button>
             <button
               type="button"
-              onClick={() => setDemoAccount('admin@novatech.com')}
+              onClick={() => fillDemoAccount('admin@novatech.com')}
               className="text-xs px-2.5 py-1 rounded-lg bg-amber/10 hover:bg-amber/20 text-amber transition-colors"
             >
               Admin (CISO)
             </button>
             <button
               type="button"
-              onClick={() => setDemoAccount('trainer@novatech.com')}
+              onClick={() => fillDemoAccount('trainer@novatech.com')}
               className="text-xs px-2.5 py-1 rounded-lg bg-cyan/10 hover:bg-cyan/20 text-cyan transition-colors"
             >
               Trainer
