@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
-import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { motion, Variants } from 'framer-motion';
 
 interface ThreatIndicator {
     type: string;
@@ -60,9 +61,9 @@ export const EvaluationResults: React.FC<EvaluationResultsProps> = ({
         return 'Critical';
     };
 
-    const fadeUp = {
+    const fadeUp: Variants = {
         hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const } }
     };
 
     return (
@@ -234,6 +235,17 @@ export const EvaluationResults: React.FC<EvaluationResultsProps> = ({
                     <p className="text-sm font-semibold text-amber mb-2">Learning Tip</p>
                     <p className="text-muted text-sm leading-relaxed">Always verify suspicious requests through alternate channels before taking action, especially when urgency or authority is used to pressure you.</p>
                 </div>
+            </motion.div>
+
+            {/* Navigation to Dashboard & Next Challenge */}
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} className="pt-6 pb-12 flex justify-center">
+                <Link
+                    href="/dashboard"
+                    className="bg-blue hover:bg-blue/90 text-white font-medium text-base px-10 py-4 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-3 shadow-[0_0_30px_rgba(79,124,255,0.25)]"
+                >
+                    <span>View Updated Learning Progress</span>
+                    <span className="opacity-70 font-light">→</span>
+                </Link>
             </motion.div>
 
         </div>

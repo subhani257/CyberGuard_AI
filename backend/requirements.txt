@@ -1,15 +1,29 @@
+# Web Framework & API
 fastapi
 uvicorn
-groq
-spacy
-supabase
-pytest
-pytest-asyncio
-httpx<0.28
+python-multipart
+pydantic
 python-dotenv
-openai
+httpx<0.28
 
+# Cloud & Database
+supabase
+
+# AI & LLM Inference
+openai
+groq
+
+# Local NLP & Vector Embeddings
+sentence-transformers
+huggingface-hub
+spacy
+tiktoken
 langchain
 langchain-community
+
+# Document Ingestion & Parsing
 pypdf
-tiktoken
+
+# Testing & Quality Assurance
+pytest
+pytest-asyncio

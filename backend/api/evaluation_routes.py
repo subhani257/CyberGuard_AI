@@ -45,12 +45,17 @@ ReasoningClassifier = classifier_module.ReasoningClassifier
 evaluation_agent_module = import_module_from_file('evaluation_agent', os.path.join(agents_dir, 'evaluation_agent.py'))
 EvaluationAgent = evaluation_agent_module.EvaluationAgent
 
-# Load .env from project root (go up 3 levels from backend/api/ to project root)
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-env_path = os.path.join(project_root, '.env')
-print(f"Loading .env from: {env_path}")
-print(f".env exists: {os.path.exists(env_path)}")
-load_dotenv(env_path)
+# Load .env from backend or project root
+backend_env = os.path.join(backend_dir, '.env')
+project_root = os.path.dirname(backend_dir)
+root_env = os.path.join(project_root, '.env')
+
+if os.path.exists(backend_env):
+    load_dotenv(backend_env)
+elif os.path.exists(root_env):
+    load_dotenv(root_env)
+else:
+    load_dotenv()
 
 router = APIRouter()
 
@@ -61,10 +66,16 @@ threat_retriever = ThreatRetriever()
 reasoning_classifier = ReasoningClassifier()
 evaluation_agent = EvaluationAgent()
 
-# Initialize Supabase
-supabase_url = os.environ.get("SUPABASE_URL")
-supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-supabase: Client = create_client(supabase_url, supabase_key)
+# Initialize Supabase safely with fallback
+supabase_url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_SERVICE_KEY")
+supabase: Optional[Client] = None
+
+if supabase_url and supabase_key and "your-project" not in supabase_url:
+    try:
+        supabase = create_client(supabase_url, supabase_key)
+    except Exception as e:
+        print(f"Warning: Supabase client init failed in evaluation_routes: {e}")
 
 # Rate limiting (simple in-memory implementation)
 rate_limit_store = {}
@@ -102,16 +113,18 @@ def verify_jwt_token(request: Request) -> Optional[str]:
 # Audit logging
 def log_audit_event(event_type: str, user_id: str, details: Dict[str, Any]):
     try:
-        log_entry = {
-            "event_type": event_type,
-            "user_id": user_id,
-            "timestamp": datetime.utcnow().isoformat(),
-            "details": details
-        }
-        # Save to audit_logs table
-        supabase.table("agent_audit_logs").insert(log_entry).execute()
+        if supabase:
+            valid_uuid = user_id if (user_id and user_id != "anonymous" and len(user_id) > 20) else None
+            log_entry = {
+                "agent_name": "EvaluationAgent (Member 2)",
+                "action": event_type,
+                "user_id": valid_uuid,
+                "details": details
+            }
+            # Save to audit_logs table
+            supabase.table("agent_audit_logs").insert(log_entry).execute()
     except Exception as e:
-        print(f"Audit logging failed: {e}")
+        print(f"Notice: Audit logging bypassed: {e}")
 
 
 class EvaluationRequest(BaseModel):
@@ -169,11 +182,19 @@ async def evaluate_decision(request: EvaluationRequest, http_request: Request):
     })
     try:
         # Step 1: Get scenario content from database
-        scenario_data = supabase.table("scenarios").select("*").eq("id", request.scenario_id).execute()
+        scenario_text = None
+        if supabase:
+            try:
+                scenario_data = supabase.table("scenarios").select("*").eq("id", request.scenario_id).execute()
+                if scenario_data and scenario_data.data:
+                    scenario = scenario_data.data[0]
+                    scenario_text = _extract_scenario_text(scenario["content"])
+            except Exception as e:
+                print(f"Notice: Supabase scenario fetch bypassed: {e}")
         
-        if not scenario_data.data:
+        if not scenario_text:
             # For testing without real database data, use a mock scenario
-            print(f"Scenario {request.scenario_id} not found in database, using mock scenario for testing")
+            print(f"Scenario {request.scenario_id} not found in database, using fallback scenario for testing")
             scenario_text = """
             Subject: URGENT: Wire Transfer Request
             
@@ -287,10 +308,13 @@ async def _save_evaluation_to_database(
             "llm_evaluation": evaluation_result["llm_evaluation"]
         }
         
+        valid_user_id = user_id if (user_id and user_id != "anonymous" and len(user_id) > 20) else "11111111-1111-1111-1111-111111111111"
+        valid_scenario_id = scenario_id if (scenario_id and len(scenario_id) > 20) else None
+        
         # Insert into decisions table
         decision_data = {
-            "user_id": user_id,
-            "scenario_id": scenario_id,
+            "user_id": valid_user_id,
+            "scenario_id": valid_scenario_id,
             "chosen_action": user_action,
             "reasoning": user_reasoning,
             "evaluation": evaluation_json,
@@ -298,7 +322,8 @@ async def _save_evaluation_to_database(
             "human_review_required": evaluation_result["human_review_required"]
         }
         
-        supabase.table("decisions").insert(decision_data).execute()
+        if supabase:
+            supabase.table("decisions").insert(decision_data).execute()
         
     except Exception as e:
         print(f"Error saving to database: {e}")

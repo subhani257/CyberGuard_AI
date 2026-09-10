@@ -1,0 +1,72 @@
+[
+  {
+    "category": "behavioral_guidance",
+    "content": "De-biasing Artificial Urgency: Attackers systematically use extreme urgency ('Immediate action required within 2 hours', 'Past due suspension notice') to overwhelm human cognitive bandwidth, causing individuals to bypass rational evaluation ('System 2 thinking') and rely on hurried reflex ('System 1 thinking'). Remedial advice: When an email establishes high urgency, deliberately pause for 60 seconds, independently navigate to official company portals, and never use links embedded inside the message.",
+    "metadata": {
+      "source": "NIST SP 800-50 / Behavioral Cyber Defense",
+      "framework": "NIST",
+      "focus_area": "Cognitive De-biasing",
+      "target_bias": "Artificial Urgency"
+    }
+  },
+  {
+    "category": "behavioral_guidance",
+    "content": "Authority Bias and Hierarchical Compliance: Employees exhibit psychological reluctance to question requests originating from individuals in perceived authority roles (CEO, CFO, Board Members). Attackers exploit this obedience tendency in Business Email Compromise. Coach recommendation: Security protocols are role-agnostic. Remind learners that genuine executives expect security validation and that standard out-of-band verification protects both the employee and the executive.",
+    "metadata": {
+      "source": "SANS Security Awareness Leadership Guide",
+      "framework": "SANS",
+      "focus_area": "Authority Bias Mitigation",
+      "target_bias": "Deference to Authority"
+    }
+  },
+  {
+    "category": "best_practice",
+    "content": "CISA 'Recognize, Resist, Report' Defense Framework: Step 1 (Recognize): Identify red flags including generic greetings, mismatched sender domains, urgent deadlines, or requests for unusual payment instruments. Step 2 (Resist): Avoid clicking embedded links, opening unsolicited invoices, or replying to verify with the scammer. Step 3 (Report): Use the automated phishing report tool to alert the SOC so perimeter email filters can block the campaign across the organization.",
+    "metadata": {
+      "source": "CISA Secure Our World Initiative 2025",
+      "framework": "CISA",
+      "focus_area": "Standard Employee Response",
+      "target_bias": "Action Paralysis"
+    }
+  },
+  {
+    "category": "best_practice",
+    "content": "Effective Out-of-Band (OOB) Verification: Out-of-band verification is only valid when performed across a trusted, pre-existing secondary channel. Replying to the suspicious email, calling a phone number listed in the email footer, or clicking a link to 're-verify' is entirely compromised. Valid OOB methods: Dialing an extension from the official internal enterprise phone directory, walking to the colleague's desk, or sending a message on enterprise Slack/Teams to their verified corporate handle.",
+    "metadata": {
+      "source": "NCSC UK Multi-Factor Verification Guidelines",
+      "framework": "NCSC",
+      "focus_area": "Verification Procedures",
+      "target_bias": "False Verification"
+    }
+  },
+  {
+    "category": "pedagogical_guidance",
+    "content": "Non-Punitive Coaching for Failed Decisions: When an employee makes an unsafe choice in a training simulation, negative shaming or penalization leads to concealment of future security incidents. The Coach Agent must acknowledge positive aspects of the learner's reasoning (e.g., 'You correctly noticed that the invoice was unexpected'), isolate the specific blind spot (e.g., 'However, you relied on email reply rather than out-of-band phone confirmation'), and prescribe actionable correction.",
+    "metadata": {
+      "source": "CyberGuard AI Pedagogical Principles",
+      "framework": "CyberGuard",
+      "focus_area": "Learning Profile Feedback",
+      "target_bias": "Defensiveness / Incident Concealment"
+    }
+  },
+  {
+    "category": "best_practice",
+    "content": "Credential Harvesting Defense and Identity Provider Bookmarks: Never authenticate your Single Sign-On (SSO) or password credentials from a link arriving via email, SMS, or direct message. Corporate login sessions rarely expire unexpectedly in the middle of a workday. Recommended defense: Bookmark the official identity provider portal (e.g., login.microsoftonline.com or company Okta URL) in your browser and always navigate directly to the bookmarked page.",
+    "metadata": {
+      "source": "CISA Phishing Guidance: Stopping the Attack Cycle",
+      "framework": "CISA",
+      "focus_area": "Credential Theft Prevention",
+      "target_bias": "Reflexive Login"
+    }
+  },
+  {
+    "category": "behavioral_guidance",
+    "content": "Channel Obstruction Red Flags: Attackers frequently include explicit justifications for why the victim cannot reach them via telephone or video (e.g., 'I am stuck in an all-day executive board meeting', 'My mic is broken', 'I am boarding an international flight'). This deliberate obstruction tactic is designed to eliminate out-of-band verification. Whenever an urgent financial or credential request insists on email-only communication, treat the message as suspicious.",
+    "metadata": {
+      "source": "FBI IC3 Business Email Compromise Advisory",
+      "framework": "FBI IC3",
+      "focus_area": "Communication Channel Defense",
+      "target_bias": "Channel Avoidance"
+    }
+  }
+]

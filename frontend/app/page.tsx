@@ -1,30 +1,30 @@
 "use client";
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 export default function LandingPage() {
   // Animation timings based on the spec
-  const navVariants = {
+  const navVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.4, ease: "easeOut" } }
   };
 
-  const headlineVariants = {
+  const headlineVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] as const } }
   };
 
-  const supportTextVariants = {
+  const supportTextVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.4, delay: 0.6, ease: "easeOut" } }
   };
 
-  const ctaVariants = {
+  const ctaVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.4, delay: 0.8, ease: "easeOut" } }
   };
 
-  const signalVariants = {
+  const signalVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 1, delay: 1, ease: "easeInOut" } }
   };

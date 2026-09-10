@@ -5,6 +5,7 @@ from api.scenario_routes import router as scenario_router
 from api.evaluation_routes import router as evaluation_router
 from api.auth_routes import router as auth_router
 from api.coach_routes import router as coach_router
+from api.org_routes import router as org_router
 
 app = FastAPI(
     title="CyberGuard AI API",
@@ -22,8 +23,9 @@ app.add_middleware(
 )
 
 # Core Routers across the 3-Member Architecture:
-# Member 1: Scenario Generation & Personalization
+# Member 1: Scenario Generation & Personalization & Org Ingestion
 app.include_router(scenario_router, prefix="/api")
+app.include_router(org_router, prefix="/api/org")
 
 # Member 2: Decision Evaluation & Security Analysis
 app.include_router(evaluation_router, prefix="/api/agents")

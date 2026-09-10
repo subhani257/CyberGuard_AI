@@ -9,6 +9,9 @@ class ReasoningClassifier:
             self.nlp = spacy.load("en_core_web_sm")
         except Exception:
             self.nlp = spacy.blank("en")
+            
+        if "parser" not in self.nlp.pipe_names and "sentencizer" not in self.nlp.pipe_names:
+            self.nlp.add_pipe("sentencizer")
         
         # Keywords for different reasoning categories
         self.security_aware_keywords = [

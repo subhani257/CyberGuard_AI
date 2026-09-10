@@ -1,147 +1,139 @@
 import os
+import sys
 import json
+from pathlib import Path
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from openai import OpenAI
 
-# Load environment variables from backend/.env
-load_dotenv()
+# Ensure UTF-8 output on Windows consoles
+if sys.stdout.encoding != 'utf-8':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
 
-# Initialize OpenAI Client
-openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# Load environment variables from backend/.env
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
+
+from sentence_transformers import SentenceTransformer
+
+# Initialize local Hugging Face embedding model (Free, offline CPU inference)
+print("[INIT] Loading local Hugging Face model: all-MiniLM-L6-v2...")
+hf_model = SentenceTransformer("all-MiniLM-L6-v2")
+print("[OK] Hugging Face model loaded successfully (100% free, runs locally).")
 
 # Initialize Supabase Client
-# IMPORTANT: You MUST use the SUPABASE_SERVICE_ROLE_KEY because our tables
-# have zero public RLS policies. The service role key bypasses RLS.
 supabase_url = os.environ.get("SUPABASE_URL")
-supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_SERVICE_KEY")
 
 if not supabase_url or not supabase_key:
-    print("❌ Error: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in .env")
+    print("[ERROR] SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in .env")
     exit(1)
 
 supabase: Client = create_client(supabase_url, supabase_key)
+DATA_DIR = Path(__file__).resolve().parent / "data"
+
 
 def get_embedding(text: str) -> list[float]:
-    """Generates an embedding vector using OpenAI's small embedding model."""
+    """
+    Generates embedding vector locally via Hugging Face all-MiniLM-L6-v2.
+    Pads from 384 to 1536 dimensions with zeros to match existing pgvector schema constraint.
+    Mathematically, cosine similarity remains identical between identically padded vectors.
+    """
     try:
-        response = openai_client.embeddings.create(
-            input=text,
-            model="text-embedding-3-small" # Fast, cheap, and generates 1536 dimensions
-        )
-        return response.data[0].embedding
+        raw_vector = hf_model.encode(text).tolist()
+        if len(raw_vector) < 1536:
+            return raw_vector + [0.0] * (1536 - len(raw_vector))
+        return raw_vector
     except Exception as e:
-        print(f"❌ Error generating embedding: {e}")
+        print(f"   [ERROR] Failed to generate local embedding: {e}")
         return []
 
+
+def load_dataset(filename: str) -> list[dict]:
+    """Loads structured JSON chunks from the backend/scripts/data directory."""
+    filepath = DATA_DIR / filename
+    if not filepath.exists():
+        print(f"   [WARN] File not found: {filepath}")
+        return []
+    with open(filepath, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 def seed_knowledge_base(table_name: str, records: list[dict]):
-    """Embeds and uploads a list of records to the specified Supabase pgvector table."""
-    print(f"\n🚀 Seeding {table_name}...")
-    
-    for record in records:
-        content = record['content']
-        category = record['category']
-        metadata = record.get('metadata', {})
-        
-        print(f"   -> Embedding: '{content[:50]}...'")
-        embedding = get_embedding(content)
-        
-        if not embedding:
+    """Embeds and uploads a list of records to the specified Supabase pgvector table with duplicate checking."""
+    print(f"\n=======================================================")
+    print(f"[SEED] Seeding Table: {table_name} ({len(records)} records)")
+    print(f"=======================================================")
+
+    inserted_count = 0
+    skipped_count = 0
+
+    for idx, record in enumerate(records, start=1):
+        content = record.get("content", "").strip()
+        category = record.get("category", "general")
+        metadata = record.get("metadata", {})
+
+        if not content:
             continue
-            
+
+        # Check if record already exists to prevent duplicates
+        try:
+            existing = supabase.table(table_name).select("id").eq("content", content).limit(1).execute()
+            if existing.data and len(existing.data) > 0:
+                print(f"   [{idx}/{len(records)}] [SKIP] Already exists: '{content[:45]}...'")
+                skipped_count += 1
+                continue
+        except Exception as e:
+            pass
+
+        print(f"   [{idx}/{len(records)}] [EMBED] Generating vector: '{content[:50]}...'")
+        embedding = get_embedding(content)
+
+        if not embedding:
+            print(f"      [ERROR] Skipping due to embedding failure.")
+            continue
+
         data = {
             "content": content,
             "category": category,
             "metadata": metadata,
             "embedding": embedding
         }
-        
+        if table_name in ["cyber_threats", "cyber_training"]:
+            data["source"] = record.get("source") or metadata.get("source") or "Official Cybersecurity Guidance"
+
         try:
-            # Upsert based on the content to avoid duplicates if run multiple times
             supabase.table(table_name).insert(data).execute()
-            print(f"      ✅ Inserted successfully.")
+            print(f"      [OK] Inserted into {table_name}.")
+            inserted_count += 1
         except Exception as e:
-            print(f"      ❌ Failed to insert: {e}")
+            print(f"      [ERROR] Failed to insert: {e}")
+
+    print(f"\n[DONE] Completed {table_name}: {inserted_count} new inserted, {skipped_count} skipped (already existing).")
+
 
 if __name__ == "__main__":
-    
-    # -------------------------------------------------------------
-    # 1. ORG KNOWLEDGE (For the Scenario Agent)
-    # Context about the company's internal policies and hierarchy
-    # -------------------------------------------------------------
-    org_data = [
-        {
-            "category": "policy",
-            "content": "FIN-SEC-04: All urgent wire transfers exceeding $10,000 must be verified via a secondary communication channel (phone call to known number or in-person). Email approvals are not sufficient, even if sent by the CEO.",
-            "metadata": {"source": "NovaTech Employee Handbook 2026", "department": "Finance"}
-        },
-        {
-            "category": "policy",
-            "content": "HR-SEC-02: Identity Verification for Payroll. Employees requesting changes to direct deposit must verify their identity by providing their employee ID and confirming via their registered secondary phone number. Do not reply directly to the request email.",
-            "metadata": {"source": "NovaTech HR Policy"}
-        },
-        {
-            "category": "workflow",
-            "content": "IT support will NEVER ask for your password or MFA code via email. Official IT requests are routed through the internal Jira Service Desk portal.",
-            "metadata": {"source": "IT Security Policy v2"}
-        }
-    ]
+    print("=======================================================")
+    print("[INIT] CyberGuard AI Vector Database Ingestion Pipeline")
+    print("=======================================================")
+    print(f"[INFO] Data Source Directory: {DATA_DIR}")
 
-    # -------------------------------------------------------------
-    # 2. CYBER THREATS (For the Evaluation Agent)
-    # Technical attack patterns and real-world indicators (Sourced from CISA/FBI)
-    # -------------------------------------------------------------
-    threat_data = [
-        {
-            "category": "threat_definition",
-            "content": "Business Email Compromise (BEC): An attacker spoofs or compromises an executive's email account to request fraudulent wire transfers or W-2 information. Indicators include high urgency, demands for secrecy, and sudden changes in payment details.",
-            "metadata": {"source": "FBI IC3 Report 2025", "url": "ic3.gov/AnnualReport"}
-        },
-        {
-            "category": "attack_pattern",
-            "content": "Spear-Phishing: Highly targeted phishing attempts that use personalized information (e.g., referencing a recent company event or an employee's specific role) to trick the victim into clicking a malicious link or downloading malware.",
-            "metadata": {"source": "CISA Phishing Guidance", "url": "cisa.gov/stopransomware"}
-        },
-        {
-            "category": "attack_pattern",
-            "content": "MFA Fatigue / Prompt Bombing: Attackers spam a user with Multi-Factor Authentication push notifications in the middle of the night, hoping the user approves it out of frustration just to stop the noise.",
-            "metadata": {"source": "CISA Advisory"}
-        }
-    ]
+    # 1. ORG KNOWLEDGE (Member 1 — Scenario Agent RAG)
+    org_data = load_dataset("org_knowledge_chunks.json")
+    if org_data:
+        seed_knowledge_base("org_knowledge", org_data)
 
-    # -------------------------------------------------------------
-    # 3. CYBER TRAINING (For the Coach Agent)
-    # Pedagogical approaches and behavioral correction (Sourced from CISA/NIST)
-    # -------------------------------------------------------------
-    training_data = [
-        {
-            "category": "best_practice",
-            "content": "CISA 'Recognize, Resist, Delete' Framework: Recognize red flags like urgent/threatening language. Resist the urge to click links or download attachments; always verify out-of-band. Delete the suspicious email immediately without replying or clicking 'unsubscribe'.",
-            "metadata": {"source": "CISA Secure Our World Initiative"}
-        },
-        {
-            "category": "best_practice",
-            "content": "When dealing with 'urgency' signals in emails, the best defense is to 'Slow Down'. Attackers use artificial urgency to bypass logical thinking and force immediate action.",
-            "metadata": {"source": "SANS Security Awareness"}
-        },
-        {
-            "category": "behavioral_guidance",
-            "content": "If a user falls for a phishing simulation, do not shame them. Explain *why* the lure worked (e.g., 'The attacker used authority to make you nervous') and show them the exact missing clue. Focus on positive reinforcement.",
-            "metadata": {"source": "NIST SP 800-50"}
-        },
-        {
-            "category": "behavioral_guidance",
-            "content": "Do not simply label user actions as 'wrong'. If a user attempted verification but used the wrong channel (e.g. replying to the scammer), praise the instinct to verify but correct the execution.",
-            "metadata": {"source": "CyberGuard Pedagogical Guidelines"}
-        }
-    ]
+    # 2. CYBER THREATS (Member 2 — Evaluation Agent RAG)
+    threat_data = load_dataset("threat_chunks.json")
+    if threat_data:
+        seed_knowledge_base("cyber_threats", threat_data)
 
-    print("=========================================")
-    print("🧠 Initializing CyberGuard AI Vector Seed")
-    print("=========================================")
-    
-    seed_knowledge_base("org_knowledge", org_data)
-    seed_knowledge_base("cyber_threats", threat_data)
-    seed_knowledge_base("cyber_training", training_data)
-    
-    print("\n🎉 All vector knowledge bases seeded successfully!")
+    # 3. CYBER TRAINING (Member 3 — Training Coach Agent RAG)
+    training_data = load_dataset("training_chunks.json")
+    if training_data:
+        seed_knowledge_base("cyber_training", training_data)
+
+    print("\n[SUCCESS] All vector knowledge bases processed successfully!")

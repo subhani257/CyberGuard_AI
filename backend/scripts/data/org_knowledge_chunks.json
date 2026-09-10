@@ -1,0 +1,134 @@
+[
+  {
+    "category": "policy",
+    "content": "FIN-SEC-04: Mandatory Out-of-Band Verification for Wire Transfers. All wire transfers, ACH modifications, or payments exceeding $10,000 require secondary verification via a known internal telephone extension or in-person confirmation with the Chief Financial Officer (CFO) or Finance Director. Email, Slack, or SMS approvals are strictly prohibited regardless of sender display name or executive status. Incoming payment redirection instructions must be put on 24-hour administrative hold.",
+    "metadata": {
+      "source": "NovaTech Finance SOP 2026",
+      "department": "Finance",
+      "policy_id": "FIN-SEC-04",
+      "risk_level": "critical",
+      "applies_to": "Finance Managers, Accounts Payable, Controllers"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "FIN-SEC-09: Vendor Account & Routing Detail Modification Protocol. Any request from an existing supplier or vendor to modify bank account details, wire routing numbers, or remittance addresses must be independently verified. Accounts Payable staff must call the vendor's primary contact number on the master procurement contract—never use contact details provided in the modification request email. Verbal confirmation must be logged in the ERP before funds release.",
+    "metadata": {
+      "source": "NovaTech Accounts Payable Manual v4.1",
+      "department": "Finance",
+      "policy_id": "FIN-SEC-09",
+      "risk_level": "critical",
+      "applies_to": "Accounts Payable, Procurement Specialists"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "FIN-SEC-12: Urgent Off-Cycle Invoices and Deadline Pressure. Attackers frequently exploit quarter-end or Friday afternoon deadlines with fraudulent urgent invoices. NovaTech policy dictates that no emergency wire transfer will be expedited without standard PO matching and three-way reconciliation. Artificial urgency (such as threats of immediate cloud service shutdown) must trigger immediate escalation to the Internal Audit team.",
+    "metadata": {
+      "source": "NovaTech Accounts Payable Manual v4.1",
+      "department": "Finance",
+      "policy_id": "FIN-SEC-12",
+      "risk_level": "high",
+      "applies_to": "Finance Managers, Billing Specialists"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "HR-SEC-02: Employee Direct Deposit & Bank Account Modification. Direct deposit routing changes must be performed exclusively by the employee through the authenticated Workday self-service portal with Multi-Factor Authentication. HR staff are strictly prohibited from manually updating direct deposit bank details based on emailed PDF voided checks, personal email requests (e.g., Gmail, Yahoo), or phone calls without biometric or government ID verification.",
+    "metadata": {
+      "source": "NovaTech HR Compliance Handbook 2026",
+      "department": "Human Resources",
+      "policy_id": "HR-SEC-02",
+      "risk_level": "critical",
+      "applies_to": "HR Generalists, Payroll Administrators"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "HR-SEC-05: W-2, Tax Documentation, and Employee PII Disclosure. Requests for batch employee tax forms (W-2, 1099), payroll summaries, or social security numbers will never be fulfilled via email attachments or unencrypted file sharing. Even if an email purports to originate from the CEO or external auditors, HR personnel must verify with the Chief Legal Officer before transmitting any bulk employee data.",
+    "metadata": {
+      "source": "NovaTech Data Privacy Directive",
+      "department": "Human Resources",
+      "policy_id": "HR-SEC-05",
+      "risk_level": "critical",
+      "applies_to": "HR Directors, Payroll Specialists"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "IT-SEC-03: Credential and Multi-Factor Authentication Security. NovaTech Global IT Support will NEVER request your password, Multi-Factor Authentication (MFA) push token, or SMS verification codes under any circumstances. IT engineers do not require user passwords to conduct maintenance or system diagnostics. Any message requesting immediate password verification via a hyperlink is fraudulent and must be quarantined.",
+    "metadata": {
+      "source": "NovaTech Information Security Policy v5.0",
+      "department": "IT & Security",
+      "policy_id": "IT-SEC-03",
+      "risk_level": "critical",
+      "applies_to": "All Employees"
+    }
+  },
+  {
+    "category": "workflow",
+    "content": "IT-SEC-07: Official Support Channels and Service Desk Verification. All legitimate NovaTech IT support requests, system updates, software licenses, and access provisioning are managed exclusively through jira.novatech-corp.com. IT staff will always reference an existing, verifiable Jira ticket key (e.g., SEC-4892). Unsolicited emails claiming mandatory software updates or urgent security certificates are phishing simulations or active threats.",
+    "metadata": {
+      "source": "NovaTech IT Operations Manual",
+      "department": "IT & Security",
+      "policy_id": "IT-SEC-07",
+      "risk_level": "high",
+      "applies_to": "All Employees"
+    }
+  },
+  {
+    "category": "workflow",
+    "content": "IT-SEC-11: Incident Reporting and the Phishing Alert Button. When encountering an email displaying social engineering characteristics (urgency, look-alike domain, unusual attachment, or unfamiliar link), employees must click the 'Report Phish' button on the Outlook ribbon. Do not forward the email manually to colleagues or reply asking if it is authentic. The automated button submits headers and telemetry directly to the Security Operations Center (SOC).",
+    "metadata": {
+      "source": "NovaTech Incident Response SOP",
+      "department": "IT & Security",
+      "policy_id": "IT-SEC-11",
+      "risk_level": "medium",
+      "applies_to": "All Employees"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "EXEC-SEC-01: Executive Communications and Out-of-Band Protocol. NovaTech C-suite executives (including CEO, COO, and Directors) will never communicate operational payment directives, secret mergers and acquisitions tasks, or urgent gift card purchases via personal webmail accounts (e.g., @gmail.com, @novatech-corp.net). Any communication claiming executive confidentiality and forbidding normal consultation must be treated as Business Email Compromise.",
+    "metadata": {
+      "source": "NovaTech Corporate Governance Guidelines",
+      "department": "Executive Office",
+      "policy_id": "EXEC-SEC-01",
+      "risk_level": "critical",
+      "applies_to": "Executive Assistants, Department Leads, Finance"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "GEN-SEC-01: Corporate Domain Look-Alike Scrutiny and External Tagging. The official corporate domain for NovaTech is novatech.com. Emails originating from typo-squatted, hyphenated, or alternate TLD domains (such as novatech-corp.net, nova-tech.org, or novatech-security.com) are external and automatically stamped with the '[EXTERNAL EMAIL]' banner. Employees must verify sender authenticity if external communications claim to originate from internal leadership.",
+    "metadata": {
+      "source": "NovaTech Acceptable Use Policy",
+      "department": "General Enterprise",
+      "policy_id": "GEN-SEC-01",
+      "risk_level": "high",
+      "applies_to": "All Employees"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "LEGAL-SEC-03: Subpoena, Regulatory, and Contract Compliance Inquiries. Legitimate legal correspondence and audit notifications are coordinated exclusively through the General Counsel office. If an employee receives an urgent email claiming impending legal sanctions, copyright infringement penalties, or regulatory subpoenas demanding immediate document download, they must forward the matter to legal@novatech.com without opening attachments.",
+    "metadata": {
+      "source": "NovaTech Legal Compliance Manual",
+      "department": "Legal & Compliance",
+      "policy_id": "LEGAL-SEC-03",
+      "risk_level": "high",
+      "applies_to": "Legal, Operations, Executives"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "DEV-SEC-06: Production Access Keys and Secrets Management. API keys, database connection strings, and SSH private keys must never be shared over Slack, email, or unencrypted text files. NovaTech engineers must retrieve secrets solely via HashiCorp Vault. Requests from management to email API keys for urgent client demonstrations must be rejected in compliance with SOC 2 Type II audit controls.",
+    "metadata": {
+      "source": "NovaTech Engineering Security Standards",
+      "department": "Engineering / DevOps",
+      "policy_id": "DEV-SEC-06",
+      "risk_level": "critical",
+      "applies_to": "Software Engineers, DevOps, QA"
+    }
+  }
+]

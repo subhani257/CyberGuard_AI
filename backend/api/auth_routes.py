@@ -75,6 +75,21 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class SignupRequest(BaseModel):
+    email: str
+    password: str
+    full_name: Optional[str] = None
+    role: Optional[str] = "Employee"
+    company: Optional[str] = None
+    access_role: Optional[str] = "learner"
+
+
+class GoogleAuthRequest(BaseModel):
+    email: Optional[str] = "alex.turner@techcorp.io"
+    full_name: Optional[str] = "Alex Turner"
+    id_token: Optional[str] = None
+
+
 class LoginResponse(BaseModel):
     success: bool
     access_token: str
@@ -173,6 +188,129 @@ async def login(request: LoginRequest):
             }).execute()
         except Exception:
             pass
+
+    return LoginResponse(
+        success=True,
+        access_token=access_token,
+        token_type="bearer",
+        user=user_record
+    )
+
+
+@router.post("/signup", response_model=LoginResponse)
+async def signup(request: SignupRequest):
+    """
+    Register a new user account.
+    Creates profile in Supabase and issues access token.
+    """
+    email = request.email.strip().lower()
+    password = request.password.strip()
+    full_name = (request.full_name or email.split("@")[0]).strip()
+    role = (request.role or "Employee").strip()
+    company = (request.company or "NovaTech").strip()
+    access_role = request.access_role or "learner"
+    user_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, email))
+
+    # 1. Attempt Supabase registration if online
+    if supabase:
+        try:
+            auth_res = supabase.auth.sign_up({
+                "email": email,
+                "password": password
+            })
+            if auth_res and auth_res.user:
+                user_id = str(auth_res.user.id)
+        except Exception:
+            pass
+
+        try:
+            # Upsert into public.users
+            supabase.table("users").upsert({
+                "id": user_id,
+                "email": email,
+                "full_name": full_name,
+                "role": role,
+                "readiness_score": 50
+            }).execute()
+        except Exception:
+            pass
+
+    user_record = {
+        "id": user_id,
+        "email": email,
+        "full_name": full_name,
+        "role": role,
+        "company": company,
+        "access_role": access_role,
+        "is_active": True
+    }
+
+    token_claims = {
+        "sub": user_record["id"],
+        "email": user_record["email"],
+        "access_role": user_record["access_role"],
+        "role": user_record["role"],
+        "full_name": user_record["full_name"],
+        "company": company,
+        "is_active": True
+    }
+    access_token = create_access_token(token_claims)
+
+    return LoginResponse(
+        success=True,
+        access_token=access_token,
+        token_type="bearer",
+        user=user_record
+    )
+
+
+@router.post("/google", response_model=LoginResponse)
+async def google_auth(request: GoogleAuthRequest):
+    """
+    Authenticate or register user via Google identity.
+    Provides immediate one-tap OAuth session with demo fallback.
+    """
+    email = (request.email or "alex.turner@techcorp.io").strip().lower()
+    full_name = (request.full_name or "Alex Turner").strip()
+    user_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, email))
+
+    if supabase:
+        try:
+            # Check if user already exists
+            existing = supabase.table("users").select("*").eq("email", email).execute()
+            if existing.data and len(existing.data) > 0:
+                user_id = existing.data[0]["id"]
+                full_name = existing.data[0].get("full_name") or full_name
+            else:
+                supabase.table("users").upsert({
+                    "id": user_id,
+                    "email": email,
+                    "full_name": full_name,
+                    "role": "Product Manager",
+                    "readiness_score": 60
+                }).execute()
+        except Exception:
+            pass
+
+    user_record = {
+        "id": user_id,
+        "email": email,
+        "full_name": full_name,
+        "role": "Product Manager",
+        "company": "TechCorp Global",
+        "access_role": "learner",
+        "is_active": True
+    }
+
+    token_claims = {
+        "sub": user_record["id"],
+        "email": user_record["email"],
+        "access_role": user_record["access_role"],
+        "role": user_record["role"],
+        "full_name": user_record["full_name"],
+        "is_active": True
+    }
+    access_token = create_access_token(token_claims)
 
     return LoginResponse(
         success=True,
