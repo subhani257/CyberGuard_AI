@@ -50,28 +50,11 @@ export default function SignupPage() {
     }
   };
 
-  const handleGoogleSignup = async () => {
+  const handleGoogleSignup = () => {
     setLoading(true);
-    try {
-      const res = await fetch('http://localhost:8000/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: 'alex.turner@techcorp.io',
-          full_name: 'Alex Turner'
-        })
-      });
-      const data = await res.json();
-      if (data.access_token) {
-        localStorage.setItem('cyberguard_token', data.access_token);
-        localStorage.setItem('cyberguard_user', JSON.stringify(data.user));
-        router.push('/onboarding');
-      }
-    } catch (e) {
-      setErrorMessage('Google Sign-up failed.');
-    } finally {
-      setLoading(false);
-    }
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ktivturksaummardilyu.supabase.co';
+    const redirectTo = `${window.location.origin}/onboarding`;
+    window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
   };
 
   return (

@@ -21,6 +21,31 @@ export default function OnboardingPage() {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
+    // 0. Handle OAuth callback from Supabase (Google signup/login)
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      if (accessToken) {
+        localStorage.setItem('cyberguard_token', accessToken);
+        try {
+          const payload = JSON.parse(atob(accessToken.split('.')[1]));
+          const oauthUser = {
+            id: payload.sub || payload.id,
+            email: payload.email,
+            full_name: payload.user_metadata?.full_name || payload.user_metadata?.name || payload.email?.split('@')[0],
+            role: payload.user_metadata?.role || 'Finance Manager',
+            company: payload.user_metadata?.company || 'Acme Global Technologies',
+            access_role: payload.app_metadata?.access_role || 'learner'
+          };
+          localStorage.setItem('cyberguard_user', JSON.stringify(oauthUser));
+          if (oauthUser.id) setUserId(oauthUser.id);
+          if (oauthUser.company) setCompanyName(oauthUser.company);
+          if (oauthUser.role) setRoleTitle(oauthUser.role);
+        } catch (e) {}
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    }
+
     const stored = localStorage.getItem('cyberguard_user');
     if (stored) {
       try {
@@ -87,7 +112,11 @@ export default function OnboardingPage() {
       currentUser.company = companyName;
       currentUser.role = roleTitle;
       currentUser.department = department;
+      currentUser.policies_count = result.rules_extracted || result.chunks_ingested || 0;
+      currentUser.extracted_rules = result.extracted_rules || [];
       localStorage.setItem('cyberguard_user', JSON.stringify(currentUser));
+      localStorage.setItem('cyberguard_policies_count', String(result.rules_extracted || result.chunks_ingested || 0));
+
 
       setStep(3);
     } catch (err: any) {

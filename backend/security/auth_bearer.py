@@ -147,6 +147,30 @@ async def get_current_user(
     )
 
 
+async def get_optional_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Security(security_bearer)
+) -> Optional[CurrentUser]:
+    """Optional JWT token extractor that returns None instead of raising 401 when token is absent."""
+    if not credentials or not credentials.credentials:
+        return None
+    try:
+        token = credentials.credentials
+        payload = decode_access_token(token)
+        user_id = payload.get("sub") or payload.get("id")
+        if not user_id:
+            return None
+        return CurrentUser(
+            id=str(user_id),
+            email=payload.get("email", ""),
+            access_role=payload.get("access_role", "learner"),
+            role=payload.get("role", "Finance Manager"),
+            full_name=payload.get("full_name", "CyberGuard Learner"),
+            is_active=payload.get("is_active", True)
+        )
+    except Exception:
+        return None
+
+
 def require_role(allowed_roles: List[str]):
     """Role-Based Access Control (RBAC) dependency generator."""
     async def role_checker(current_user: CurrentUser = Depends(get_current_user)) -> CurrentUser:

@@ -9,6 +9,12 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 import pypdf
 
+try:
+    from backend.rag.policy_extractor import extract_policy_rules, format_rule_for_embedding
+except ImportError:
+    from rag.policy_extractor import extract_policy_rules, format_rule_for_embedding
+
+
 # Load environment variables
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
@@ -47,33 +53,49 @@ def get_local_embedding(text: str) -> List[float]:
     return raw
 
 
-def chunk_text(text: str, max_words: int = 150) -> List[str]:
-    """Chunks text into coherent semantic paragraphs of 80-250 words."""
+def chunk_text(text: str, max_words: int = 250) -> List[str]:
+    """
+    Chunks policy documents into atomic semantic rules.
+    Preserves each individual policy section (e.g., TCG-FIN-01, TCG-FIN-02, TCG-SEC-05)
+    as its own distinct vector chunk instead of collapsing multiple rules together.
+    """
     paragraphs = [p.strip() for p in re.split(r'\n\s*\n', text) if p.strip()]
+    header_prefix = ""
     chunks = []
-    current_chunk = []
-    current_count = 0
 
     for p in paragraphs:
+        # If paragraph is a title header like [COMPANY NAME ...], retain as contextual prefix
+        if re.match(r'^\[[^\]]+\]$', p) and len(p.split()) <= 15:
+            header_prefix = p
+            continue
+
         word_count = len(p.split())
-        if current_count + word_count > max_words and current_chunk:
-            chunks.append(" ".join(current_chunk))
-            current_chunk = [p]
-            current_count = word_count
+        # If an individual rule paragraph is very long (> max_words), split by sentences
+        if word_count > max_words:
+            sentences = re.split(r'(?<=[.!?])\s+', p)
+            current = []
+            current_len = 0
+            for s in sentences:
+                s_len = len(s.split())
+                if current_len + s_len > max_words and current:
+                    chunk_body = " ".join(current)
+                    chunks.append(f"{header_prefix} {chunk_body}".strip())
+                    current = [s]
+                    current_len = s_len
+                else:
+                    current.append(s)
+                    current_len += s_len
+            if current:
+                chunk_body = " ".join(current)
+                chunks.append(f"{header_prefix} {chunk_body}".strip())
         else:
-            current_chunk.append(p)
-            current_count += word_count
+            # Keep each individual policy rule as its own atomic vector chunk
+            chunks.append(f"{header_prefix} {p}".strip())
 
-    if current_chunk:
-        chunks.append(" ".join(current_chunk))
-
-    # Fallback if no clean paragraphs found
     if not chunks and text.strip():
-        words = text.split()
-        for i in range(0, len(words), max_words):
-            chunks.append(" ".join(words[i:i + max_words]))
+        chunks = [text.strip()]
 
-    return [c for c in chunks if len(c.split()) >= 8]
+    return [c for c in chunks if len(c.split()) >= 6]
 
 
 # In-memory store for custom policies when running offline or testing
@@ -135,27 +157,44 @@ async def onboard_organization_policy(
         )
         source_label = "Auto-Generated Role Guidelines"
 
-    # 4. Chunk text into semantic policy sections
-    chunks = chunk_text(raw_text)
-    if not chunks:
-        chunks = [raw_text.strip()]
+    # 4. Extract atomic, structured policy rules (Tier 1 LLM with Tier 2 Heuristic Fallback)
+    extracted_rules = extract_policy_rules(raw_text, company_name=company_name, department=department)
+    if not extracted_rules:
+        fallback_chunks = chunk_text(raw_text)
+        extracted_rules = [
+            {
+                "rule_code": f"{company_name[:3].upper()}-{department[:3].upper()}-{idx+1:02d}",
+                "title": f"{department} Standard Rule {idx+1}",
+                "department": department,
+                "enforcement_level": "MANDATORY",
+                "rule_summary": c[:140],
+                "full_text": c,
+                "trigger_keywords": []
+            }
+            for idx, c in enumerate(fallback_chunks)
+        ]
 
-    # 5. Embed each chunk locally with Hugging Face and store in Supabase
+    # 5. Embed each structured rule locally with Hugging Face and store in Supabase
     ingested_records = []
-    for chunk in chunks:
-        vector = get_local_embedding(chunk)
+    for rule in extracted_rules:
+        formatted_content = format_rule_for_embedding(rule, company_name=company_name)
+        vector = get_local_embedding(formatted_content)
         metadata = {
             "organization": company_name,
-            "department": department,
+            "department": rule.get("department", department),
             "user_id": user_id,
             "role": role_title,
             "source": source_label,
-            "is_custom_org": True
+            "is_custom_org": True,
+            "rule_code": rule.get("rule_code"),
+            "title": rule.get("title"),
+            "enforcement_level": rule.get("enforcement_level"),
+            "trigger_keywords": rule.get("trigger_keywords", [])
         }
 
         record = {
-            "category": department.lower(),
-            "content": f"[{company_name.upper()} POLICY - {department.upper()}] {chunk}",
+            "category": rule.get("department", department).lower(),
+            "content": formatted_content,
             "embedding": vector,
             "metadata": metadata
         }
@@ -187,9 +226,20 @@ async def onboard_organization_policy(
         "department": department,
         "role": role_title,
         "source": source_label,
-        "chunks_ingested": len(chunks),
-        "message": f"Successfully ingested {len(chunks)} policy chunks for {company_name} using local Hugging Face embeddings."
+        "rules_extracted": len(extracted_rules),
+        "chunks_ingested": len(extracted_rules),
+        "extracted_rules": [
+            {
+                "rule_code": r.get("rule_code"),
+                "title": r.get("title"),
+                "summary": r.get("rule_summary"),
+                "enforcement_level": r.get("enforcement_level")
+            }
+            for r in extracted_rules
+        ],
+        "message": f"Successfully extracted and vectorized {len(extracted_rules)} policy rules for {company_name} using local Hugging Face embeddings."
     }
+
 
 
 @router.get("/policies/{company_or_user_id}")

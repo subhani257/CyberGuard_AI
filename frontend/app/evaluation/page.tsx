@@ -268,8 +268,8 @@ function EvaluationContent() {
         {evaluation && (
           <EvaluationResults 
             evaluation={evaluation}
-            userAction="I will verify the sender identity through alternate channel"
-            userReasoning="This email looks suspicious because the domain is slightly different from our company official domain"
+            userAction={userAction}
+            userReasoning={userReasoning}
           />
         )}
       </motion.div>
