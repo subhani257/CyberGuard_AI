@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node --experimental-strip-types --test tests/scenario_hub.test.mjs",
+    "test": "node --experimental-strip-types --test \"tests/*.test.mjs\"",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
