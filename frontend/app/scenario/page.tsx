@@ -56,6 +56,7 @@ function ScenarioFlow() {
   const [isLoadingScenario, setIsLoadingScenario] = useState(false);
   const [scenarioError, setScenarioError] = useState<string | null>(null);
   const [scenarioId, setScenarioId] = useState<string>('');
+  const scenarioStartTimeRef = useRef<number | null>(null);
 
   const [scenario, setScenario] = useState<ScenarioContent>({
     situation_title: "Cloud & OAuth Consent Verification",
@@ -227,7 +228,15 @@ function ScenarioFlow() {
   // Trigger scenario load on channel change
   useEffect(() => {
     fetchScenario(activeChannel);
+    scenarioStartTimeRef.current = null;
   }, [activeChannel, fetchScenario]);
+
+  // Start monotonic timer when scenario becomes visible in OBSERVE
+  useEffect(() => {
+    if (currentState === 'OBSERVE' && scenarioStartTimeRef.current === null) {
+      scenarioStartTimeRef.current = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    }
+  }, [currentState]);
 
   // 3. Unsaved Progress Guard Helper
   const safeNavigate = (action: () => void) => {
@@ -305,6 +314,10 @@ function ScenarioFlow() {
     if (!reasoning.trim() || !selectedChoice) return;
     setIsSubmitting(true);
 
+    const elapsedSeconds = scenarioStartTimeRef.current
+      ? Math.max(1, Math.round(((typeof performance !== 'undefined' ? performance.now() : Date.now()) - scenarioStartTimeRef.current) / 1000))
+      : null;
+
     const decisionPayload = {
       scenario_id: scenarioId,
       scenario_text: `${scenario.subject || ''}: ${scenario.body || ''}`,
@@ -312,7 +325,8 @@ function ScenarioFlow() {
       threat_type: scenario.threat_type || 'Business Email Compromise',
       user_action: selectedChoice,
       user_reasoning: reasoning,
-      channel: scenario.channel || activeChannel
+      channel: scenario.channel || activeChannel,
+      response_time_seconds: elapsedSeconds
     };
 
     if (typeof window !== 'undefined') {
