@@ -10,7 +10,7 @@ client = TestClient(app)
 def test_root():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"message": "Welcome to CyberGuard AI API"}
+    assert response.json() == {"message": "Welcome to Midnight Intelligence API"}
 
 def test_org_rag_retrieval_policies():
     retriever = OrganizationalRetriever()
@@ -62,3 +62,25 @@ def test_api_generate_scenario_and_fetch():
     assert fetch_resp.status_code == 200
     fetch_data = fetch_resp.json()
     assert fetch_data["status"] == "success"
+
+def test_channel_specific_scenario_generation():
+    agent = ScenarioAgent()
+    for ch in ["voice_phone", "slack_teams", "qr_code", "cloud_oauth", "sms_push", "physical_media"]:
+        sc = agent.generate(role="DevOps Engineer", difficulty="hard", channel=ch)
+        assert sc["channel"] == ch
+        assert "channel_data" in sc
+        assert isinstance(sc["channel_data"], dict)
+        assert len(sc["choices"]) == 4
+
+    # Test via API endpoint
+    response = client.post("/api/generate-scenario", json={
+        "user_id": "11111111-1111-1111-1111-111111111111",
+        "role": "Security Analyst",
+        "difficulty": "medium",
+        "channel": "voice_phone"
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["scenario"]["channel"] == "voice_phone"
+    assert "caller_id" in data["scenario"]["channel_data"]

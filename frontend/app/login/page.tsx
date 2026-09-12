@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -10,6 +10,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // If already logged in, redirect straight to dashboard
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('cyberguard_user');
+      if (stored) {
+        try {
+          const u = JSON.parse(stored);
+          if (u && (u.id || u.email)) {
+            router.replace('/dashboard');
+          }
+        } catch (_) {}
+      }
+    }
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,15 +63,9 @@ export default function LoginPage() {
   const handleGoogleLogin = () => {
     setLoading(true);
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ktivturksaummardilyu.supabase.co';
+    // Redirect to /dashboard — it will detect new users and forward them to /onboarding
     const redirectTo = `${window.location.origin}/dashboard`;
     window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
-  };
-
-  // Only used for the demo presentation quick-fill bar
-  const fillDemoAccount = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword('password123');
-    setErrorMessage('');
   };
 
   return (
@@ -70,11 +79,11 @@ export default function LoginPage() {
       <nav className="w-full max-w-[1200px] absolute top-0 pt-8 pb-4 px-6 flex items-center justify-between z-50">
         <Link href="/" className="flex items-center gap-3 group">
           <span className="text-xl leading-none font-light text-cyan opacity-80 group-hover:opacity-100 transition-opacity">◉</span>
-          <span className="font-semibold text-lg tracking-tight">CyberGuard AI</span>
+          <span className="font-semibold text-lg tracking-tight">Midnight Intelligence</span>
         </Link>
-        <span className="text-xs uppercase tracking-widest text-muted font-medium">
-          Member 3 Security Gateway
-        </span>
+        <Link href="/signup" className="text-xs uppercase tracking-widest text-muted hover:text-primary transition-colors font-medium">
+          Sign Up →
+        </Link>
       </nav>
 
       {/* Login Card */}
@@ -85,11 +94,13 @@ export default function LoginPage() {
         className="w-full max-w-md bg-surface rounded-[2rem] p-8 md:p-10 border border-primary/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)] relative z-10"
       >
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue/10 border border-blue/20 text-cyan mb-4">
-            <span className="text-xl">🔒</span>
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue/10 border border-blue/20 text-cyan mb-4 shadow-inner">
+            <svg className="w-5 h-5 text-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-primary mb-2">
-            Sign in to CyberGuard
+            Sign in to Midnight Intelligence
           </h1>
           <p className="text-xs text-muted">
             Authenticated session required for adaptive simulations
@@ -182,39 +193,6 @@ export default function LoginPage() {
             Create account
           </Link>
         </p>
-
-        {/* Demo Credentials Bar — for presentation only */}
-        <div className="mt-8 pt-6 border-t border-primary/5">
-          <p className="text-[10px] uppercase tracking-widest text-muted font-bold text-center mb-1">
-            Demo Access
-          </p>
-          <p className="text-[10px] text-muted/60 text-center mb-3">
-            Pre-configured test accounts (password: password123)
-          </p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            <button
-              type="button"
-              onClick={() => fillDemoAccount('nimal@novatech.com')}
-              className="text-xs px-2.5 py-1 rounded-lg bg-primary/5 hover:bg-primary/10 text-muted hover:text-primary transition-colors"
-            >
-              Learner (Nimal)
-            </button>
-            <button
-              type="button"
-              onClick={() => fillDemoAccount('admin@novatech.com')}
-              className="text-xs px-2.5 py-1 rounded-lg bg-amber/10 hover:bg-amber/20 text-amber transition-colors"
-            >
-              Admin (CISO)
-            </button>
-            <button
-              type="button"
-              onClick={() => fillDemoAccount('trainer@novatech.com')}
-              className="text-xs px-2.5 py-1 rounded-lg bg-cyan/10 hover:bg-cyan/20 text-cyan transition-colors"
-            >
-              Trainer
-            </button>
-          </div>
-        </div>
       </motion.div>
     </main>
   );

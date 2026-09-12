@@ -197,9 +197,9 @@ function EvaluationContent() {
       <main className="min-h-screen bg-background text-primary flex flex-col font-sans selection:bg-blue/20">
         <nav className="w-full z-50 pt-8 pb-4 shrink-0">
           <div className="max-w-[1600px] mx-auto px-8 md:px-12 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link href="/dashboard" className="flex items-center gap-3 group">
               <span className="text-2xl leading-none font-light text-cyan opacity-80 group-hover:opacity-100 transition-opacity">◉</span>
-              <span className="font-semibold tracking-tight text-lg">CyberGuard AI</span>
+              <span className="font-semibold tracking-tight text-lg">Midnight Intelligence</span>
             </Link>
             <Link href="/dashboard" className="text-sm font-medium text-muted hover:text-primary transition-colors">
               ← Back to Dashboard
@@ -222,9 +222,9 @@ function EvaluationContent() {
       <main className="min-h-screen bg-background text-primary flex flex-col font-sans selection:bg-blue/20">
         <nav className="w-full z-50 pt-8 pb-4 shrink-0">
           <div className="max-w-[1600px] mx-auto px-8 md:px-12 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link href="/dashboard" className="flex items-center gap-3 group">
               <span className="text-2xl leading-none font-light text-cyan opacity-80 group-hover:opacity-100 transition-opacity">◉</span>
-              <span className="font-semibold tracking-tight text-lg">CyberGuard AI</span>
+              <span className="font-semibold tracking-tight text-lg">Midnight Intelligence</span>
             </Link>
             <Link href="/dashboard" className="text-sm font-medium text-muted hover:text-primary transition-colors">
               ← Back to Dashboard
@@ -250,9 +250,9 @@ function EvaluationContent() {
       {/* Navigation */}
       <nav className="w-full z-50 pt-8 pb-4 shrink-0">
         <div className="max-w-[1600px] mx-auto px-8 md:px-12 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
+          <Link href="/dashboard" className="flex items-center gap-3 group">
             <span className="text-2xl leading-none font-light text-cyan opacity-80 group-hover:opacity-100 transition-opacity">◉</span>
-            <span className="font-semibold tracking-tight text-lg">CyberGuard AI</span>
+            <span className="font-semibold tracking-tight text-lg">Midnight Intelligence</span>
           </Link>
           <Link href="/dashboard" className="text-sm font-medium text-muted hover:text-primary transition-colors tracking-wide">
             ← Back to Dashboard

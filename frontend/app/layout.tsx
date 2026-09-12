@@ -2,9 +2,9 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'CyberGuard AI',
-  description: 'Scenario Generation Simulator',
-}
+  title: 'Midnight Intelligence',
+  description: 'Multi-Agent Adaptive Cybersecurity Awareness Platform',
+};
 
 export default function RootLayout({
   children,

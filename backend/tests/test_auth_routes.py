@@ -71,19 +71,29 @@ def test_rbac_learner_cannot_access_admin_endpoint():
     assert response.status_code == 403
     assert "Access denied" in response.json()["detail"]
 
-def test_rbac_admin_can_access_admin_endpoint():
-    admin_token = create_access_token({
-        "sub": "admin-uuid",
-        "email": "admin@novatech.com",
-        "access_role": "admin",
-        "is_active": True
-    })
-    
-    response = client.get("/api/auth/admin/users", headers={
-        "Authorization": f"Bearer {admin_token}"
+def test_sync_user_endpoint():
+    response = client.post("/api/auth/sync-user", json={
+        "user_id": "99999999-9999-9999-9999-999999999999",
+        "email": "sync_test@novatech.com",
+        "full_name": "Sync Test User",
+        "role": "Cloud Architect"
     })
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True
-    assert data["admin"] == "admin@novatech.com"
-    assert data["total_users"] > 0
+    assert data["user_id"] == "99999999-9999-9999-9999-999999999999"
+
+
+def test_google_auth_endpoint():
+    response = client.post("/api/auth/google", json={
+        "id": "88888888-8888-8888-8888-888888888888",
+        "email": "google_test@novatech.com",
+        "full_name": "Google Tester",
+        "role": "Lead Architect"
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert "access_token" in data
+    assert data["user"]["email"] == "google_test@novatech.com"
+

@@ -1,0 +1,122 @@
+[
+  {
+    "category": "vishing_defense",
+    "channel": "voice_phone",
+    "target_risk_surface": "financial_access",
+    "source": "NIST SP 800-50 / CISA Alert AA23-074A",
+    "content": "Voice Verification Directive: Audio familiarity and executive voices can be cloned with high fidelity using modern AI voice synthesis. Any unsolicited phone call or voicemail demanding urgent wire transfers, credential resets, or bypassing standard payment approvals requires immediately hanging up and calling back the known corporate phone directory number. Never authorize payment based solely on a telephone call.",
+    "metadata": {
+      "framework": "NIST SP 800-50",
+      "topics": ["vishing", "ai_voice_clone", "out_of_band", "wire_transfer"],
+      "cognitive_bias": "authority_compliance"
+    }
+  },
+  {
+    "category": "chat_compromise_defense",
+    "channel": "slack_teams",
+    "target_risk_surface": "general",
+    "source": "SANS OUCH! Messaging Security / NCSC Guidance",
+    "content": "Collaboration Platform Security Directive: Attackers possessing compromised session cookies or internal accounts frequently post malicious payload links or urgent administrative requests via Slack/Teams direct messages. Never disable endpoint security tools, execute shell scripts, or share API tokens over instant messaging channels without a verified ITSM ticket reference.",
+    "metadata": {
+      "framework": "SANS Security Awareness",
+      "topics": ["slack_phishing", "teams_compromise", "session_theft", "internal_impersonation"],
+      "cognitive_bias": "social_proof"
+    }
+  },
+  {
+    "category": "quishing_detection",
+    "channel": "qr_code",
+    "target_risk_surface": "general",
+    "source": "NCSC Quishing Advisory / FBI IC3 Alert",
+    "content": "QR Code Security Directive: Quick Response (QR) codes embedded in physical cafeteria posters, parking flyers, or corporate email PDF attachments intentionally bypass email gateway inspection. Never scan unverified QR codes demanding 2FA reconfiguration, parking validation, or password reset without inspecting the decoded destination URL on a sandbox-protected browser.",
+    "metadata": {
+      "framework": "NCSC Defensive Framework",
+      "topics": ["quishing", "qr_code", "credential_harvesting", "mfa_bypass"],
+      "cognitive_bias": "convenience_bias"
+    }
+  },
+  {
+    "category": "oauth_consent_defense",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "privileged_access",
+    "source": "CISA Cloud Security Directive / Microsoft Security",
+    "content": "Cloud OAuth Consent & Illicit Grant Directive: Rogue third-party web and cloud application permissions grant persistent API access to corporate mailboxes, SharePoint files, and OneDrive repositories even after user passwords are changed. Employees must never grant 'Read/Write Mailbox' or 'Offline Access' permissions to unverified external OAuth applications without SecOps approval.",
+    "metadata": {
+      "framework": "CISA Cloud Security",
+      "topics": ["oauth_consent", "cloud_hijack", "token_abuse", "data_exfiltration"],
+      "cognitive_bias": "habituation_bias"
+    }
+  },
+  {
+    "category": "mfa_fatigue_defense",
+    "channel": "sms_push",
+    "target_risk_surface": "privileged_access",
+    "source": "NIST SP 800-63B / CISA Alert",
+    "content": "MFA Push Fatigue & Prompt Bombing Directive: Repeated unsolicited MFA push notifications sent in rapid succession indicate attacker knowledge of user passwords attempting to exhaust the employee into tapping 'Approve'. Never accept an unprompted 2FA push notification. Immediately click 'Deny / Fraud' and notify the SOC to revoke active authentication sessions.",
+    "metadata": {
+      "framework": "NIST SP 800-63B",
+      "topics": ["mfa_fatigue", "push_bombing", "incident_reporting", "credential_stuffing"],
+      "cognitive_bias": "cognitive_exhaustion"
+    }
+  },
+  {
+    "category": "urgency_bias",
+    "channel": "email",
+    "target_risk_surface": "general",
+    "source": "NIST SP 800-50 Sec 3.2",
+    "content": "Urgency Bias Mitigation: Attackers intentionally engineer artificial time pressure (e.g., 'must be completed in 15 minutes before audit penalties') to induce panic and bypass logical scrutiny. Whenever an urgent communication demands immediate action or credential entry, initiate a mandatory 5-minute pause and verify through official channels.",
+    "metadata": {
+      "framework": "NIST SP 800-50",
+      "topics": ["urgency", "social_engineering", "cognitive_heuristics"],
+      "cognitive_bias": "urgency_bias"
+    }
+  },
+  {
+    "category": "pii_phi_protection",
+    "channel": "email",
+    "target_risk_surface": "pii_phi",
+    "source": "HIPAA Security Rule / GDPR Art. 32",
+    "content": "Confidential PII & Medical Records Handling: Personally Identifiable Information (PII) and Protected Health Information (PHI) must never be transmitted over unencrypted email or uploaded to public AI tools. Always verify external recipient authenticity before dispatching patient rosters, tax forms (W-2/1099), or employee bank account details.",
+    "metadata": {
+      "framework": "HIPAA / GDPR",
+      "topics": ["pii_phi", "data_leakage", "healthcare_records", "hr_data"],
+      "cognitive_bias": "empathy_manipulation"
+    }
+  },
+  {
+    "category": "source_code_secrets",
+    "channel": "slack_teams",
+    "target_risk_surface": "source_code",
+    "source": "OWASP Top 10 CI/CD Security / SANS DEV-544",
+    "content": "Developer Secrets & Pipeline Defense: AWS access keys, GitHub personal access tokens, database connection strings, and private SSH certificates must never be posted in chat channels, commit messages, or support tickets. Attackers crawl internal chat logs and public repositories to locate exposed credentials.",
+    "metadata": {
+      "framework": "OWASP CI/CD",
+      "topics": ["secret_leakage", "api_keys", "github_tokens", "ci_cd_security"],
+      "cognitive_bias": "workaround_bias"
+    }
+  },
+  {
+    "category": "supply_chain_verification",
+    "channel": "email",
+    "target_risk_surface": "financial_access",
+    "source": "FBI IC3 Vendor Fraud Advisory / NIST SP 800-161",
+    "content": "Supplier Bank Account Modification Directive: Invoices received from existing vendors requesting changes to recipient routing numbers or banking institutions require secondary out-of-band telephone verification with the vendor's primary accounts receivable team prior to processing any payment.",
+    "metadata": {
+      "framework": "NIST SP 800-161",
+      "topics": ["vendor_email_compromise", "invoice_fraud", "supply_chain"],
+      "cognitive_bias": "trust_continuity"
+    }
+  },
+  {
+    "category": "physical_media_defense",
+    "channel": "physical_media",
+    "target_risk_surface": "privileged_access",
+    "source": "US-CERT Security Tip ST08-001",
+    "content": "Removable Storage & USB Drop Attack Directive: USB drives or external storage media discovered in parking structures, lobby desks, or conference rooms must never be plugged into corporate laptops or workstations. Unknown storage devices can execute automated keystroke injection (Rubber Ducky) or install bootloader malware.",
+    "metadata": {
+      "framework": "US-CERT ST08-001",
+      "topics": ["usb_drop", "badusb", "hardware_malware", "physical_security"],
+      "cognitive_bias": "curiosity_bias"
+    }
+  }
+]

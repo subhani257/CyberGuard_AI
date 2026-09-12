@@ -41,6 +41,16 @@ class ProcessDecisionRequest(BaseModel):
     user_id: Optional[str] = None
 
 
+class OnboardUserRequest(BaseModel):
+    user_id: Optional[str] = None
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+    job_title: str
+    department: Optional[str] = "General"
+    org_name: Optional[str] = "NovaTech Solutions"
+    org_description: Optional[str] = None
+
+
 class DashboardSummaryResponse(BaseModel):
     success: bool
     user: Dict[str, Any]
@@ -49,6 +59,97 @@ class DashboardSummaryResponse(BaseModel):
     next_situation: Dict[str, Any]
     decision_journey: List[Dict[str, Any]]
     weakness_breakdown: Dict[str, int]
+    training_map: Optional[List[Dict[str, Any]]] = None
+    learning_profile: Optional[Dict[str, Any]] = None
+
+
+@router.post("/onboard-user")
+async def onboard_user(
+    request: OnboardUserRequest,
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user)
+):
+    """
+    First-Time User Onboarding Endpoint (Member 3 - Dynamic AI Profiler):
+    Dynamically analyzes any arbitrary job role, department, and org profile
+    using LLM reasoning and multi-channel RAG from cyber_training.
+    Establishes the learner's initial attack surface, threat channel, and personalized training map.
+    """
+    effective_user_id = (current_user.id if current_user else request.user_id) or "11111111-1111-1111-1111-111111111111"
+    effective_email = request.email or (current_user.email if current_user else f"user_{effective_user_id[:8]}@novatech.com")
+    effective_name = request.full_name or (current_user.full_name if current_user else "Team Member")
+    
+    # 1. Execute Dynamic AI Role & Org Decomposition
+    baseline_profile = coach_agent.analyze_first_time_user(
+        job_title=request.job_title,
+        department=request.department,
+        org_name=request.org_name,
+        org_description=request.org_description
+    )
+
+    # 2. Persist user into public.users and initialized profile in Supabase
+    if supabase:
+        try:
+            # Guarantee user exists in public.users to satisfy Foreign Key constraints
+            supabase.table("users").upsert({
+                "id": effective_user_id,
+                "email": effective_email,
+                "full_name": effective_name,
+                "role": request.job_title,
+                "readiness_score": 50
+            }).execute()
+        except Exception as e:
+            print(f"Notice: Supabase public.users upsert in onboard_user: {e}")
+
+        try:
+            upsert_payload = {
+                "user_id": effective_user_id,
+                "next_difficulty": baseline_profile["next_difficulty"],
+                "next_focus": baseline_profile["next_focus"],
+                "tactic_to_target": baseline_profile["tactic_to_target"],
+                "target_channel": baseline_profile["target_channel"],
+                "primary_attack_surface": baseline_profile["primary_attack_surface"]
+            }
+            # Attempt to persist training_map if column exists in schema
+            try:
+                supabase.table("user_learning_profile").upsert({
+                    **upsert_payload,
+                    "training_map": baseline_profile.get("training_map")
+                }).execute()
+            except Exception:
+                supabase.table("user_learning_profile").upsert(upsert_payload).execute()
+
+            supabase.table("agent_audit_logs").insert({
+                "agent_name": "CoachAgent (Member 3)",
+                "user_id": effective_user_id,
+                "action": "DYNAMIC_ONBOARDING_INITIALIZATION",
+                "details": {
+                    "job_title": request.job_title,
+                    "department": request.department,
+                    "org_name": request.org_name,
+                    "baseline_profile": baseline_profile
+                }
+            }).execute()
+        except Exception as e:
+            print(f"Notice: Supabase onboarding upsert bypassed: {e}")
+
+    # Update in-memory cache
+    MOCK_LEARNING_PROFILES[effective_user_id] = {
+        "next_difficulty": baseline_profile["next_difficulty"],
+        "next_focus": baseline_profile["next_focus"],
+        "tactic_to_target": baseline_profile["tactic_to_target"],
+        "target_channel": baseline_profile["target_channel"],
+        "primary_attack_surface": baseline_profile["primary_attack_surface"],
+        "training_map": baseline_profile.get("training_map"),
+        "coaching": {"feedback": baseline_profile["orientation_tip"]}
+    }
+
+    return {
+        "success": True,
+        "user_id": effective_user_id,
+        "role_analyzed": request.job_title,
+        "learning_profile": baseline_profile,
+        "training_map": baseline_profile.get("training_map")
+    }
 
 
 @router.post("/process-decision")
@@ -199,7 +300,7 @@ async def get_dashboard_summary(
     if not profile_data:
         profile_data = MOCK_LEARNING_PROFILES.get(effective_user_id, {})
 
-    next_difficulty = profile_data.get("next_difficulty", "medium")
+    next_difficulty = profile_data.get("next_difficulty", "beginner")
     next_focus = profile_data.get("next_focus", "Payment & Invoice Verification")
     tactic_target = profile_data.get("tactic_to_target", "urgency_bias")
 
@@ -222,13 +323,34 @@ async def get_dashboard_summary(
         weaknesses = eval_data.get("weaknesses") or eval_data.get("threat_indicators") or ["Social Engineering"] if isinstance(eval_data, dict) else ["Social Engineering"]
         threat = weaknesses[0] if weaknesses else "Threat Vector"
 
+        threat_str = str(threat).lower()
+        action_str = str(d.get("chosen_action", "")).lower()
+        reason_str = str(d.get("reasoning", "")).lower()
+        full_text = f"{threat_str} {action_str} {reason_str}"
+
+        dec_channel = "email"
+        if any(w in full_text for w in ["voice", "vishing", "phone", "call", "caller"]):
+            dec_channel = "voice_phone"
+        elif any(w in full_text for w in ["slack", "teams", "chat", "dm"]):
+            dec_channel = "slack_teams"
+        elif any(w in full_text for w in ["qr", "quish", "scan"]):
+            dec_channel = "qr_code"
+        elif any(w in full_text for w in ["oauth", "consent", "token", "cloud"]):
+            dec_channel = "cloud_oauth"
+        elif any(w in full_text for w in ["mfa", "push", "bombing", "sms", "fatigue"]):
+            dec_channel = "sms_push"
+        elif any(w in full_text for w in ["usb", "physical", "hardware", "drive"]):
+            dec_channel = "physical_media"
+
         journey.append({
             "id": idx,
             "title": d.get("chosen_action", f"Scenario {idx}"),
             "threat": str(threat).replace("_", " ").title(),
             "score": score,
             "status": "Defense Mastered" if is_safe else "Learning Opportunity",
-            "is_safe": is_safe
+            "is_safe": is_safe,
+            "channel": dec_channel,
+            "reasoning": d.get("reasoning", "")
         })
 
     # 3. Calculate dynamic Readiness Score
@@ -282,14 +404,29 @@ async def get_dashboard_summary(
         if id_scores:
             weakness_breakdown["Identity Verification"] = round(sum(id_scores) / len(id_scores))
 
+    target_channel = profile_data.get("target_channel", "email")
+    attack_surface = profile_data.get("primary_attack_surface", f"Assets associated with {effective_user_role}")
+
     next_situation = {
         "title": f"Adaptive Challenge: {next_focus}",
         "role": effective_user_role,
         "category": next_focus,
+        "channel": target_channel,
+        "primary_attack_surface": attack_surface,
         "difficulty": next_difficulty,
         "estimated_minutes": 3,
         "tactic_target": tactic_target
     }
+
+    # Retrieve or dynamically synthesize role-specific training map
+    training_map = profile_data.get("training_map")
+    if not training_map or not isinstance(training_map, list):
+        training_map = coach_agent._synthesize_training_map(
+            job_title=effective_user_role,
+            org_name="Your Organization",
+            target_channel=target_channel,
+            target_topic=next_focus
+        )
 
     return DashboardSummaryResponse(
         success=True,
@@ -303,6 +440,8 @@ async def get_dashboard_summary(
         feedback_headline=headline,
         next_situation=next_situation,
         decision_journey=journey,
-        weakness_breakdown=weakness_breakdown
+        weakness_breakdown=weakness_breakdown,
+        training_map=training_map,
+        learning_profile=profile_data
     )
 
