@@ -33,8 +33,10 @@ MOCK_SCENARIOS_CACHE: Dict[str, Dict[str, Any]] = {}
 class ScenarioRequest(BaseModel):
     user_id: Optional[str] = "11111111-1111-1111-1111-111111111111"
     role: Optional[str] = "Finance Manager"
-    difficulty: Optional[str] = "medium"
+    difficulty: Optional[str] = "beginner"
     company: Optional[str] = None
+    # Optional: specific attack channel from Training Arena (e.g. voice_phone, email, slack_teams)
+    channel: Optional[str] = None
 
 
 @router.post("/generate-scenario")
@@ -48,9 +50,10 @@ def create_scenario(request: ScenarioRequest):
     """
     try:
         user_role = request.role or "Finance Manager"
-        difficulty = request.difficulty or "medium"
+        difficulty = request.difficulty or "beginner"
         user_id = request.user_id or "11111111-1111-1111-1111-111111111111"
         company = request.company
+        channel = request.channel  # e.g. "voice_phone", "email", "slack_teams"
 
         # 1. Retrieve Org Context (prioritizing custom company policy if uploaded)
         org_context = get_org_context(user_role, company_name=company, user_id=user_id)
@@ -58,8 +61,8 @@ def create_scenario(request: ScenarioRequest):
         # 2. Sanitize Context via spaCy PII filter
         safe_context = sanitize_input(org_context)
         
-        # 3. Generate Scenario via Scenario Agent
-        scenario_json_str = generate_scenario(user_role, difficulty, safe_context)
+        # 3. Generate Scenario via Scenario Agent (channel-aware when provided)
+        scenario_json_str = generate_scenario(user_role, difficulty, safe_context, channel=channel)
         try:
             scenario_data = json.loads(scenario_json_str) if isinstance(scenario_json_str, str) else scenario_json_str
         except Exception:

@@ -8,7 +8,7 @@ from api.coach_routes import router as coach_router
 from api.org_routes import router as org_router
 
 app = FastAPI(
-    title="CyberGuard AI API",
+    title="Midnight Intelligence API",
     description="Adaptive Multi-Agent Cybersecurity Awareness Training Platform",
     version="1.0.0"
 )
@@ -36,12 +36,12 @@ app.include_router(coach_router, prefix="/api/coach")
 
 @app.get("/")
 def root():
-    return {"message": "Welcome to CyberGuard AI API"}
+    return {"message": "Welcome to Midnight Intelligence API"}
 
 @app.get("/api/system/architecture")
 def system_architecture():
     return {
-        "system": "CyberGuard AI API",
+        "system": "Midnight Intelligence API",
         "status": "operational",
         "architecture": "3-Member Multi-Agent Balanced Contribution Model",
         "modules": {

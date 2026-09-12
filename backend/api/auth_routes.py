@@ -85,9 +85,19 @@ class SignupRequest(BaseModel):
 
 
 class GoogleAuthRequest(BaseModel):
+    id: Optional[str] = None
     email: Optional[str] = "alex.turner@techcorp.io"
     full_name: Optional[str] = "Alex Turner"
+    role: Optional[str] = "Employee"
+    company: Optional[str] = "NovaTech Solutions"
     id_token: Optional[str] = None
+
+
+class SyncUserRequest(BaseModel):
+    user_id: str
+    email: str
+    full_name: Optional[str] = None
+    role: Optional[str] = "Employee"
 
 
 class LoginResponse(BaseModel):
@@ -100,6 +110,34 @@ class LoginResponse(BaseModel):
 class LogoutResponse(BaseModel):
     success: bool
     message: str
+
+
+@router.post("/sync-user")
+async def sync_user(request: SyncUserRequest):
+    """
+    Explicitly synchronizes Supabase OAuth / Auth user into public.users.
+    Guarantees public.users has matching record for foreign keys and RLS.
+    """
+    user_id = request.user_id.strip()
+    email = request.email.strip().lower()
+    full_name = (request.full_name or email.split("@")[0]).strip()
+    role = (request.role or "Employee").strip()
+
+    if supabase:
+        try:
+            supabase.table("users").upsert({
+                "id": user_id,
+                "email": email,
+                "full_name": full_name,
+                "role": role,
+                "readiness_score": 50
+            }).execute()
+            return {"success": True, "user_id": user_id, "email": email, "synced": True}
+        except Exception as e:
+            print(f"Error in sync_user: {e}")
+            return {"success": False, "error": str(e)}
+
+    return {"success": True, "user_id": user_id, "email": email, "synced": False, "mode": "in-memory"}
 
 
 @router.post("/login", response_model=LoginResponse)
@@ -272,7 +310,9 @@ async def google_auth(request: GoogleAuthRequest):
     """
     email = (request.email or "alex.turner@techcorp.io").strip().lower()
     full_name = (request.full_name or "Alex Turner").strip()
-    user_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, email))
+    role = (request.role or "Product Manager").strip()
+    company = (request.company or "TechCorp Global").strip()
+    user_id = request.id or str(uuid.uuid5(uuid.NAMESPACE_DNS, email))
 
     if supabase:
         try:
@@ -281,23 +321,24 @@ async def google_auth(request: GoogleAuthRequest):
             if existing.data and len(existing.data) > 0:
                 user_id = existing.data[0]["id"]
                 full_name = existing.data[0].get("full_name") or full_name
+                role = existing.data[0].get("role") or role
             else:
                 supabase.table("users").upsert({
                     "id": user_id,
                     "email": email,
                     "full_name": full_name,
-                    "role": "Product Manager",
+                    "role": role,
                     "readiness_score": 60
                 }).execute()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Notice: Supabase upsert in google_auth: {e}")
 
     user_record = {
         "id": user_id,
         "email": email,
         "full_name": full_name,
-        "role": "Product Manager",
-        "company": "TechCorp Global",
+        "role": role,
+        "company": company,
         "access_role": "learner",
         "is_active": True
     }

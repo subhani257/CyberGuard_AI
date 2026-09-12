@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -12,6 +12,21 @@ export default function SignupPage() {
   const [company, setCompany] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // If already logged in, redirect straight to dashboard
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('cyberguard_user');
+      if (stored) {
+        try {
+          const u = JSON.parse(stored);
+          if (u && (u.id || u.email)) {
+            router.replace('/dashboard');
+          }
+        } catch (_) {}
+      }
+    }
+  }, [router]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +82,7 @@ export default function SignupPage() {
       <nav className="w-full max-w-[1200px] absolute top-0 pt-8 pb-4 px-6 flex items-center justify-between z-50">
         <Link href="/" className="flex items-center gap-3 group">
           <span className="text-xl leading-none font-light text-cyan opacity-80 group-hover:opacity-100 transition-opacity">◉</span>
-          <span className="font-semibold text-lg tracking-tight">CyberGuard AI</span>
+          <span className="font-semibold text-lg tracking-tight">Midnight Intelligence</span>
         </Link>
         <Link href="/login" className="text-xs uppercase tracking-widest text-muted hover:text-primary transition-colors font-medium">
           Sign In →
@@ -82,8 +97,10 @@ export default function SignupPage() {
         className="w-full max-w-md bg-surface rounded-[2rem] p-8 md:p-10 border border-primary/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)] relative z-10"
       >
         <div className="mb-6 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue/10 border border-blue/20 text-cyan mb-4">
-            <span className="text-xl">✨</span>
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue/10 border border-blue/20 text-cyan mb-4 shadow-inner">
+            <svg className="w-5 h-5 text-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m1.5-1.5h-3m-1.5 5.25a6 6 0 00-9-5.197M13.5 6.75a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-primary mb-1">
             Create your account

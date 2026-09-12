@@ -13,10 +13,10 @@ interface FirstUserGuideProps {
 const TOUR_STEPS = [
   {
     step: 1,
-    badge: "Welcome to CyberGuard AI",
+    badge: "Welcome to Midnight Intelligence",
     title: "Personalized Security Grounding",
     icon: <Building2 className="w-7 h-7 text-primary" />,
-    description: "Unlike static, generic phishing tests, CyberGuard AI crafts adaptive spear-phishing scenarios specifically grounded in your actual organization, department, and role responsibilities.",
+    description: "Unlike static, generic phishing tests, Midnight Intelligence crafts adaptive spear-phishing scenarios specifically grounded in your actual organization, department, and role responsibilities.",
     tip: "Tip: Your current role and company profile are used by our AI agents to simulate authentic attack vectors tailored to your daily workflows."
   },
   {

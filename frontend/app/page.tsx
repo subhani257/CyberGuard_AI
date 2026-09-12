@@ -1,8 +1,31 @@
 "use client";
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, Variants } from 'framer-motion';
 
 export default function LandingPage() {
+  const [currentUser, setCurrentUser] = useState<{ full_name?: string; name?: string; email?: string } | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('cyberguard_user');
+      if (stored) {
+        try {
+          const u = JSON.parse(stored);
+          if (u && (u.id || u.email)) {
+            setCurrentUser(u);
+          }
+        } catch (_) {}
+      }
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('cyberguard_token');
+    localStorage.removeItem('cyberguard_user');
+    setCurrentUser(null);
+  };
+
   // Animation timings based on the spec
   const navVariants: Variants = {
     hidden: { opacity: 0 },
@@ -46,11 +69,34 @@ export default function LandingPage() {
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-8 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
             <span className="text-xl leading-none font-light text-cyan opacity-80 group-hover:opacity-100 transition-opacity">◉</span>
-            <span className="font-semibold text-lg tracking-tight">CyberGuard AI</span>
+            <span className="font-semibold text-lg tracking-tight">Midnight Intelligence</span>
           </Link>
-          <Link href="/login" className="text-sm font-medium text-muted hover:text-primary transition-colors tracking-wide">
-            Sign in
-          </Link>
+          
+          {currentUser ? (
+            <div className="flex items-center gap-4">
+              <span className="hidden md:inline-block text-xs font-mono text-muted">
+                Signed in as <span className="text-primary font-semibold">{currentUser.full_name || currentUser.name || currentUser.email}</span>
+              </span>
+              <Link 
+                href="/dashboard" 
+                className="text-xs font-mono font-bold tracking-wider uppercase text-cyan px-4 py-2 rounded-xl bg-cyan/10 border border-cyan/30 hover:bg-cyan/20 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(92,200,215,0.15)]"
+              >
+                <span className="w-2 h-2 rounded-full bg-cyan animate-pulse"></span>
+                <span>Dashboard</span>
+                <span className="font-light">→</span>
+              </Link>
+              <button
+                onClick={handleSignOut}
+                className="text-xs font-mono text-muted hover:text-coral transition-colors tracking-wide ml-1"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <Link href="/login" className="text-sm font-medium text-muted hover:text-primary transition-colors tracking-wide">
+              Sign in
+            </Link>
+          )}
         </div>
       </motion.nav>
 
@@ -102,12 +148,21 @@ export default function LandingPage() {
               href="/dashboard" 
               className="bg-blue hover:bg-blue/90 text-white font-medium text-lg px-8 py-4 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 shadow-[0_0_30px_rgba(79,124,255,0.2)]"
             >
-              Enter your first situation <span className="opacity-70 font-light">→</span>
+              {currentUser ? "Open Training Dashboard" : "Enter your first situation"} <span className="opacity-70 font-light">→</span>
             </Link>
             
-            <button className="text-muted hover:text-primary font-medium text-sm transition-opacity tracking-wide">
-              See how it works ↓
-            </button>
+            {currentUser ? (
+              <Link 
+                href="/dashboard?tab=training_map" 
+                className="text-muted hover:text-cyan font-mono text-xs transition-colors tracking-wider uppercase flex items-center gap-1.5"
+              >
+                <span>Go directly to Sector Training Map</span> <span>→</span>
+              </Link>
+            ) : (
+              <button className="text-muted hover:text-primary font-medium text-sm transition-opacity tracking-wide">
+                See how it works ↓
+              </button>
+            )}
           </motion.div>
 
         </div>
