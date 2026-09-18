@@ -187,19 +187,6 @@ async def evaluate_decision(
         scenario_content = scenario_record.get("content") or {}
         scenario_text = _extract_scenario_text(scenario_content)
         if not scenario_text:
-<<<<<<< HEAD
-            # Fallback: generic scenario text when DB is unavailable (covers any threat type)
-            print(f"Scenario {request.scenario_id} not found in database, using fallback scenario for testing")
-            scenario_text = """
-            URGENT: Please wire $50,000 immediately. CEO request. Do not discuss with anyone.
-            Our vendor updated their bank account details. Scan the QR code to confirm.
-            You have received multiple MFA push notifications — approve on your phone to continue.
-            IT Support called and asked to install AnyDesk and allow remote access.
-            """
-        else:
-            scenario = scenario_data.data[0]
-            scenario_text = _extract_scenario_text(scenario["content"])
-=======
             raise HTTPException(status_code=422, detail="Scenario has no evaluable content")
 
         choices = scenario_content.get("choices") or []
@@ -208,7 +195,6 @@ async def evaluate_decision(
             for choice in choices
         ):
             raise HTTPException(status_code=422, detail="Selected action is not one of this scenario's choices")
->>>>>>> 3cd659dc88d22480b515315a9c6847f95388505a
         
         # Step 2: Extract threat indicators
         threat_indicators_result = threat_extractor.extract(scenario_text)
@@ -289,15 +275,11 @@ async def evaluate_decision(
 
 
 def _extract_scenario_text(scenario_content: Dict[str, Any]) -> str:
-<<<<<<< HEAD
     """
     Converts any scenario JSON into a flat text string for NLP analysis.
     Handles all scenario types: Email, SMS, Slack/DM, Vishing, QR Code,
     Supply Chain, Cloud App, MFA Fatigue — without assuming any specific format.
     """
-=======
-    """Extract all user-visible scenario text, including non-email channel data."""
->>>>>>> 3cd659dc88d22480b515315a9c6847f95388505a
     parts = []
 
     # --- Priority fields: always include context clues if available ---
@@ -325,9 +307,8 @@ def _extract_scenario_text(scenario_content: Dict[str, Any]) -> str:
     # --- Message content fields (any platform) ---
     if scenario_content.get("subject"):
         parts.append(f"Subject: {scenario_content['subject']}")
-<<<<<<< HEAD
     if scenario_content.get("body"):
-        parts.append(f"Message: {scenario_content['body']}")
+        parts.append(f"Body: {scenario_content['body']}")
     if scenario_content.get("message_content"):
         parts.append(f"Message: {scenario_content['message_content']}")
     if scenario_content.get("message"):
@@ -335,19 +316,7 @@ def _extract_scenario_text(scenario_content: Dict[str, Any]) -> str:
     if scenario_content.get("description"):
         parts.append(f"Description: {scenario_content['description']}")
 
-    # --- Embedded clues (always include for richer NLP context) ---
-    if scenario_content.get("clues_embedded") and isinstance(scenario_content["clues_embedded"], list):
-        parts.append(f"Clues: {' '.join(scenario_content['clues_embedded'])}")
-
-    # --- Fallback: if nothing specific found, stringify all string values ---
-    if not parts:
-        for key, value in scenario_content.items():
-            if isinstance(value, str) and len(value) > 3:
-                parts.append(f"{key}: {value}")
-
-=======
-    if "body" in scenario_content:
-        parts.append(f"Body: {scenario_content['body']}")
+    # --- Channel specific data ---
     channel_data = scenario_content.get("channel_data")
     if isinstance(channel_data, dict):
         for key, value in channel_data.items():
@@ -361,8 +330,16 @@ def _extract_scenario_text(scenario_content: Dict[str, Any]) -> str:
             else:
                 rendered = str(value)
             parts.append(f"{key.replace('_', ' ')}: {rendered}")
-    
->>>>>>> 3cd659dc88d22480b515315a9c6847f95388505a
+
+    # --- Embedded clues (always include for richer NLP context) ---
+    if scenario_content.get("clues_embedded") and isinstance(scenario_content["clues_embedded"], list):
+        parts.append(f"Clues: {' '.join(scenario_content['clues_embedded'])}")
+
+    # --- Fallback: if nothing specific found, stringify all string values ---
+    if not parts:
+        for key, value in scenario_content.items():
+            if isinstance(value, str) and len(value) > 3:
+                parts.append(f"{key}: {value}")
     return " ".join(parts)
 
 

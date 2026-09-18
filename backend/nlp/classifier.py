@@ -36,9 +36,17 @@ class ReasoningClassifier:
             "without checking", "without verification"
         ]
     
+    # Phrases that indicate adversarial prompt injection / system override attempts
+    JAILBREAK_SIGNALS = [
+        "ignore all previous", "ignore previous instructions", "system override",
+        "forget previous", "new instruction", "disregard", "you are now",
+        "award a final score", "set is_safe", "give me 100"
+    ]
+
     def classify(self, user_reasoning: str) -> Dict[str, Any]:
         """
         Classify the user's reasoning into security-aware, trust-based, or naive.
+        Also detects adversarial prompt injection attempts.
         
         Args:
             user_reasoning: The user's written explanation for their decision
@@ -46,22 +54,52 @@ class ReasoningClassifier:
         Returns:
             Dictionary with classification category, confidence, and analysis
         """
-        doc = self.nlp(user_reasoning.lower())
+        # Empty or whitespace-only input → naive (no reasoning provided)
+        if not user_reasoning or not user_reasoning.strip():
+            return {
+                "category": "naive",
+                "confidence": 0.0,
+                "scores": {"security_aware": 0.0, "trust_based": 0.0, "naive": 0.0},
+                "analysis": "No reasoning was provided; treated as naive.",
+                "security_indicators": [],
+                "risk_indicators": [],
+                "adversarial": False
+            }
+
+        # Adversarial prompt injection detection: override jailbreak phrases → force naive
+        reasoning_lower = user_reasoning.lower()
+        is_adversarial = any(signal in reasoning_lower for signal in self.JAILBREAK_SIGNALS)
+        if is_adversarial:
+            return {
+                "category": "naive",
+                "confidence": 1.0,
+                "scores": {"security_aware": 0.0, "trust_based": 0.0, "naive": 1.0},
+                "analysis": "Adversarial prompt injection detected. Reasoning classified as naive and flagged.",
+                "security_indicators": [],
+                "risk_indicators": [],
+                "adversarial": True
+            }
+
+        doc = self.nlp(reasoning_lower)
         
         # Score each category
         security_score = self._calculate_category_score(doc, self.security_aware_keywords)
         trust_score = self._calculate_category_score(doc, self.trust_based_keywords)
         naive_score = self._calculate_category_score(doc, self.naive_keywords)
         
-        # Determine dominant category
         scores = {
             "security_aware": security_score,
             "trust_based": trust_score,
             "naive": naive_score
         }
-        
-        dominant_category = max(scores, key=scores.get)
-        confidence = scores[dominant_category]
+
+        # If all scores are zero (no keywords matched) → naive (no evident security reasoning)
+        if all(v == 0.0 for v in scores.values()):
+            dominant_category = "naive"
+            confidence = 0.0
+        else:
+            dominant_category = max(scores, key=scores.get)
+            confidence = scores[dominant_category]
         
         # Additional analysis
         analysis = self._analyze_reasoning(doc, dominant_category)
@@ -72,7 +110,8 @@ class ReasoningClassifier:
             "scores": scores,
             "analysis": analysis,
             "security_indicators": self._extract_security_indicators(doc),
-            "risk_indicators": self._extract_risk_indicators(doc)
+            "risk_indicators": self._extract_risk_indicators(doc),
+            "adversarial": False
         }
     
     def _calculate_category_score(self, doc, keywords: list) -> float:
