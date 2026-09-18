@@ -322,7 +322,7 @@ function ScenarioFlow() {
   const handleNavigatePolicies = () => {
     safeNavigate(() => {
       setIsHubOpen(false);
-      router.push('/onboarding');
+      router.push('/policies');
     });
   };
 

@@ -192,7 +192,7 @@ function EvaluationContent() {
 
   const handleNavigatePolicies = () => {
     setIsHubOpen(false);
-    router.push('/onboarding');
+    router.push('/policies');
   };
 
   // Action Dock Handlers: In-place Retry & Next Challenge
