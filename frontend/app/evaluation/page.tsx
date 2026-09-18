@@ -44,6 +44,16 @@ interface EvaluationData {
     weaknesses?: string[];
     improvement?: string;
   };
+  threat_knowledge?: Array<{
+    category?: string;
+    source?: string;
+    content?: string;
+    similarity?: number | null;
+    metadata?: Record<string, any>;
+  }>;
+  scenario_clues?: string[];
+  is_adversarial?: boolean;
+  adversarial_analysis?: string;
 }
 
 function EvaluationContent() {
@@ -271,39 +281,136 @@ function EvaluationContent() {
           const rawIndicators: Array<{ type: string; confidence?: number; description: string }> = [];
           if (threatAnalysis.indicators) {
             const ind = threatAnalysis.indicators;
-            if (Array.isArray(ind.spoofed_domains)) {
-              ind.spoofed_domains.forEach((item: any) => {
+
+            // 1. Spoofed Domains & Identifiers
+            const spoofedList = ind.spoofed_domains || ind.spoofed_identifiers;
+            if (Array.isArray(spoofedList)) {
+              spoofedList.forEach((item: any) => {
+                const conf = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence : Math.round(item.confidence * 100)) : 95;
                 rawIndicators.push({
                   type: "Spoofed Domain",
-                  confidence: 95,
-                  description: item.domain ? `Detected spoofed domain: ${item.domain}` : (item.description || String(item))
+                  confidence: conf,
+                  description: item.domain ? `Detected spoofed domain: ${item.domain}${item.reason ? ` (${item.reason})` : ''}` : (item.description || item.reason || String(item))
                 });
               });
             }
+
+            // 2. Financial & Wire Requests
             if (Array.isArray(ind.financial_requests)) {
               ind.financial_requests.forEach((item: any) => {
+                const conf = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence : Math.round(item.confidence * 100)) : 90;
                 rawIndicators.push({
                   type: "Financial Request",
-                  confidence: 90,
-                  description: item.keyword ? `Payment/Wire request detected: '${item.keyword}'` : (item.description || String(item))
+                  confidence: conf,
+                  description: item.context ? `Payment/Wire lure: '${item.context}'` : (item.keyword ? `Payment request: '${item.keyword}'` : (item.description || String(item)))
                 });
               });
             }
+
+            // 3. Urgency Bias Pressure
             if (Array.isArray(ind.urgency_indicators)) {
               ind.urgency_indicators.forEach((item: any) => {
+                const conf = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence : Math.round(item.confidence * 100)) : 92;
                 rawIndicators.push({
                   type: "Urgency Pressure",
-                  confidence: 92,
-                  description: item.keyword ? `Urgency trigger: '${item.keyword}'` : (item.description || String(item))
+                  confidence: conf,
+                  description: item.context ? `Urgency trigger: '${item.context}'` : (item.keyword ? `Urgency keyword: '${item.keyword}'` : (item.description || String(item)))
                 });
               });
             }
+
+            // 4. Executive / Authority Impersonation
             if (Array.isArray(ind.authority_abuse)) {
               ind.authority_abuse.forEach((item: any) => {
+                const conf = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence : Math.round(item.confidence * 100)) : 88;
                 rawIndicators.push({
                   type: "Executive Impersonation",
-                  confidence: 88,
-                  description: item.keyword ? `Authority leverage: '${item.keyword}'` : (item.description || String(item))
+                  confidence: conf,
+                  description: item.context ? `Authority leverage: '${item.context}'` : (item.keyword ? `Authority title: '${item.keyword}'` : (item.description || String(item)))
+                });
+              });
+            }
+
+            // 5. Suspicious URLs / Phishing Links
+            if (Array.isArray(ind.suspicious_urls)) {
+              ind.suspicious_urls.forEach((item: any) => {
+                const conf = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence : Math.round(item.confidence * 100)) : 85;
+                rawIndicators.push({
+                  type: "Suspicious URL",
+                  confidence: conf,
+                  description: item.url ? `Suspicious URL detected: ${item.url}${item.reason ? ` (${item.reason})` : ''}` : (item.description || String(item))
+                });
+              });
+            }
+
+            // 6. Malicious Attachment Requests
+            if (Array.isArray(ind.attachment_requests)) {
+              ind.attachment_requests.forEach((item: any) => {
+                const conf = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence : Math.round(item.confidence * 100)) : 80;
+                rawIndicators.push({
+                  type: "Malicious Attachment",
+                  confidence: conf,
+                  description: item.context ? `Attachment lure: '${item.context}'` : (item.keyword ? `Attachment keyword: '${item.keyword}'` : (item.description || String(item)))
+                });
+              });
+            }
+
+            // 7. Quishing / Malicious QR Code
+            if (Array.isArray(ind.qr_code_attacks)) {
+              ind.qr_code_attacks.forEach((item: any) => {
+                const conf = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence : Math.round(item.confidence * 100)) : 90;
+                rawIndicators.push({
+                  type: "QR Code Attack",
+                  confidence: conf,
+                  description: item.context ? `QR Code trigger: '${item.context}'` : (item.keyword ? `QR Code lure: '${item.keyword}'` : (item.description || String(item)))
+                });
+              });
+            }
+
+            // 8. Supply Chain / Vendor Fraud Pretext
+            if (Array.isArray(ind.supply_chain_pretext)) {
+              ind.supply_chain_pretext.forEach((item: any) => {
+                const conf = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence : Math.round(item.confidence * 100)) : 85;
+                rawIndicators.push({
+                  type: "Supply Chain Pretext",
+                  confidence: conf,
+                  description: item.context ? `Vendor payment update: '${item.context}'` : (item.keyword ? `Supply chain trigger: '${item.keyword}'` : (item.description || String(item)))
+                });
+              });
+            }
+
+            // 9. OAuth / Cloud App Consent Abuse
+            if (Array.isArray(ind.cloud_app_consent)) {
+              ind.cloud_app_consent.forEach((item: any) => {
+                const conf = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence : Math.round(item.confidence * 100)) : 90;
+                rawIndicators.push({
+                  type: "Cloud App Consent",
+                  confidence: conf,
+                  description: item.context ? `App permissions request: '${item.context}'` : (item.keyword ? `Consent trigger: '${item.keyword}'` : (item.description || String(item)))
+                });
+              });
+            }
+
+            // 10. MFA Push Bombing / Fatigue
+            if (Array.isArray(ind.mfa_fatigue)) {
+              ind.mfa_fatigue.forEach((item: any) => {
+                const conf = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence : Math.round(item.confidence * 100)) : 95;
+                rawIndicators.push({
+                  type: "MFA Push Bombing",
+                  confidence: conf,
+                  description: item.context ? `MFA bombardment trigger: '${item.context}'` : (item.keyword ? `MFA fatigue trigger: '${item.keyword}'` : (item.description || String(item)))
+                });
+              });
+            }
+
+            // 11. Voice Vishing / DM Remote Access Pretext
+            if (Array.isArray(ind.vishing_dm_pretext)) {
+              ind.vishing_dm_pretext.forEach((item: any) => {
+                const conf = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence : Math.round(item.confidence * 100)) : 88;
+                rawIndicators.push({
+                  type: "Voice Vishing Pretext",
+                  confidence: conf,
+                  description: item.context ? `Vishing/Remote access lure: '${item.context}'` : (item.keyword ? `Vishing trigger: '${item.keyword}'` : (item.description || String(item)))
                 });
               });
             }
@@ -317,7 +424,11 @@ function EvaluationContent() {
             threat_indicators: rawIndicators,
             reasoning_category: reasoningAnalysis.category || "security-aware",
             expected_behavior: threatAnalysis.safe_behavior?.expected_safe_action || threatAnalysis.safe_behavior?.expected_action || "Verify sender identity through alternate channel before taking any action",
-            llm_evaluation: evalResult.llm_evaluation
+            llm_evaluation: evalResult.llm_evaluation,
+            threat_knowledge: Array.isArray(threatAnalysis.threat_knowledge) ? threatAnalysis.threat_knowledge : [],
+            scenario_clues: Array.isArray(threatAnalysis.scenario_clues) ? threatAnalysis.scenario_clues : [],
+            is_adversarial: Boolean(reasoningAnalysis.adversarial || reasoningAnalysis.category === 'adversarial'),
+            adversarial_analysis: reasoningAnalysis.analysis
           };
 
           setEvaluation(parsedEvaluation);
