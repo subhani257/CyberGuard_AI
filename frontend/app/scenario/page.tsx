@@ -178,6 +178,7 @@ function ScenarioFlow() {
 
     let userRole = "Finance Manager";
     let difficulty = searchParams.get('difficulty') || "beginner";
+    let topic = searchParams.get('topic') || undefined;
     let userId = "11111111-1111-1111-1111-111111111111";
     let company = "NovaTech";
 
@@ -192,23 +193,45 @@ function ScenarioFlow() {
           if (u.learning_profile?.next_difficulty && !searchParams.get('difficulty')) {
             difficulty = u.learning_profile.next_difficulty;
           }
+          if (u.learning_profile?.next_focus && !topic) {
+            topic = u.learning_profile.next_focus;
+          }
         } catch (_) {}
       }
     }
 
+    const token = typeof window !== 'undefined' ? localStorage.getItem('cyberguard_token') : null;
+    if (!token) {
+      router.replace('/login');
+      setIsLoadingScenario(false);
+      return;
+    }
+
     fetch('http://localhost:8000/api/generate-scenario', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       signal: controller.signal,
       body: JSON.stringify({
         user_id: userId,
         role: userRole,
         difficulty: difficulty,
         company: company,
-        channel: targetChannel
+        channel: targetChannel,
+        topic
       })
     })
-      .then(res => res.json())
+      .then(async res => {
+        if (res.status === 401) {
+          router.replace('/login');
+          throw new Error('Your session expired. Please sign in again.');
+        }
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Unable to generate scenario');
+        return data;
+      })
       .then(data => {
         if (data.status === 'success' && data.scenario) {
           setScenarioId(data.scenario_id);
@@ -217,8 +240,7 @@ function ScenarioFlow() {
       })
       .catch(err => {
         if (err.name === 'AbortError') return;
-        console.log('Notice: Scenario endpoint offline, keeping resilient fallback:', err);
-        setScenarioError('Network latency detected. Resilient offline scenario loaded.');
+        setScenarioError(err.message || 'Unable to load a verified scenario.');
       })
       .finally(() => {
         setIsLoadingScenario(false);
@@ -312,6 +334,10 @@ function ScenarioFlow() {
 
   const submitReasoning = () => {
     if (!reasoning.trim() || !selectedChoice) return;
+    if (!scenarioId) {
+      setScenarioError('A verified scenario must load before you can submit a decision.');
+      return;
+    }
     setIsSubmitting(true);
 
     const elapsedSeconds = scenarioStartTimeRef.current

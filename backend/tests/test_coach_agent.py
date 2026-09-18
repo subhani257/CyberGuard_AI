@@ -89,26 +89,41 @@ def test_coach_agent_generate_coaching_structure():
     assert "nist_reference" in plan
     assert plan["next_difficulty"] in ["beginner", "medium", "advanced"]
 
-def test_api_coach_process_decision():
-    payload = {
-        "scenario_id": "SC-TEST-99",
-        "score": 45,
-        "threat_type": "phishing",
-        "weaknesses": ["urgency_bias"],
-        "is_safe": False,
-        "chosen_action": "Clicked the link",
-        "reasoning": "I thought it was from my manager.",
-        "user_id": "11111111-1111-1111-1111-111111111111"
-    }
-    response = client.post("/api/coach/process-decision", json=payload)
+def test_api_coach_process_decision(learner_headers):
+    generated = client.post(
+        "/api/generate-scenario",
+        json={"difficulty": "beginner", "channel": "email"},
+        headers=learner_headers
+    ).json()
+    scenario_id = generated["scenario_id"]
+    unsafe_choice = next(
+        choice for choice in generated["scenario"]["choices"]
+        if any(word in choice.lower() for word in ["send", "approve", "transfer", "click", "comply"])
+    )
+    evaluated = client.post(
+        "/api/agents/evaluate",
+        json={
+            "scenario_id": scenario_id,
+            "user_action": unsafe_choice,
+            "user_reasoning": "I trusted the urgent instruction from my manager."
+        },
+        headers=learner_headers
+    )
+    assert evaluated.status_code == 200
+    response = client.post(
+        "/api/coach/process-decision",
+        json={"scenario_id": scenario_id, "score": 100, "weaknesses": ["fake_weakness"]},
+        headers=learner_headers
+    )
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True
     assert "coaching" in data
     assert "remediation_tip" in data["coaching"]
+    assert "fake_weakness" not in data["coaching"]["reason_for_path"]
 
-def test_api_coach_dashboard_summary():
-    response = client.get("/api/coach/dashboard-summary?user_id=11111111-1111-1111-1111-111111111111")
+def test_api_coach_dashboard_summary(learner_headers):
+    response = client.get("/api/coach/dashboard-summary", headers=learner_headers)
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True
@@ -181,7 +196,7 @@ def test_multi_channel_training_retrieval():
     assert any(k in oauth_results[0].get("content", "").lower() or k in oauth_results[0].get("category", "").lower() or k in oauth_results[0].get("channel", "").lower() for k in ["oauth", "cloud", "permission", "saas"])
 
 
-def test_api_coach_onboard_user_endpoint():
+def test_api_coach_onboard_user_endpoint(learner_headers):
     payload = {
         "user_id": "test-user-dynamic-01",
         "job_title": "Senior Smart Contract Auditor",
@@ -189,7 +204,7 @@ def test_api_coach_onboard_user_endpoint():
         "org_name": "Decentralized Finance Protocol",
         "org_description": "Audits EVM smart contracts, handles cryptographic multi-sig keys and cold storage."
     }
-    response = client.post("/api/coach/onboard-user", json=payload)
+    response = client.post("/api/coach/onboard-user", json=payload, headers=learner_headers)
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True

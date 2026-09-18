@@ -2,12 +2,15 @@ import os
 import io
 import re
 import uuid
+import hashlib
 from typing import Optional, List, Dict, Any
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from supabase import create_client, Client
 import pypdf
+from security.auth_bearer import get_current_user, CurrentUser
+from nlp.ner import sanitize_input
 
 try:
     from backend.rag.policy_extractor import extract_policy_rules, format_rule_for_embedding
@@ -41,11 +44,21 @@ except Exception as e:
 
 
 def get_local_embedding(text: str) -> List[float]:
-    """Generates embedding vector locally via Hugging Face all-MiniLM-L6-v2 padded to 1536 dims."""
+    """Generate MiniLM vectors, or a deterministic offline lexical vector."""
     global hf_model
     if hf_model is None:
-        from sentence_transformers import SentenceTransformer
-        hf_model = SentenceTransformer("all-MiniLM-L6-v2")
+        try:
+            from sentence_transformers import SentenceTransformer
+            hf_model = SentenceTransformer("all-MiniLM-L6-v2")
+        except Exception:
+            # This fallback keeps policy ingestion usable for a local demo.
+            # It is not semantically comparable to the MiniLM database corpus.
+            lexical = [0.0] * 1536
+            for token in re.findall(r"[a-z0-9]+", text.lower()):
+                digest = hashlib.sha256(token.encode("utf-8")).digest()
+                index = int.from_bytes(digest[:4], "big") % 1536
+                lexical[index] += 1.0
+            return lexical
 
     raw = hf_model.encode(text).tolist()
     if len(raw) < 1536:
@@ -104,19 +117,23 @@ CUSTOM_ORG_POLICIES_CACHE: Dict[str, List[Dict[str, Any]]] = {}
 
 @router.post("/onboard-policy")
 async def onboard_organization_policy(
-    user_id: str = Form(...),
+    user_id: Optional[str] = Form(None),
     company_name: str = Form(...),
     department: str = Form(...),
     role_title: str = Form(...),
     role_description: Optional[str] = Form(None),
     policy_text: Optional[str] = Form(None),
-    file: Optional[UploadFile] = File(None)
+    file: Optional[UploadFile] = File(None),
+    current_user: CurrentUser = Depends(get_current_user)
 ):
     """
     Ingest, parse, chunk, embed, and store an organization's custom security policies.
     Supports PDF document upload or raw text submission.
     Embeds with local Hugging Face all-MiniLM-L6-v2 and stores in public.org_knowledge.
     """
+    user_id = current_user.id
+    if current_user.company not in ("", "Your Organization"):
+        company_name = current_user.company
     raw_text = ""
     source_label = "Direct Text Submission"
 
@@ -125,6 +142,11 @@ async def onboard_organization_policy(
         source_label = file.filename
         try:
             file_bytes = await file.read()
+            if len(file_bytes) > 2 * 1024 * 1024:
+                raise HTTPException(status_code=413, detail="Policy file exceeds the 2 MB assignment limit")
+            suffix = os.path.splitext(file.filename or "")[1].lower()
+            if suffix not in {".pdf", ".txt", ".md"}:
+                raise HTTPException(status_code=415, detail="Only PDF, TXT, and Markdown policy files are supported")
             if file.filename.lower().endswith(".pdf"):
                 pdf_reader = pypdf.PdfReader(io.BytesIO(file_bytes))
                 extracted_pages = []
@@ -135,6 +157,8 @@ async def onboard_organization_policy(
                 raw_text = "\n\n".join(extracted_pages)
             else:
                 raw_text = file_bytes.decode("utf-8", errors="ignore")
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Failed to parse uploaded document: {str(e)}")
 
@@ -144,6 +168,9 @@ async def onboard_organization_policy(
             raw_text = raw_text + "\n\n" + policy_text.strip()
         else:
             raw_text = policy_text.strip()
+
+    if len(raw_text) > 100_000:
+        raise HTTPException(status_code=413, detail="Policy text exceeds the 100,000 character assignment limit")
 
     # 3. If neither was provided, synthesize role context policy chunk
     if not raw_text.strip():
@@ -157,10 +184,11 @@ async def onboard_organization_policy(
         )
         source_label = "Auto-Generated Role Guidelines"
 
-    # 4. Extract atomic, structured policy rules (Tier 1 LLM with Tier 2 Heuristic Fallback)
-    extracted_rules = extract_policy_rules(raw_text, company_name=company_name, department=department)
+    # 4. Mask personal data before external LLM extraction or database storage.
+    sanitized_policy = sanitize_input(raw_text)
+    extracted_rules = extract_policy_rules(sanitized_policy, company_name=company_name, department=department)
     if not extracted_rules:
-        fallback_chunks = chunk_text(raw_text)
+        fallback_chunks = chunk_text(sanitized_policy)
         extracted_rules = [
             {
                 "rule_code": f"{company_name[:3].upper()}-{department[:3].upper()}-{idx+1:02d}",
@@ -191,11 +219,12 @@ async def onboard_organization_policy(
             "enforcement_level": rule.get("enforcement_level"),
             "trigger_keywords": rule.get("trigger_keywords", [])
         }
+        metadata["embedding_model"] = "all-MiniLM-L6-v2" if hf_model is not None else "offline-keyword-only"
 
         record = {
             "category": rule.get("department", department).lower(),
             "content": formatted_content,
-            "embedding": vector,
+            "embedding": vector if hf_model is not None else None,
             "metadata": metadata
         }
 
@@ -243,14 +272,17 @@ async def onboard_organization_policy(
 
 
 @router.get("/policies/{company_or_user_id}")
-def get_custom_policies(company_or_user_id: str):
-    """Retrieve ingested custom organizational policies for a given company or user ID."""
-    key = company_or_user_id.lower()
+def get_custom_policies(
+    company_or_user_id: str,
+    current_user: CurrentUser = Depends(get_current_user)
+):
+    """Retrieve only the authenticated learner's organizational policies."""
+    key = current_user.id
     policies = CUSTOM_ORG_POLICIES_CACHE.get(key, [])
     
     if supabase and not policies:
         try:
-            res = supabase.table("org_knowledge").select("content, metadata, category").contains("metadata", {"organization": company_or_user_id}).execute()
+            res = supabase.table("org_knowledge").select("content, metadata, category").contains("metadata", {"user_id": current_user.id}).execute()
             if res.data:
                 policies = res.data
         except Exception:

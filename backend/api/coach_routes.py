@@ -1,12 +1,18 @@
 import os
 from typing import Optional, Dict, Any, List
 from fastapi import APIRouter, HTTPException, Depends, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
 from agents.coach_agent import TrainingCoachAgent
-from security.auth_bearer import get_current_user, get_optional_current_user, CurrentUser
+from security.auth_bearer import get_current_user, CurrentUser
+from runtime_store import (
+    DECISIONS as RUNTIME_DECISIONS,
+    LEARNING_PROFILES,
+    get_decision,
+    get_scenario as get_cached_scenario,
+)
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
@@ -26,16 +32,16 @@ except Exception as e:
     print(f"Notice: Supabase client in coach_routes using in-memory store: {e}")
 
 # In-memory store for fallback / rapid local testing
-MOCK_LEARNING_PROFILES = {}
-MOCK_DECISIONS_STORE = []
+MOCK_LEARNING_PROFILES = LEARNING_PROFILES
 
 
 class ProcessDecisionRequest(BaseModel):
-    scenario_id: str
-    score: int
-    threat_type: str = "phishing"
-    weaknesses: List[str] = []
-    is_safe: bool = False
+    scenario_id: str = Field(min_length=36, max_length=36)
+    # Legacy client fields are accepted but the stored Evaluation Agent result is authoritative.
+    score: Optional[int] = None
+    threat_type: Optional[str] = None
+    weaknesses: List[str] = Field(default_factory=list)
+    is_safe: Optional[bool] = None
     chosen_action: Optional[str] = None
     reasoning: Optional[str] = None
     user_id: Optional[str] = None
@@ -66,7 +72,7 @@ class DashboardSummaryResponse(BaseModel):
 @router.post("/onboard-user")
 async def onboard_user(
     request: OnboardUserRequest,
-    current_user: Optional[CurrentUser] = Depends(get_optional_current_user)
+    current_user: CurrentUser = Depends(get_current_user)
 ):
     """
     First-Time User Onboarding Endpoint (Member 3 - Dynamic AI Profiler):
@@ -74,9 +80,9 @@ async def onboard_user(
     using LLM reasoning and multi-channel RAG from cyber_training.
     Establishes the learner's initial attack surface, threat channel, and personalized training map.
     """
-    effective_user_id = (current_user.id if current_user else request.user_id) or "11111111-1111-1111-1111-111111111111"
-    effective_email = request.email or (current_user.email if current_user else f"user_{effective_user_id[:8]}@novatech.com")
-    effective_name = request.full_name or (current_user.full_name if current_user else "Team Member")
+    effective_user_id = current_user.id
+    effective_email = current_user.email
+    effective_name = request.full_name or current_user.full_name
     
     # 1. Execute Dynamic AI Role & Org Decomposition
     baseline_profile = coach_agent.analyze_first_time_user(
@@ -95,6 +101,7 @@ async def onboard_user(
                 "email": effective_email,
                 "full_name": effective_name,
                 "role": request.job_title,
+                "company": request.org_name,
                 "readiness_score": 50
             }).execute()
         except Exception as e:
@@ -153,13 +160,63 @@ async def onboard_user(
 
 
 @router.post("/process-decision")
-async def process_decision(request: ProcessDecisionRequest):
+async def process_decision(
+    request: ProcessDecisionRequest,
+    current_user: CurrentUser = Depends(get_current_user)
+):
     """
     Inter-Agent Endpoint: Receives Member 2's evaluation payload,
     triggers the Training Coach Agent, updates user_learning_profile in Supabase,
     and returns personalized pedagogical guidance.
     """
-    user_id = request.user_id or "11111111-1111-1111-1111-111111111111"
+    user_id = current_user.id
+
+    # Load the Evaluation Agent output saved for this learner and scenario. Browser
+    # supplied scores and weaknesses are never trusted as the coaching authority.
+    stored_decision = None
+    if supabase:
+        try:
+            decision_res = (
+                supabase.table("decisions")
+                .select("*")
+                .eq("user_id", user_id)
+                .eq("scenario_id", request.scenario_id)
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+            if decision_res.data:
+                stored_decision = decision_res.data[0]
+        except Exception as e:
+            print(f"Notice: Supabase decision fetch in process-decision: {e}")
+    if not stored_decision:
+        stored_decision = get_decision(request.scenario_id, user_id)
+    if not stored_decision:
+        raise HTTPException(status_code=404, detail="No evaluated decision exists for this scenario and user")
+
+    stored_evaluation = stored_decision.get("evaluation") or {}
+    authoritative_score = float(stored_evaluation.get("final_score", 0))
+    authoritative_safe = bool(stored_decision.get("is_safe", False))
+    authoritative_weaknesses = stored_evaluation.get("weaknesses") or []
+
+    scenario_record = get_cached_scenario(request.scenario_id, user_id)
+    if not scenario_record and supabase:
+        try:
+            scenario_res = (
+                supabase.table("scenarios")
+                .select("id,user_id,content")
+                .eq("id", request.scenario_id)
+                .eq("user_id", user_id)
+                .limit(1)
+                .execute()
+            )
+            if scenario_res.data:
+                scenario_record = scenario_res.data[0]
+        except Exception as e:
+            print(f"Notice: Supabase scenario fetch in process-decision: {e}")
+    scenario_content = scenario_record.get("content", {}) if scenario_record else {}
+    threat_type = str(scenario_content.get("threat_type") or "cybersecurity awareness")
+    target_channel = str(scenario_content.get("channel") or "email")
     
     # 1. Fetch past decisions from Supabase for longitudinal analysis
     past_decisions = []
@@ -178,18 +235,23 @@ async def process_decision(request: ProcessDecisionRequest):
             print(f"Notice: Supabase read in process-decision: {e}")
 
     if not past_decisions:
-        past_decisions = [d for d in MOCK_DECISIONS_STORE if d.get("user_id") == user_id]
+        past_decisions = [d for d in RUNTIME_DECISIONS.values() if d.get("user_id") == user_id]
+    if current_difficulty == "beginner":
         current_difficulty = MOCK_LEARNING_PROFILES.get(user_id, {}).get("next_difficulty", "beginner")
+
+    # Evaluation saved this decision already; Coach appends its score separately.
+    past_decisions = [d for d in past_decisions if str(d.get("scenario_id")) != request.scenario_id]
 
     # Structure payload for coach agent
     eval_payload = {
         "scenario_id": request.scenario_id,
-        "final_score": request.score,
-        "threat_indicators": [request.threat_type],
-        "weaknesses": request.weaknesses or [request.threat_type],
-        "is_safe": request.is_safe,
-        "chosen_action": request.chosen_action or "Unspecified",
-        "reasoning": request.reasoning or ""
+        "final_score": authoritative_score,
+        "threat_indicators": stored_evaluation.get("threat_indicators", []),
+        "weaknesses": authoritative_weaknesses,
+        "is_safe": authoritative_safe,
+        "chosen_action": stored_decision.get("chosen_action", "Unspecified"),
+        "reasoning": stored_decision.get("reasoning", ""),
+        "channel": target_channel
     }
 
     # 2. Execute Coach Agent
@@ -203,7 +265,7 @@ async def process_decision(request: ProcessDecisionRequest):
     # 3. Update user learning profile & user score in Supabase
     next_diff = coaching_result["next_difficulty"]
     next_topic = coaching_result["recommended_topic"]
-    weakness_target = request.weaknesses[0] if request.weaknesses else request.threat_type
+    weakness_target = authoritative_weaknesses[0] if authoritative_weaknesses else threat_type
 
     if supabase:
         try:
@@ -211,13 +273,18 @@ async def process_decision(request: ProcessDecisionRequest):
                 "user_id": user_id,
                 "next_difficulty": next_diff,
                 "next_focus": next_topic,
-                "tactic_to_target": weakness_target
+                "tactic_to_target": weakness_target,
+                "target_channel": target_channel
             }).execute()
 
             # Calculate and update new average readiness score in public.users
-            all_scores = [d.get("evaluation", {}).get("final_score", request.score) for d in past_decisions if isinstance(d.get("evaluation"), dict)]
-            all_scores.append(request.score)
-            avg_score = round(sum(all_scores) / len(all_scores)) if all_scores else request.score
+            all_scores = [
+                d.get("evaluation", {}).get("final_score", authoritative_score)
+                for d in past_decisions
+                if isinstance(d.get("evaluation"), dict)
+            ]
+            all_scores.append(authoritative_score)
+            avg_score = round(sum(all_scores) / len(all_scores))
             supabase.table("users").update({"readiness_score": avg_score}).eq("id", user_id).execute()
             
             supabase.table("agent_audit_logs").insert({
@@ -230,19 +297,15 @@ async def process_decision(request: ProcessDecisionRequest):
             print(f"Notice: Supabase profile update bypassed: {e}")
 
     # Update in-memory fallback store
+    previous_profile = MOCK_LEARNING_PROFILES.get(user_id, {})
     MOCK_LEARNING_PROFILES[user_id] = {
+        **previous_profile,
         "next_difficulty": next_diff,
         "next_focus": next_topic,
         "tactic_to_target": weakness_target,
+        "target_channel": target_channel,
         "coaching": coaching_result
     }
-    MOCK_DECISIONS_STORE.append({
-        "user_id": user_id,
-        "scenario_id": request.scenario_id,
-        "is_safe": request.is_safe,
-        "reasoning": request.reasoning or "",
-        "evaluation": {"final_score": request.score, "weaknesses": request.weaknesses}
-    })
 
     return {
         "success": True,
@@ -253,18 +316,17 @@ async def process_decision(request: ProcessDecisionRequest):
 
 @router.get("/dashboard-summary", response_model=DashboardSummaryResponse)
 async def get_dashboard_summary(
-    user_id: Optional[str] = "11111111-1111-1111-1111-111111111111",
-    current_user: Optional[CurrentUser] = Depends(get_optional_current_user)
+    current_user: CurrentUser = Depends(get_current_user)
 ):
     """
     Returns live dashboard telemetry, weakness distributions,
     decision journey history, and the next situation launcher parameters
     directly from Supabase database tables (decisions, user_learning_profile, users).
     """
-    effective_user_id = (current_user.id if current_user else user_id) or "11111111-1111-1111-1111-111111111111"
-    effective_user_name = current_user.full_name if current_user else "User"
-    effective_user_role = current_user.role if current_user else "Employee"
-    effective_access_role = current_user.access_role if current_user else "learner"
+    effective_user_id = current_user.id
+    effective_user_name = current_user.full_name
+    effective_user_role = current_user.role
+    effective_access_role = current_user.access_role
 
     profile_data = {}
     user_decisions = []
@@ -288,15 +350,14 @@ async def get_dashboard_summary(
             if u_res.data and len(u_res.data) > 0:
                 user_row = u_res.data[0]
                 db_readiness_score = user_row.get("readiness_score")
-                if not current_user:
-                    effective_user_name = user_row.get("full_name") or effective_user_name
-                    effective_user_role = user_row.get("role") or effective_user_role
+                effective_user_name = user_row.get("full_name") or effective_user_name
+                effective_user_role = user_row.get("role") or effective_user_role
         except Exception as e:
             print(f"Notice: Supabase fetch in dashboard-summary: {e}")
 
     # Fallback to in-memory store if DB had no rows
     if not user_decisions:
-        user_decisions = [d for d in MOCK_DECISIONS_STORE if d.get("user_id") == effective_user_id]
+        user_decisions = [d for d in RUNTIME_DECISIONS.values() if d.get("user_id") == effective_user_id]
     if not profile_data:
         profile_data = MOCK_LEARNING_PROFILES.get(effective_user_id, {})
 
@@ -320,7 +381,19 @@ async def get_dashboard_summary(
         eval_data = d.get("evaluation") or {}
         score = eval_data.get("final_score", 0) if isinstance(eval_data, dict) else 0
         is_safe = d.get("is_safe", False)
-        weaknesses = eval_data.get("weaknesses") or eval_data.get("threat_indicators") or ["Social Engineering"] if isinstance(eval_data, dict) else ["Social Engineering"]
+        raw_weaknesses = (
+            eval_data.get("weaknesses") or eval_data.get("threat_indicators")
+            if isinstance(eval_data, dict)
+            else None
+        )
+        if isinstance(raw_weaknesses, dict):
+            weaknesses = list(raw_weaknesses.keys())
+        elif isinstance(raw_weaknesses, list):
+            weaknesses = raw_weaknesses
+        elif raw_weaknesses:
+            weaknesses = [str(raw_weaknesses)]
+        else:
+            weaknesses = ["Social Engineering"]
         threat = weaknesses[0] if weaknesses else "Threat Vector"
 
         threat_str = str(threat).lower()
