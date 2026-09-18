@@ -17,7 +17,7 @@ class ReasoningClassifier:
         self.security_aware_keywords = [
             "verify", "check", "confirm", "validate", "authenticate",
             "suspicious", "phishing", "scam", "fake", "legitimate",
-            "official", "alternate channel", "phone call", "in person",
+            "alternate channel", "phone call", "in person",
             "security", "safe", "caution", "careful", "reported"
         ]
         
@@ -32,7 +32,8 @@ class ReasoningClassifier:
             "clicked", "opened", "replied", "responded",
             "didn't know", "not sure", "maybe", "thought",
             "seemed real", "looked official", "just in case",
-            "wanted to help", "didn't want to miss", "followed instructions"
+            "wanted to help", "didn't want to miss", "followed instructions",
+            "without checking", "without verification"
         ]
     
     def classify(self, user_reasoning: str) -> Dict[str, Any]:

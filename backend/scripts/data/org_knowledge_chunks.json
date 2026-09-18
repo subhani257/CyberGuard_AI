@@ -7,7 +7,11 @@
       "department": "Finance",
       "policy_id": "FIN-SEC-04",
       "risk_level": "critical",
-      "applies_to": "Finance Managers, Accounts Payable, Controllers"
+      "applies_to": "Finance Managers, Accounts Payable, Controllers",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   },
   {
@@ -18,7 +22,11 @@
       "department": "Finance",
       "policy_id": "FIN-SEC-09",
       "risk_level": "critical",
-      "applies_to": "Accounts Payable, Procurement Specialists"
+      "applies_to": "Accounts Payable, Procurement Specialists",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   },
   {
@@ -29,7 +37,11 @@
       "department": "Finance",
       "policy_id": "FIN-SEC-12",
       "risk_level": "high",
-      "applies_to": "Finance Managers, Billing Specialists"
+      "applies_to": "Finance Managers, Billing Specialists",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   },
   {
@@ -40,7 +52,11 @@
       "department": "Human Resources",
       "policy_id": "HR-SEC-02",
       "risk_level": "critical",
-      "applies_to": "HR Generalists, Payroll Administrators"
+      "applies_to": "HR Generalists, Payroll Administrators",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   },
   {
@@ -51,7 +67,11 @@
       "department": "Human Resources",
       "policy_id": "HR-SEC-05",
       "risk_level": "critical",
-      "applies_to": "HR Directors, Payroll Specialists"
+      "applies_to": "HR Directors, Payroll Specialists",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   },
   {
@@ -62,7 +82,11 @@
       "department": "IT & Security",
       "policy_id": "IT-SEC-03",
       "risk_level": "critical",
-      "applies_to": "All Employees"
+      "applies_to": "All Employees",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   },
   {
@@ -73,7 +97,11 @@
       "department": "IT & Security",
       "policy_id": "IT-SEC-07",
       "risk_level": "high",
-      "applies_to": "All Employees"
+      "applies_to": "All Employees",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   },
   {
@@ -84,7 +112,11 @@
       "department": "IT & Security",
       "policy_id": "IT-SEC-11",
       "risk_level": "medium",
-      "applies_to": "All Employees"
+      "applies_to": "All Employees",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   },
   {
@@ -95,7 +127,11 @@
       "department": "Executive Office",
       "policy_id": "EXEC-SEC-01",
       "risk_level": "critical",
-      "applies_to": "Executive Assistants, Department Leads, Finance"
+      "applies_to": "Executive Assistants, Department Leads, Finance",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   },
   {
@@ -106,7 +142,11 @@
       "department": "General Enterprise",
       "policy_id": "GEN-SEC-01",
       "risk_level": "high",
-      "applies_to": "All Employees"
+      "applies_to": "All Employees",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   },
   {
@@ -117,7 +157,11 @@
       "department": "Legal & Compliance",
       "policy_id": "LEGAL-SEC-03",
       "risk_level": "high",
-      "applies_to": "Legal, Operations, Executives"
+      "applies_to": "Legal, Operations, Executives",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   },
   {
@@ -128,7 +172,11 @@
       "department": "Engineering / DevOps",
       "policy_id": "DEV-SEC-06",
       "risk_level": "critical",
-      "applies_to": "Software Engineers, DevOps, QA"
+      "applies_to": "Software Engineers, DevOps, QA",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-16"
     }
   }
 ]

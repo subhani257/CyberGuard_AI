@@ -147,7 +147,7 @@ class OrganizationalRetriever:
             # Check in-memory custom policy cache first
             try:
                 from api.org_routes import CUSTOM_ORG_POLICIES_CACHE
-                key = (company_name or user_id or "").lower()
+                key = (user_id or company_name or "").lower()
                 cached = CUSTOM_ORG_POLICIES_CACHE.get(key)
                 if cached:
                     return cached[:top_k]
@@ -158,10 +158,6 @@ class OrganizationalRetriever:
             if self.supabase:
                 try:
                     query_builder = self.supabase.table("org_knowledge").select("*")
-                    if company_name:
-                        res = query_builder.contains("metadata", {"organization": company_name}).limit(top_k).execute()
-                        if res.data:
-                            return res.data
                     if user_id:
                         res = self.supabase.table("org_knowledge").select("*").contains("metadata", {"user_id": user_id}).limit(top_k).execute()
                         if res.data:
@@ -172,7 +168,7 @@ class OrganizationalRetriever:
         search_query = f"{company_name or ''} {user_role} {query or 'cybersecurity policy workflow'}".strip()
         
         # 1. Try vector similarity search in Supabase pgvector if available
-        if self.supabase:
+        if self.supabase and not (user_id or company_name):
             embedding = self._get_embedding(search_query)
             if embedding:
                 try:

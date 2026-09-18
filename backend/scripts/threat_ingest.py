@@ -47,7 +47,12 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # Helpers
 # ---------------------------------------------------------------------------
 
-VALID_CATEGORIES = {"threat_definition", "attack_pattern", "incident_report"}
+VALID_CATEGORIES = {
+    "threat_definition",
+    "attack_pattern",
+    "incident_report",
+    "reconnaissance",
+}
 
 def validate_chunk(chunk: dict, index: int) -> bool:
     """

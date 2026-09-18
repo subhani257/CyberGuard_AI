@@ -4,18 +4,16 @@ from openai import OpenAI
 from typing import Dict, Any
 import json
 
-# Load .env from project root (go up 3 levels from backend/agents/ to project root)
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-env_path = os.path.join(project_root, '.env')
-print(f"Loading .env from: {env_path}")
-print(f".env exists: {os.path.exists(env_path)}")
+# Load backend/.env consistently when this module is imported directly.
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
 load_dotenv(env_path)
 
 class EvaluationAgent:
     """Evaluates user decisions using scoring rubric and LLM-based reasoning analysis."""
     
     def __init__(self):
-        self.openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+        self.openai_client = OpenAI(api_key=api_key) if api_key else None
         
         # Scoring weights
         self.action_weight = 0.6
@@ -82,13 +80,16 @@ class EvaluationAgent:
         safe_action_keywords = [
             "verify", "confirm", "check", "report", "ignore", "delete",
             "didn't click", "didn't reply", "didn't open", "contacted",
-            "called", "verified", "reported to", "flagged"
+            "called", "verified", "reported to", "flagged", "deny", "reject",
+            "decline", "block", "do not", "never", "disconnect"
         ]
         
         # Unsafe actions
         unsafe_action_keywords = [
             "clicked", "opened", "replied", "responded", "downloaded",
-            "processed", "sent", "transferred", "paid", "provided"
+            "processed", "sent", "transferred", "paid", "provided",
+            "approve", "authorize", "grant consent", "allow access", "plug in",
+            "scan the qr", "share the code", "enter credentials"
         ]
         
         # Check if action contains safe keywords
@@ -102,7 +103,7 @@ class EvaluationAgent:
             return max(40 - (unsafe_matches * 10), 0)  # 0-40 range
         elif safe_matches > 0 and unsafe_matches > 0:
             # Mixed behavior - partial credit
-            return 50 + (safe_matches * 5) - (unsafe_matches * 10)
+            return max(0, min(100, 50 + (safe_matches * 5) - (unsafe_matches * 10)))
         else:
             # No clear indicators - neutral score
             return 50
@@ -182,6 +183,8 @@ IMPORTANT RULES:
 """
         
         try:
+            if self.openai_client is None:
+                raise RuntimeError("OpenAI API key is not configured")
             response = self.openai_client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[

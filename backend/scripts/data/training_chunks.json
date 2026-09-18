@@ -1,72 +1,546 @@
 [
   {
-    "category": "behavioral_guidance",
-    "content": "De-biasing Artificial Urgency: Attackers systematically use extreme urgency ('Immediate action required within 2 hours', 'Past due suspension notice') to overwhelm human cognitive bandwidth, causing individuals to bypass rational evaluation ('System 2 thinking') and rely on hurried reflex ('System 1 thinking'). Remedial advice: When an email establishes high urgency, deliberately pause for 60 seconds, independently navigate to official company portals, and never use links embedded inside the message.",
+    "category": "phishing_recognition",
+    "channel": "email",
+    "target_risk_surface": "general",
+    "source": "CISA Secure Our World",
+    "content": "Pause when a message uses urgent language, requests personal or financial information, or presents a suspicious sender or link. Treat these as reasons to verify rather than instructions to act.",
     "metadata": {
-      "source": "NIST SP 800-50 / Behavioral Cyber Defense",
+      "record_id": "TRN-001",
+      "source": "CISA Secure Our World",
+      "url": "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing",
+      "framework": "CISA",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "phishing_reporting",
+    "channel": "email",
+    "target_risk_surface": "general",
+    "source": "CISA Secure Our World",
+    "content": "Use the organization’s reporting mechanism for suspected phishing and then remove the message. Rapid reporting helps defenders investigate and protect other recipients.",
+    "metadata": {
+      "record_id": "TRN-002",
+      "source": "CISA Secure Our World",
+      "url": "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing",
+      "framework": "CISA",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "link_verification",
+    "channel": "email",
+    "target_risk_surface": "identity_and_sso",
+    "source": "NIST Small Business Cybersecurity: Phishing",
+    "content": "Do not authenticate through an unsolicited link. Open the service from a known bookmark or manually entered official address and check for the expected domain before entering credentials.",
+    "metadata": {
+      "record_id": "TRN-003",
+      "source": "NIST Small Business Cybersecurity: Phishing",
+      "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing",
       "framework": "NIST",
-      "focus_area": "Cognitive De-biasing",
-      "target_bias": "Artificial Urgency"
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
     }
   },
   {
-    "category": "behavioral_guidance",
-    "content": "Authority Bias and Hierarchical Compliance: Employees exhibit psychological reluctance to question requests originating from individuals in perceived authority roles (CEO, CFO, Board Members). Attackers exploit this obedience tendency in Business Email Compromise. Coach recommendation: Security protocols are role-agnostic. Remind learners that genuine executives expect security validation and that standard out-of-band verification protects both the employee and the executive.",
+    "category": "attachment_safety",
+    "channel": "email",
+    "target_risk_surface": "endpoint",
+    "source": "NIST Small Business Cybersecurity: Phishing",
+    "content": "Unexpected attachments should remain unopened until the sender and business need are independently confirmed. Maintain current endpoint protection because attachments may attempt to install malicious software.",
     "metadata": {
-      "source": "SANS Security Awareness Leadership Guide",
-      "framework": "SANS",
-      "focus_area": "Authority Bias Mitigation",
-      "target_bias": "Deference to Authority"
+      "record_id": "TRN-004",
+      "source": "NIST Small Business Cybersecurity: Phishing",
+      "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing",
+      "framework": "NIST",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
     }
   },
   {
-    "category": "best_practice",
-    "content": "CISA 'Recognize, Resist, Report' Defense Framework: Step 1 (Recognize): Identify red flags including generic greetings, mismatched sender domains, urgent deadlines, or requests for unusual payment instruments. Step 2 (Resist): Avoid clicking embedded links, opening unsolicited invoices, or replying to verify with the scammer. Step 3 (Report): Use the automated phishing report tool to alert the SOC so perimeter email filters can block the campaign across the organization.",
+    "category": "payment_verification",
+    "channel": "email",
+    "target_risk_surface": "financial_access",
+    "source": "FBI Business Email Compromise PSA",
+    "content": "Verify any new or changed payment instruction through a trusted contact method already on file. Do not use a telephone number or reply address supplied only in the change request.",
     "metadata": {
-      "source": "CISA Secure Our World Initiative 2025",
+      "record_id": "TRN-005",
+      "source": "FBI Business Email Compromise PSA",
+      "url": "https://www.ic3.gov/PSA/2023/PSA230609",
+      "framework": "FBI",
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "bec_incident_response",
+    "channel": "email",
+    "target_risk_surface": "financial_access",
+    "source": "FBI Internet Crime Report 2024",
+    "content": "If a fraudulent transfer may have occurred, contact the financial institution immediately and follow the organization’s incident-response process. Preserve message and transaction evidence for reporting.",
+    "metadata": {
+      "record_id": "TRN-006",
+      "source": "FBI Internet Crime Report 2024",
+      "url": "https://www.ic3.gov/AnnualReport/Reports/2024_IC3Report.pdf",
+      "framework": "FBI",
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "urgency_bias",
+    "channel": "email",
+    "target_risk_surface": "general",
+    "source": "NIST Cybersecurity Awareness: Recognizing and Reporting Phishing",
+    "content": "An unusual or out-of-character request should create a deliberate pause. Confirm the request through a separate trusted route before clicking, paying, sharing data, or changing access.",
+    "metadata": {
+      "record_id": "TRN-007",
+      "source": "NIST Cybersecurity Awareness: Recognizing and Reporting Phishing",
+      "url": "https://www.nist.gov/blogs/cybersecurity-insights/cybersecurity-awareness-month-2022-recognizing-reporting-phishing",
+      "framework": "NIST",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "authority_bias",
+    "channel": "email",
+    "target_risk_surface": "financial_access",
+    "source": "NIST SP 800-171 Rev. 3",
+    "content": "Security procedures still apply when a request claims to come from a senior executive, auditor, customer, or government authority. Escalation and verification protect both the employee and the claimed requester.",
+    "metadata": {
+      "record_id": "TRN-008",
+      "source": "NIST SP 800-171 Rev. 3",
+      "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/800-171r3/NIST.SP.800-171r3.html",
+      "framework": "NIST",
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "vishing_defense",
+    "channel": "voice_phone",
+    "target_risk_surface": "financial_access",
+    "source": "NIST Small Business Cybersecurity: Phishing",
+    "content": "End an unsolicited call that asks for credentials, authentication codes, remote access, sensitive information, or payment. Call the organization back using a verified directory or statement number.",
+    "metadata": {
+      "record_id": "TRN-009",
+      "source": "NIST Small Business Cybersecurity: Phishing",
+      "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing",
+      "framework": "NIST",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "voice_clone_defense",
+    "channel": "voice_phone",
+    "target_risk_surface": "executive",
+    "source": "FBI Internet Crime Report 2025",
+    "content": "Do not use voice familiarity as the only approval factor. Apply the normal callback, dual-approval, and payment-control process even when a caller sounds like a known executive.",
+    "metadata": {
+      "record_id": "TRN-010",
+      "source": "FBI Internet Crime Report 2025",
+      "url": "https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf",
+      "framework": "FBI",
+      "level": "advanced",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "otp_protection",
+    "channel": "voice_phone",
+    "target_risk_surface": "identity_and_sso",
+    "source": "NIST SP 800-63B-4",
+    "content": "Never disclose a one-time authenticator output to a caller or message sender. Manually entered OTP values can be relayed by an impostor and are not phishing-resistant.",
+    "metadata": {
+      "record_id": "TRN-011",
+      "source": "NIST SP 800-63B-4",
+      "url": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "framework": "NIST",
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "smishing_defense",
+    "channel": "sms_push",
+    "target_risk_surface": "identity_and_sso",
+    "source": "NIST Small Business Cybersecurity: Phishing",
+    "content": "For an unexpected text about a delivery, bank, password, or account, avoid the embedded link. Open the official app or independently locate the organization’s website and contact details.",
+    "metadata": {
+      "record_id": "TRN-012",
+      "source": "NIST Small Business Cybersecurity: Phishing",
+      "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing",
+      "framework": "NIST",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "mfa_fatigue_defense",
+    "channel": "sms_push",
+    "target_risk_surface": "privileged_access",
+    "source": "CISA Implementing Number Matching",
+    "content": "Deny and report any authentication request you did not initiate. An unexpected MFA prompt may mean the password was already entered successfully by another party.",
+    "metadata": {
+      "record_id": "TRN-013",
+      "source": "CISA Implementing Number Matching",
+      "url": "https://www.cisa.gov/sites/default/files/publications/fact-sheet-implement-number-matching-in-mfa-applications-508c.pdf",
       "framework": "CISA",
-      "focus_area": "Standard Employee Response",
-      "target_bias": "Action Paralysis"
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
     }
   },
   {
-    "category": "best_practice",
-    "content": "Effective Out-of-Band (OOB) Verification: Out-of-band verification is only valid when performed across a trusted, pre-existing secondary channel. Replying to the suspicious email, calling a phone number listed in the email footer, or clicking a link to 're-verify' is entirely compromised. Valid OOB methods: Dialing an extension from the official internal enterprise phone directory, walking to the colleague's desk, or sending a message on enterprise Slack/Teams to their verified corporate handle.",
+    "category": "mfa_number_matching",
+    "channel": "sms_push",
+    "target_risk_surface": "privileged_access",
+    "source": "CISA Implementing Number Matching",
+    "content": "Use number matching when push MFA is still required and train users to compare the number only during a sign-in they initiated. Investigate denied or bulk confirmation events.",
     "metadata": {
-      "source": "NCSC UK Multi-Factor Verification Guidelines",
-      "framework": "NCSC",
-      "focus_area": "Verification Procedures",
-      "target_bias": "False Verification"
-    }
-  },
-  {
-    "category": "pedagogical_guidance",
-    "content": "Non-Punitive Coaching for Failed Decisions: When an employee makes an unsafe choice in a training simulation, negative shaming or penalization leads to concealment of future security incidents. The Coach Agent must acknowledge positive aspects of the learner's reasoning (e.g., 'You correctly noticed that the invoice was unexpected'), isolate the specific blind spot (e.g., 'However, you relied on email reply rather than out-of-band phone confirmation'), and prescribe actionable correction.",
-    "metadata": {
-      "source": "CyberGuard AI Pedagogical Principles",
-      "framework": "CyberGuard",
-      "focus_area": "Learning Profile Feedback",
-      "target_bias": "Defensiveness / Incident Concealment"
-    }
-  },
-  {
-    "category": "best_practice",
-    "content": "Credential Harvesting Defense and Identity Provider Bookmarks: Never authenticate your Single Sign-On (SSO) or password credentials from a link arriving via email, SMS, or direct message. Corporate login sessions rarely expire unexpectedly in the middle of a workday. Recommended defense: Bookmark the official identity provider portal (e.g., login.microsoftonline.com or company Okta URL) in your browser and always navigate directly to the bookmarked page.",
-    "metadata": {
-      "source": "CISA Phishing Guidance: Stopping the Attack Cycle",
+      "record_id": "TRN-014",
+      "source": "CISA Implementing Number Matching",
+      "url": "https://www.cisa.gov/sites/default/files/publications/fact-sheet-implement-number-matching-in-mfa-applications-508c.pdf",
       "framework": "CISA",
-      "focus_area": "Credential Theft Prevention",
-      "target_bias": "Reflexive Login"
+      "level": "advanced",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
     }
   },
   {
-    "category": "behavioral_guidance",
-    "content": "Channel Obstruction Red Flags: Attackers frequently include explicit justifications for why the victim cannot reach them via telephone or video (e.g., 'I am stuck in an all-day executive board meeting', 'My mic is broken', 'I am boarding an international flight'). This deliberate obstruction tactic is designed to eliminate out-of-band verification. Whenever an urgent financial or credential request insists on email-only communication, treat the message as suspicious.",
+    "category": "phishing_resistant_mfa",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "privileged_access",
+    "source": "NIST SP 800-63B-4",
+    "content": "Prefer cryptographic authentication such as WebAuthn or FIDO2 that binds the authentication to the legitimate verifier. Manual OTP entry and ordinary push approval do not provide the same phishing resistance.",
     "metadata": {
-      "source": "FBI IC3 Business Email Compromise Advisory",
-      "framework": "FBI IC3",
-      "focus_area": "Communication Channel Defense",
-      "target_bias": "Channel Avoidance"
+      "record_id": "TRN-015",
+      "source": "NIST SP 800-63B-4",
+      "url": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "framework": "NIST",
+      "level": "advanced",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "oauth_consent_defense",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "cloud_and_saas",
+    "source": "MITRE ATT&CK T1528",
+    "content": "Before granting an application access, verify the publisher, business owner, and exact permissions. Reject unapproved requests for mail, files, contacts, offline access, or administrative scopes.",
+    "metadata": {
+      "record_id": "TRN-016",
+      "source": "MITRE ATT&CK T1528",
+      "url": "https://attack.mitre.org/techniques/T1528/",
+      "framework": "MITRE",
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "oauth_incident_response",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "cloud_and_saas",
+    "source": "MITRE ATT&CK T1528",
+    "content": "If malicious consent is suspected, report it so administrators can revoke access and refresh tokens, remove the application grant, and review activity performed under the token.",
+    "metadata": {
+      "record_id": "TRN-017",
+      "source": "MITRE ATT&CK T1528",
+      "url": "https://attack.mitre.org/techniques/T1528/",
+      "framework": "MITRE",
+      "level": "advanced",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "session_theft_response",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "identity_and_sso",
+    "source": "MITRE ATT&CK T1550.004",
+    "content": "A password change alone may not end an attacker’s active web session. Incident response should revoke sessions and tokens and investigate sign-ins, devices, and application activity.",
+    "metadata": {
+      "record_id": "TRN-018",
+      "source": "MITRE ATT&CK T1550.004",
+      "url": "https://attack.mitre.org/techniques/T1550/004/",
+      "framework": "MITRE",
+      "level": "advanced",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "chat_compromise_defense",
+    "channel": "slack_teams",
+    "target_risk_surface": "collaboration",
+    "source": "MITRE ATT&CK T1566.003",
+    "content": "Treat unusual direct messages, scripts, file shares, payment requests, and authentication prompts as suspicious even when they come from an internal-looking account. Confirm through a ticket or second channel.",
+    "metadata": {
+      "record_id": "TRN-019",
+      "source": "MITRE ATT&CK T1566.003",
+      "url": "https://attack.mitre.org/techniques/T1566/003/",
+      "framework": "MITRE",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "trusted_account_verification",
+    "channel": "slack_teams",
+    "target_risk_surface": "collaboration",
+    "source": "MITRE ATT&CK T1078",
+    "content": "A legitimate account can be controlled by an attacker. Judge requests against normal workflow and independently verify unusual actions instead of relying only on the profile name or account history.",
+    "metadata": {
+      "record_id": "TRN-020",
+      "source": "MITRE ATT&CK T1078",
+      "url": "https://attack.mitre.org/techniques/T1078/",
+      "framework": "MITRE",
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "quishing_detection",
+    "channel": "qr_code",
+    "target_risk_surface": "mobile_and_physical",
+    "source": "FBI IC3 QR Code PSA",
+    "content": "Inspect the destination shown by the device before opening a QR link. Avoid codes that unexpectedly request payment or account login, and use the organization’s official application or typed website instead.",
+    "metadata": {
+      "record_id": "TRN-021",
+      "source": "FBI IC3 QR Code PSA",
+      "url": "https://www.ic3.gov/PSA/2022/PSA220118",
+      "framework": "FBI",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "physical_qr_integrity",
+    "channel": "qr_code",
+    "target_risk_surface": "mobile_and_physical",
+    "source": "FBI IC3 QR Code PSA",
+    "content": "Check physical QR signs for overlays or tampering. When a code is associated with parking, payment, or access, verify the operator and destination through an official source.",
+    "metadata": {
+      "record_id": "TRN-022",
+      "source": "FBI IC3 QR Code PSA",
+      "url": "https://www.ic3.gov/PSA/2022/PSA220118",
+      "framework": "FBI",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "removable_media_defense",
+    "channel": "physical_media",
+    "target_risk_surface": "endpoint",
+    "source": "CISA ICT Supply Chain Risk Management Threat Scenarios",
+    "content": "Do not connect found, mailed, or otherwise untrusted removable media to a work device. Give it to the designated security team for controlled analysis or disposal.",
+    "metadata": {
+      "record_id": "TRN-023",
+      "source": "CISA ICT Supply Chain Risk Management Threat Scenarios",
+      "url": "https://www.cisa.gov/sites/default/files/2023-01/ict-scrm-task-force-threat-scenarios-report_0.pdf",
+      "framework": "CISA",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "removable_media_encryption",
+    "channel": "physical_media",
+    "target_risk_surface": "data_protection",
+    "source": "CISA Project Upskill: Protect Data on Devices",
+    "content": "Encrypt approved removable media and the sensitive files it contains. Encryption limits disclosure if a small drive is lost or stolen.",
+    "metadata": {
+      "record_id": "TRN-024",
+      "source": "CISA Project Upskill: Protect Data on Devices",
+      "url": "https://www.cisa.gov/resources-tools/training/how-protect-data-stored-your-devices",
+      "framework": "CISA",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "evil_twin_defense",
+    "channel": "wireless",
+    "target_risk_surface": "identity_and_sso",
+    "source": "MITRE ATT&CK T1557.004",
+    "content": "Avoid open or unexpected wireless networks and do not dismiss certificate warnings. Confirm the correct network name with the venue or organization before connecting.",
+    "metadata": {
+      "record_id": "TRN-025",
+      "source": "MITRE ATT&CK T1557.004",
+      "url": "https://attack.mitre.org/techniques/T1557/004/",
+      "framework": "MITRE",
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "incident_reporting",
+    "channel": "all",
+    "target_risk_surface": "general",
+    "source": "NIST SP 800-61 Rev. 3",
+    "content": "Report suspected compromise promptly through the documented incident-response channel. Include what happened, the affected account or device, approximate time, and any action already taken.",
+    "metadata": {
+      "record_id": "TRN-026",
+      "source": "NIST SP 800-61 Rev. 3",
+      "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final",
+      "framework": "NIST",
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "role_based_learning",
+    "channel": "all",
+    "target_risk_surface": "general",
+    "source": "NIST SP 800-50 Rev. 1",
+    "content": "Adapt learning activities to the risks and responsibilities of the audience. Finance, help desk, engineering, HR, and executives should practice the decisions they are likely to face.",
+    "metadata": {
+      "record_id": "TRN-027",
+      "source": "NIST SP 800-50 Rev. 1",
+      "url": "https://www.nist.gov/publications/building-cybersecurity-and-privacy-learning-program",
+      "framework": "NIST",
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "learning_measurement",
+    "channel": "all",
+    "target_risk_surface": "general",
+    "source": "NIST SP 800-50 Rev. 1",
+    "content": "Evaluate a learning program with defined outcomes and measures, then use results to improve content. Completion alone does not show that learners can recognize and respond to threats.",
+    "metadata": {
+      "record_id": "TRN-028",
+      "source": "NIST SP 800-50 Rev. 1",
+      "url": "https://www.nist.gov/publications/building-cybersecurity-and-privacy-learning-program",
+      "framework": "NIST",
+      "level": "advanced",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "supply_chain_verification",
+    "channel": "email",
+    "target_risk_surface": "supply_chain",
+    "source": "NIST SP 800-161 Rev. 1",
+    "content": "Use documented supplier contacts and approval paths when a vendor requests access, software changes, or payment changes. Treat deviations from the established relationship as a risk requiring review.",
+    "metadata": {
+      "record_id": "TRN-029",
+      "source": "NIST SP 800-161 Rev. 1",
+      "url": "https://csrc.nist.gov/pubs/sp/800/161/r1/final",
+      "framework": "NIST",
+      "level": "advanced",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "password_manager_use",
+    "channel": "web",
+    "target_risk_surface": "identity_and_sso",
+    "source": "CISA Use Strong Passwords",
+    "content": "Use a password manager to generate and store unique passwords. Domain-aware autofill can also provide a useful warning when a counterfeit site does not match the saved login.",
+    "metadata": {
+      "record_id": "TRN-030",
+      "source": "CISA Use Strong Passwords",
+      "url": "https://www.cisa.gov/secure-our-world/use-strong-passwords",
+      "framework": "CISA",
+      "level": "foundational",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "post_phish_account_response",
+    "channel": "all",
+    "target_risk_surface": "identity_and_sso",
+    "source": "NIST Small Business Cybersecurity: Phishing",
+    "content": "After disclosing a password, notify the organization and change affected credentials immediately. Change reused passwords on other services and review account activity for unauthorized actions.",
+    "metadata": {
+      "record_id": "TRN-031",
+      "source": "NIST Small Business Cybersecurity: Phishing",
+      "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing",
+      "framework": "NIST",
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "ransomware_phishing_defense",
+    "channel": "email",
+    "target_risk_surface": "endpoint",
+    "source": "CISA StopRansomware Guide",
+    "content": "Treat suspicious links and attachments as potential initial access for ransomware. Reporting an early phishing event can allow defenders to contain access before encryption or extortion occurs.",
+    "metadata": {
+      "record_id": "TRN-032",
+      "source": "CISA StopRansomware Guide",
+      "url": "https://www.cisa.gov/stopransomware/ransomware-guide",
+      "framework": "CISA",
+      "level": "intermediate",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
     }
   }
 ]

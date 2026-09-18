@@ -17,6 +17,7 @@ from security.auth_bearer import (
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 router = APIRouter(tags=["Authentication & RBAC"])
+DEMO_MODE = os.environ.get("CYBERGUARD_DEMO_MODE", "false").lower() == "true"
 
 # Initialize Supabase if available
 supabase_url = os.environ.get("SUPABASE_URL")
@@ -36,6 +37,7 @@ DEMO_USERS = {
         "email": "nimal@novatech.com",
         "full_name": "Nimal Perera",
         "role": "Finance Manager",
+        "company": "NovaTech Solutions",
         "access_role": "learner",
         "password": "password123",
         "is_active": True
@@ -45,6 +47,7 @@ DEMO_USERS = {
         "email": "learner@novatech.com",
         "full_name": "Jane Doe",
         "role": "HR Officer",
+        "company": "NovaTech Solutions",
         "access_role": "learner",
         "password": "password123",
         "is_active": True
@@ -54,6 +57,7 @@ DEMO_USERS = {
         "email": "trainer@novatech.com",
         "full_name": "Sarah Connor",
         "role": "Security Trainer",
+        "company": "NovaTech Solutions",
         "access_role": "trainer",
         "password": "password123",
         "is_active": True
@@ -63,6 +67,7 @@ DEMO_USERS = {
         "email": "admin@novatech.com",
         "full_name": "Chief Security Admin",
         "role": "CISO",
+        "company": "NovaTech Solutions",
         "access_role": "admin",
         "password": "password123",
         "is_active": True
@@ -91,6 +96,7 @@ class GoogleAuthRequest(BaseModel):
     role: Optional[str] = "Employee"
     company: Optional[str] = "NovaTech Solutions"
     id_token: Optional[str] = None
+    access_token: Optional[str] = None
 
 
 class SyncUserRequest(BaseModel):
@@ -113,13 +119,16 @@ class LogoutResponse(BaseModel):
 
 
 @router.post("/sync-user")
-async def sync_user(request: SyncUserRequest):
+async def sync_user(
+    request: SyncUserRequest,
+    current_user: CurrentUser = Depends(get_current_user)
+):
     """
     Explicitly synchronizes Supabase OAuth / Auth user into public.users.
     Guarantees public.users has matching record for foreign keys and RLS.
     """
-    user_id = request.user_id.strip()
-    email = request.email.strip().lower()
+    user_id = current_user.id
+    email = current_user.email
     full_name = (request.full_name or email.split("@")[0]).strip()
     role = (request.role or "Employee").strip()
 
@@ -169,6 +178,7 @@ async def login(request: LoginRequest):
                     "email": sb_user.email,
                     "full_name": profile_data.get("full_name", sb_user.email.split("@")[0]),
                     "role": profile_data.get("role", "Finance Manager"),
+                    "company": profile_data.get("company", "Your Organization"),
                     "access_role": profile_data.get("access_role", "learner"),
                     "is_active": profile_data.get("is_active", True)
                 }
@@ -176,20 +186,11 @@ async def login(request: LoginRequest):
             # Fall through to demo account verification
             pass
 
-    # 2. Fallback to pre-configured demo verification for offline/testing
-    if not user_record:
+    # 2. Explicit offline classroom-demo accounts
+    if not user_record and DEMO_MODE:
         if email in DEMO_USERS and DEMO_USERS[email]["password"] == password:
             user_record = DEMO_USERS[email].copy()
             del user_record["password"]
-        elif password == "password123":  # Allow any valid email with default test password
-            user_record = {
-                "id": str(uuid.uuid5(uuid.NAMESPACE_DNS, email)),
-                "email": email,
-                "full_name": email.split("@")[0].capitalize(),
-                "role": "Finance Manager",
-                "access_role": "admin" if "admin" in email else "learner",
-                "is_active": True
-            }
 
     if not user_record:
         raise HTTPException(
@@ -210,6 +211,7 @@ async def login(request: LoginRequest):
         "access_role": user_record["access_role"],
         "role": user_record["role"],
         "full_name": user_record["full_name"],
+        "company": user_record.get("company", "Your Organization"),
         "is_active": user_record["is_active"]
     }
     
@@ -246,8 +248,14 @@ async def signup(request: SignupRequest):
     full_name = (request.full_name or email.split("@")[0]).strip()
     role = (request.role or "Employee").strip()
     company = (request.company or "NovaTech").strip()
-    access_role = request.access_role or "learner"
+    # Public signup can only create learners. Role elevation is an admin operation.
+    access_role = "learner"
     user_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, email))
+
+    if len(password) < 10:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Password must contain at least 10 characters")
+    if not supabase and not DEMO_MODE:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Registration service is not configured")
 
     # 1. Attempt Supabase registration if online
     if supabase:
@@ -258,8 +266,12 @@ async def signup(request: SignupRequest):
             })
             if auth_res and auth_res.user:
                 user_id = str(auth_res.user.id)
-        except Exception:
-            pass
+            else:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Registration did not create a user")
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Registration failed: {e}")
 
         try:
             # Upsert into public.users
@@ -268,10 +280,13 @@ async def signup(request: SignupRequest):
                 "email": email,
                 "full_name": full_name,
                 "role": role,
+                "company": company,
+                "access_role": access_role,
+                "is_active": True,
                 "readiness_score": 50
             }).execute()
-        except Exception:
-            pass
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"User profile persistence failed: {e}")
 
     user_record = {
         "id": user_id,
@@ -308,11 +323,26 @@ async def google_auth(request: GoogleAuthRequest):
     Authenticate or register user via Google identity.
     Provides immediate one-tap OAuth session with demo fallback.
     """
-    email = (request.email or "alex.turner@techcorp.io").strip().lower()
-    full_name = (request.full_name or "Alex Turner").strip()
-    role = (request.role or "Product Manager").strip()
-    company = (request.company or "TechCorp Global").strip()
-    user_id = request.id or str(uuid.uuid5(uuid.NAMESPACE_DNS, email))
+    verified_user = None
+    if supabase and request.access_token:
+        try:
+            verified_response = supabase.auth.get_user(request.access_token)
+            verified_user = getattr(verified_response, "user", None)
+        except Exception:
+            verified_user = None
+
+    if not verified_user and not DEMO_MODE:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="A verified Google OAuth session is required")
+
+    metadata = (getattr(verified_user, "user_metadata", {}) or {}) if verified_user else {}
+    email = (getattr(verified_user, "email", None) if verified_user else request.email) or ""
+    email = email.strip().lower()
+    if not email:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Google account email is missing")
+    full_name = str(metadata.get("full_name") or metadata.get("name") or request.full_name or email.split("@")[0]).strip()
+    role = str(metadata.get("role") or request.role or "Employee").strip()
+    company = str(metadata.get("company") or request.company or "Your Organization").strip()
+    user_id = str(getattr(verified_user, "id", None) or request.id or uuid.uuid5(uuid.NAMESPACE_DNS, email))
 
     if supabase:
         try:
@@ -328,6 +358,9 @@ async def google_auth(request: GoogleAuthRequest):
                     "email": email,
                     "full_name": full_name,
                     "role": role,
+                    "company": company,
+                    "access_role": "learner",
+                    "is_active": True,
                     "readiness_score": 60
                 }).execute()
         except Exception as e:
@@ -349,6 +382,7 @@ async def google_auth(request: GoogleAuthRequest):
         "access_role": user_record["access_role"],
         "role": user_record["role"],
         "full_name": user_record["full_name"],
+        "company": company,
         "is_active": True
     }
     access_token = create_access_token(token_claims)

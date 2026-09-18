@@ -1,5 +1,7 @@
 # 📚 CyberGuard AI — Trusted Knowledge Base Sources
 
+> **Implementation status — 16 September 2026:** The checked-in corpus now contains 32 threat chunks and 32 training chunks, meeting the 30–50 chunk target below. Records use original paraphrases with direct URLs to FBI IC3, CISA, NIST, MITRE ATT&CK, and FTC sources. See `backend/scripts/data/dataset_manifest.json` for counts and provenance. The NovaTech organization-policy corpus is fictional demo data and is labeled as such in every record.
+
 ## Quick Reference — Which Source Goes Where
 
 ```
