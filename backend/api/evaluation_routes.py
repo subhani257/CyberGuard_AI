@@ -193,20 +193,13 @@ async def evaluate_decision(request: EvaluationRequest, http_request: Request):
                 print(f"Notice: Supabase scenario fetch bypassed: {e}")
         
         if not scenario_text:
-            # For testing without real database data, use a mock scenario
+            # Fallback: generic scenario text when DB is unavailable (covers any threat type)
             print(f"Scenario {request.scenario_id} not found in database, using fallback scenario for testing")
             scenario_text = """
-            Subject: URGENT: Wire Transfer Request
-            
-            From: ceo@micros0ft.com
-            To: finance@yourcompany.com
-            
-            Please immediately wire $50,000 to account 123456789 for the Johnson project. 
-            This is extremely urgent and must be completed within the hour. Do not call to verify - 
-            I'm in a meeting and cannot be disturbed.
-            
-            Regards,
-            CEO
+            URGENT: Please wire $50,000 immediately. CEO request. Do not discuss with anyone.
+            Our vendor updated their bank account details. Scan the QR code to confirm.
+            You have received multiple MFA push notifications — approve on your phone to continue.
+            IT Support called and asked to install AnyDesk and allow remote access.
             """
         else:
             scenario = scenario_data.data[0]
@@ -272,18 +265,57 @@ async def evaluate_decision(request: EvaluationRequest, http_request: Request):
 
 
 def _extract_scenario_text(scenario_content: Dict[str, Any]) -> str:
-    """Extract full text from scenario JSON content."""
+    """
+    Converts any scenario JSON into a flat text string for NLP analysis.
+    Handles all scenario types: Email, SMS, Slack/DM, Vishing, QR Code,
+    Supply Chain, Cloud App, MFA Fatigue — without assuming any specific format.
+    """
     parts = []
-    
-    if "sender_name" in scenario_content:
+
+    # --- Priority fields: always include context clues if available ---
+    if scenario_content.get("situation_title"):
+        parts.append(f"Situation: {scenario_content['situation_title']}")
+    if scenario_content.get("situation_tagline"):
+        parts.append(f"Context: {scenario_content['situation_tagline']}")
+    if scenario_content.get("threat_type"):
+        parts.append(f"Threat Category: {scenario_content['threat_type']}")
+
+    # --- Sender / Identity fields (Email, Slack, SMS, Vishing) ---
+    if scenario_content.get("sender_name"):
         parts.append(f"From: {scenario_content['sender_name']}")
-    if "sender_email" in scenario_content:
+    if scenario_content.get("sender_email"):
         parts.append(f"Email: {scenario_content['sender_email']}")
-    if "subject" in scenario_content:
+    if scenario_content.get("caller"):
+        parts.append(f"Caller: {scenario_content['caller']}")
+    if scenario_content.get("phone_number"):
+        parts.append(f"Phone: {scenario_content['phone_number']}")
+    if scenario_content.get("platform"):
+        parts.append(f"Platform: {scenario_content['platform']}")
+    if scenario_content.get("channel"):
+        parts.append(f"Channel: {scenario_content['channel']}")
+
+    # --- Message content fields (any platform) ---
+    if scenario_content.get("subject"):
         parts.append(f"Subject: {scenario_content['subject']}")
-    if "body" in scenario_content:
-        parts.append(f"Body: {scenario_content['body']}")
-    
+    if scenario_content.get("body"):
+        parts.append(f"Message: {scenario_content['body']}")
+    if scenario_content.get("message_content"):
+        parts.append(f"Message: {scenario_content['message_content']}")
+    if scenario_content.get("message"):
+        parts.append(f"Message: {scenario_content['message']}")
+    if scenario_content.get("description"):
+        parts.append(f"Description: {scenario_content['description']}")
+
+    # --- Embedded clues (always include for richer NLP context) ---
+    if scenario_content.get("clues_embedded") and isinstance(scenario_content["clues_embedded"], list):
+        parts.append(f"Clues: {' '.join(scenario_content['clues_embedded'])}")
+
+    # --- Fallback: if nothing specific found, stringify all string values ---
+    if not parts:
+        for key, value in scenario_content.items():
+            if isinstance(value, str) and len(value) > 3:
+                parts.append(f"{key}: {value}")
+
     return " ".join(parts)
 
 
