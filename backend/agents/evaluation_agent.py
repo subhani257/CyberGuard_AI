@@ -84,12 +84,16 @@ class EvaluationAgent:
             "decline", "block", "do not", "never", "disconnect"
         ]
         
-        # Unsafe actions
+        # Unsafe actions (present tense, past tense, and phrasal forms)
         unsafe_action_keywords = [
+            # Past-tense - how users typically report what they did
             "clicked", "opened", "replied", "responded", "downloaded",
             "processed", "sent", "transferred", "paid", "provided",
+            "scanned", "approved", "authorized", "granted", "allowed",
+            "installed", "plugged in", "entered credentials", "shared",
+            # Present / imperative / phrasal forms
             "approve", "authorize", "grant consent", "allow access", "plug in",
-            "scan the qr", "share the code", "enter credentials"
+            "scan the qr", "share the code", "enter credentials",
         ]
         
         # Check if action contains safe keywords

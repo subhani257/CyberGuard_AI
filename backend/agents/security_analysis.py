@@ -6,14 +6,20 @@ class SecurityAnalyzer:
     def __init__(self):
         # Mapping of threat indicators to safe behaviors
         self.behavior_rules = {
+            "spoofed_identifiers": {
+                "safe_action": "Verify sender identity through alternate channel",
+                "safe_reasoning": "The sender's domain or identifier appears suspicious. Verify the sender's identity using a different communication method (phone call to known number, in-person, or official company portal) before taking any action.",
+                "risk_level": "high"
+            },
+            # Alias for the spoofed_domains key emitted by the upgraded ThreatExtractor
             "spoofed_domains": {
                 "safe_action": "Verify sender identity through alternate channel",
-                "safe_reasoning": "The email domain appears suspicious. Verify the sender's identity using a different communication method (phone call to known number, in-person, or official company portal) before taking any action.",
+                "safe_reasoning": "The sender's domain or identifier appears suspicious. Verify the sender's identity using a different communication method (phone call to known number, in-person, or official company portal) before taking any action.",
                 "risk_level": "high"
             },
             "financial_requests": {
                 "safe_action": "Confirm with finance department through official channels",
-                "safe_reasoning": "Financial requests via email are high-risk. Confirm the request with your finance department using official channels (phone call to known number, in-person verification, or official finance portal) before processing any payments.",
+                "safe_reasoning": "Financial requests via unverified digital channels are high-risk. Confirm the request with your finance department using official channels (phone call to known number, in-person verification, or official finance portal) before processing any payments.",
                 "risk_level": "high"
             },
             "urgency_indicators": {
@@ -33,7 +39,37 @@ class SecurityAnalyzer:
             },
             "attachment_requests": {
                 "safe_action": "Do not open attachments; verify sender first",
-                "safe_reasoning": "Email attachments can contain malware. Do not open any attachments unless you have verified the sender's identity and the attachment's legitimacy through alternate channels.",
+                "safe_reasoning": "Digital attachments can contain malware. Do not open any attachments unless you have verified the sender's identity and the attachment's legitimacy through alternate channels.",
+                "risk_level": "high"
+            },
+            # --- NEW: Quishing / QR Code Attack ---
+            "qr_code_attacks": {
+                "safe_action": "Do not scan unknown QR codes; verify the source first",
+                "safe_reasoning": "QR codes can redirect to phishing sites or malicious downloads. Never scan a QR code sent in a message or email without verifying its source through an official channel.",
+                "risk_level": "high"
+            },
+            # --- NEW: Supply Chain Pretext ---
+            "supply_chain_pretext": {
+                "safe_action": "Verify vendor payment changes directly with a known contact",
+                "safe_reasoning": "Fraudsters impersonate vendors and suppliers to redirect payments. Any request to update bank details or payment information must be verified through a pre-established phone number, not the contact details provided in the message.",
+                "risk_level": "high"
+            },
+            # --- NEW: Cloud App Consent Abuse ---
+            "cloud_app_consent": {
+                "safe_action": "Do not authorize unknown apps; review permissions carefully",
+                "safe_reasoning": "OAuth phishing tricks users into granting malicious apps access to cloud accounts. Never approve app permissions without checking with IT and confirming the app is on the approved software list.",
+                "risk_level": "high"
+            },
+            # --- NEW: MFA Fatigue / Push Bombing ---
+            "mfa_fatigue": {
+                "safe_action": "Deny unexpected MFA requests and immediately report to IT",
+                "safe_reasoning": "Attackers use MFA push bombing to wear down users into approving a fraudulent login. If you receive unexpected MFA prompts you did not initiate, deny them all and report the incident to IT Security immediately.",
+                "risk_level": "critical"
+            },
+            # --- NEW: Voice Vishing / Direct Message Pretexting ---
+            "vishing_dm_pretext": {
+                "safe_action": "Do not grant remote access or share credentials over voice/DM; verify through official channels",
+                "safe_reasoning": "Attackers use phone calls and direct messages to impersonate IT support and trick users into installing remote access tools. Legitimate IT departments will never ask for your password or remote access without a formal, verifiable ticket.",
                 "risk_level": "high"
             }
         }
@@ -73,11 +109,16 @@ class SecurityAnalyzer:
         }
     
     def _calculate_overall_risk(self, risk_levels: List[str]) -> str:
-        """Calculate overall risk level based on individual risks."""
+        """
+        Calculate overall risk level based on individual risks.
+        Priority order: critical > high > medium > low
+        """
         if not risk_levels:
             return "low"
-        
-        if "high" in risk_levels:
+
+        if "critical" in risk_levels:
+            return "critical"
+        elif "high" in risk_levels:
             return "high"
         elif "medium" in risk_levels:
             return "medium"
@@ -114,8 +155,8 @@ class SecurityAnalyzer:
         """Get list of specific recommended actions based on threats."""
         recommendations = []
         
-        if "spoofed_domains" in detected_threats:
-            recommendations.append("Verify sender email domain")
+        if "spoofed_identifiers" in detected_threats:
+            recommendations.append("Verify sender identifier/domain")
             recommendations.append("Contact sender through known alternate channel")
         
         if "financial_requests" in detected_threats:
@@ -141,11 +182,36 @@ class SecurityAnalyzer:
             recommendations.append("Do not open attachments")
             recommendations.append("Scan attachments with antivirus if verified")
             recommendations.append("Verify sender before opening")
+
+        if "qr_code_attacks" in detected_threats:
+            recommendations.append("Do not scan the QR code")
+            recommendations.append("Ask the sender to provide a direct URL instead")
+            recommendations.append("Report the suspicious QR code to IT")
+
+        if "supply_chain_pretext" in detected_threats:
+            recommendations.append("Do not update vendor payment details from this message")
+            recommendations.append("Call the vendor on their known, pre-registered phone number")
+            recommendations.append("Require dual-approval before any vendor bank change")
+
+        if "cloud_app_consent" in detected_threats:
+            recommendations.append("Do not authorize or approve the app request")
+            recommendations.append("Check the company approved software list")
+            recommendations.append("Report the OAuth request to IT Security")
+
+        if "mfa_fatigue" in detected_threats:
+            recommendations.append("Deny all unexpected MFA push notifications")
+            recommendations.append("Report repeated MFA prompts to IT immediately")
+            recommendations.append("Change your password as a precaution")
+
+        if "vishing_dm_pretext" in detected_threats:
+            recommendations.append("Do not install any remote access software")
+            recommendations.append("Do not share your password or OTP over phone or DM")
+            recommendations.append("Call IT on the official helpdesk number to verify")
         
         # Add general recommendations for high-risk situations
         if len(detected_threats) >= 2:
             recommendations.append("Report to IT security team")
-            recommendations.append("Document the suspicious email")
+            recommendations.append("Document the suspicious communication")
         
         return recommendations if recommendations else ["Exercise general caution"]
 
@@ -156,7 +222,7 @@ if __name__ == "__main__":
     
     # Test with sample threat indicators
     test_indicators = {
-        "spoofed_domains": [
+        "spoofed_identifiers": [
             {"email": "ceo@novatech-global.com", "domain": "novatech-global.com", "confidence": 0.8}
         ],
         "financial_requests": [

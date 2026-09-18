@@ -275,17 +275,48 @@ async def evaluate_decision(
 
 
 def _extract_scenario_text(scenario_content: Dict[str, Any]) -> str:
-    """Extract all user-visible scenario text, including non-email channel data."""
+    """
+    Converts any scenario JSON into a flat text string for NLP analysis.
+    Handles all scenario types: Email, SMS, Slack/DM, Vishing, QR Code,
+    Supply Chain, Cloud App, MFA Fatigue — without assuming any specific format.
+    """
     parts = []
-    
-    if "sender_name" in scenario_content:
+
+    # --- Priority fields: always include context clues if available ---
+    if scenario_content.get("situation_title"):
+        parts.append(f"Situation: {scenario_content['situation_title']}")
+    if scenario_content.get("situation_tagline"):
+        parts.append(f"Context: {scenario_content['situation_tagline']}")
+    if scenario_content.get("threat_type"):
+        parts.append(f"Threat Category: {scenario_content['threat_type']}")
+
+    # --- Sender / Identity fields (Email, Slack, SMS, Vishing) ---
+    if scenario_content.get("sender_name"):
         parts.append(f"From: {scenario_content['sender_name']}")
-    if "sender_email" in scenario_content:
+    if scenario_content.get("sender_email"):
         parts.append(f"Email: {scenario_content['sender_email']}")
-    if "subject" in scenario_content:
+    if scenario_content.get("caller"):
+        parts.append(f"Caller: {scenario_content['caller']}")
+    if scenario_content.get("phone_number"):
+        parts.append(f"Phone: {scenario_content['phone_number']}")
+    if scenario_content.get("platform"):
+        parts.append(f"Platform: {scenario_content['platform']}")
+    if scenario_content.get("channel"):
+        parts.append(f"Channel: {scenario_content['channel']}")
+
+    # --- Message content fields (any platform) ---
+    if scenario_content.get("subject"):
         parts.append(f"Subject: {scenario_content['subject']}")
-    if "body" in scenario_content:
+    if scenario_content.get("body"):
         parts.append(f"Body: {scenario_content['body']}")
+    if scenario_content.get("message_content"):
+        parts.append(f"Message: {scenario_content['message_content']}")
+    if scenario_content.get("message"):
+        parts.append(f"Message: {scenario_content['message']}")
+    if scenario_content.get("description"):
+        parts.append(f"Description: {scenario_content['description']}")
+
+    # --- Channel specific data ---
     channel_data = scenario_content.get("channel_data")
     if isinstance(channel_data, dict):
         for key, value in channel_data.items():
@@ -299,7 +330,16 @@ def _extract_scenario_text(scenario_content: Dict[str, Any]) -> str:
             else:
                 rendered = str(value)
             parts.append(f"{key.replace('_', ' ')}: {rendered}")
-    
+
+    # --- Embedded clues (always include for richer NLP context) ---
+    if scenario_content.get("clues_embedded") and isinstance(scenario_content["clues_embedded"], list):
+        parts.append(f"Clues: {' '.join(scenario_content['clues_embedded'])}")
+
+    # --- Fallback: if nothing specific found, stringify all string values ---
+    if not parts:
+        for key, value in scenario_content.items():
+            if isinstance(value, str) and len(value) > 3:
+                parts.append(f"{key}: {value}")
     return " ".join(parts)
 
 
