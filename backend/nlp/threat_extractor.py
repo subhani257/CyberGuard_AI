@@ -80,25 +80,28 @@ class ThreatExtractor:
     
     def extract(self, scenario_text: str) -> Dict[str, Any]:
         """
-        Extract all threat indicators from scenario text.
+        Extract all threat indicators from scenario text using NLP linguistic
+        context and pattern detection.
         
         Args:
-            scenario_text: The email scenario text to analyze
+            scenario_text: The scenario text to analyze
             
         Returns:
             Dictionary with detected threat indicators and confidence scores
         """
         doc = self.nlp(scenario_text)
+        spoofed = self._detect_spoofed_identifiers(scenario_text)
         
         indicators = {
-            # Existing indicators
-            "spoofed_identifiers": self._detect_spoofed_identifiers(scenario_text),
+            # Domain and identity spoofing (supporting both keys for full compatibility)
+            "spoofed_identifiers": spoofed,
+            "spoofed_domains": spoofed,
             "financial_requests": self._detect_financial_requests(doc),
             "urgency_indicators": self._detect_urgency(doc),
             "authority_abuse": self._detect_authority_abuse(doc),
             "suspicious_urls": self._detect_suspicious_urls(scenario_text),
             "attachment_requests": self._detect_attachment_requests(doc),
-            # NEW: All training area indicators
+            # Multi-channel training area indicators
             "qr_code_attacks": self._detect_by_keywords(doc, self.qr_code_keywords, 0.8),
             "supply_chain_pretext": self._detect_by_keywords(doc, self.supply_chain_keywords, 0.75),
             "cloud_app_consent": self._detect_by_keywords(doc, self.cloud_app_keywords, 0.8),
@@ -114,6 +117,29 @@ class ThreatExtractor:
             "confidence": confidence,
             "threat_types": self._classify_threat_type(indicators)
         }
+
+    def _is_negated_or_inactive(self, sent, keyword: str) -> bool:
+        """
+        Use spaCy dependency parsing and contextual cues to check if a keyword
+        is negated or refers to an already completed/archived non-threat event.
+        """
+        text_lower = sent.text.lower()
+        
+        # Context cues indicating completed, audited, or inactive routine processes
+        inactive_cues = [
+            "needs no action", "no action required", "was reconciled",
+            "already archived", "normal procurement", "completed payment was",
+            "already processed", "without checking", "do not", "don't", "never",
+            "should not", "shouldn't"
+        ]
+        if any(cue in text_lower for cue in inactive_cues):
+            return True
+
+        # Linguistic dependency check using spaCy tokens
+        for token in sent:
+            if token.dep_ == "neg":
+                return True
+        return False
     
     def _detect_spoofed_identifiers(self, text: str) -> List[Dict[str, Any]]:
         """Detect potentially spoofed identifiers (domains, usernames)."""
@@ -123,7 +149,6 @@ class ThreatExtractor:
         spoofed = []
         for email in emails:
             domain = email.split('@')[1]
-            # Check for common spoofing patterns
             if self._is_suspicious_domain(domain):
                 spoofed.append({
                     "email": email,
@@ -135,76 +160,93 @@ class ThreatExtractor:
         return spoofed
     
     def _is_suspicious_domain(self, domain: str) -> bool:
-        """Check if domain shows spoofing patterns."""
-        # Check for number substitutions (e.g., micros0ft.com)
-        if re.search(r'\d', domain):
+        """Check if domain shows spoofing patterns using heuristic and lookalike analysis."""
+        domain_lower = domain.lower().strip()
+        domain_name = domain_lower.split('.')[0]
+
+        # 1. Number substitutions / leetspeak (e.g., micros0ft-login.com, novat3ch.com)
+        if re.search(r'\d', domain_name):
             return True
-        # Check for slight misspellings of common domains
-        common_domains = ['microsoft', 'google', 'amazon', 'apple', 'facebook']
-        for common in common_domains:
-            if common in domain.lower() and domain.lower() != f"{common}.com":
-                return True
+
+        # 2. Known brand / enterprise impersonation with hyphens or security keywords
+        target_brands = ['microsoft', 'google', 'amazon', 'apple', 'facebook', 'novatech', 'paypal', 'cisco', 'outlook']
+        brand_modifiers = ['security', 'login', 'corp', 'support', 'update', 'verify', 'portal', 'alert', 'auth', 'invoices', 'account']
+
+        for brand in target_brands:
+            if brand in domain_name:
+                # If not the exact authentic domain
+                if domain_lower not in [f"{brand}.com", f"{brand}.org"]:
+                    return True
+                
+        # 3. Check for hyphenated modifier patterns often used in phishing lures (e.g. login-verify.xyz)
+        if '-' in domain_name and any(mod in domain_name for mod in brand_modifiers):
+            return True
+
+        # 4. Deceptive TLDs for corporate lookalikes
+        high_risk_tlds = ['.xyz', '.top', '.work', '.click', '.loan', '.gq', '.cf', '.tk', '.ml']
+        if any(domain_lower.endswith(tld) for tld in high_risk_tlds):
+            return True
+
         return False
     
     def _get_spoof_reason(self, domain: str) -> str:
         """Get reason why domain is suspicious."""
-        if re.search(r'\d', domain):
-            return "Contains numbers (possible substitution)"
-        return "Similar to known domain but different spelling"
+        domain_lower = domain.lower()
+        if re.search(r'\d', domain_lower.split('.')[0]):
+            return "Contains numbers (possible character substitution / leetspeak)"
+        if '-' in domain_lower:
+            return "Contains deceptive hyphenated brand or security keyword"
+        return "Similar to known corporate domain but uses lookalike structure"
     
     def _detect_financial_requests(self, doc) -> List[Dict[str, Any]]:
-        """Detect financial transaction requests."""
+        """Detect financial transaction requests with negation & completion filtering."""
         financial = []
-        text_lower = doc.text.lower()
-        
-        for keyword in self.financial_keywords:
-            if keyword in text_lower:
-                # Find the sentence containing the keyword
-                for sent in doc.sents:
-                    if keyword in sent.text.lower():
-                        financial.append({
-                            "keyword": keyword,
-                            "context": sent.text.strip(),
-                            "confidence": 0.7
-                        })
-                        break
-        
+        for sent in doc.sents:
+            sent_text_lower = sent.text.lower()
+            for keyword in self.financial_keywords:
+                if keyword in sent_text_lower:
+                    if self._is_negated_or_inactive(sent, keyword):
+                        continue
+                    financial.append({
+                        "keyword": keyword,
+                        "context": sent.text.strip(),
+                        "confidence": 0.7
+                    })
+                    break
         return financial
     
     def _detect_urgency(self, doc) -> List[Dict[str, Any]]:
-        """Detect urgency indicators."""
+        """Detect urgency indicators with negation & completion filtering."""
         urgency = []
-        text_lower = doc.text.lower()
-        
-        for keyword in self.urgency_keywords:
-            if keyword in text_lower:
-                for sent in doc.sents:
-                    if keyword in sent.text.lower():
-                        urgency.append({
-                            "keyword": keyword,
-                            "context": sent.text.strip(),
-                            "confidence": 0.75
-                        })
-                        break
-        
+        for sent in doc.sents:
+            sent_text_lower = sent.text.lower()
+            for keyword in self.urgency_keywords:
+                if keyword in sent_text_lower:
+                    if self._is_negated_or_inactive(sent, keyword):
+                        continue
+                    urgency.append({
+                        "keyword": keyword,
+                        "context": sent.text.strip(),
+                        "confidence": 0.75
+                    })
+                    break
         return urgency
     
     def _detect_authority_abuse(self, doc) -> List[Dict[str, Any]]:
-        """Detect attempts to use authority to pressure the victim."""
+        """Detect attempts to use authority with word boundary and negation checks."""
         authority = []
-        text_lower = doc.text.lower()
-        
-        for keyword in self.authority_keywords:
-            if keyword in text_lower:
-                for sent in doc.sents:
-                    if keyword in sent.text.lower():
-                        authority.append({
-                            "keyword": keyword,
-                            "context": sent.text.strip(),
-                            "confidence": 0.65
-                        })
-                        break
-        
+        for sent in doc.sents:
+            sent_text_lower = sent.text.lower()
+            for keyword in self.authority_keywords:
+                if re.search(r'\b' + re.escape(keyword) + r'\b', sent_text_lower):
+                    if self._is_negated_or_inactive(sent, keyword):
+                        continue
+                    authority.append({
+                        "keyword": keyword,
+                        "context": sent.text.strip(),
+                        "confidence": 0.65
+                    })
+                    break
         return authority
     
     def _detect_suspicious_urls(self, text: str) -> List[Dict[str, Any]]:
@@ -246,19 +288,20 @@ class ThreatExtractor:
     def _detect_by_keywords(
         self, doc, keywords: List[str], confidence: float
     ) -> List[Dict[str, Any]]:
-        """Generic keyword-based detector reused by all threat categories."""
+        """Generic keyword-based detector with negation filtering."""
         found = []
-        text_lower = doc.text.lower()
-        for keyword in keywords:
-            if keyword in text_lower:
-                for sent in doc.sents:
-                    if keyword in sent.text.lower():
-                        found.append({
-                            "keyword": keyword,
-                            "context": sent.text.strip(),
-                            "confidence": confidence
-                        })
-                        break
+        for sent in doc.sents:
+            sent_text_lower = sent.text.lower()
+            for keyword in keywords:
+                if keyword in sent_text_lower:
+                    if self._is_negated_or_inactive(sent, keyword):
+                        continue
+                    found.append({
+                        "keyword": keyword,
+                        "context": sent.text.strip(),
+                        "confidence": confidence
+                    })
+                    break
         return found
     
     def _calculate_confidence(self, indicators: Dict[str, List]) -> float:

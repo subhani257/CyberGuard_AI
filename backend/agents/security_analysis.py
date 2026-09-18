@@ -11,6 +11,12 @@ class SecurityAnalyzer:
                 "safe_reasoning": "The sender's domain or identifier appears suspicious. Verify the sender's identity using a different communication method (phone call to known number, in-person, or official company portal) before taking any action.",
                 "risk_level": "high"
             },
+            # Alias for the spoofed_domains key emitted by the upgraded ThreatExtractor
+            "spoofed_domains": {
+                "safe_action": "Verify sender identity through alternate channel",
+                "safe_reasoning": "The sender's domain or identifier appears suspicious. Verify the sender's identity using a different communication method (phone call to known number, in-person, or official company portal) before taking any action.",
+                "risk_level": "high"
+            },
             "financial_requests": {
                 "safe_action": "Confirm with finance department through official channels",
                 "safe_reasoning": "Financial requests via unverified digital channels are high-risk. Confirm the request with your finance department using official channels (phone call to known number, in-person verification, or official finance portal) before processing any payments.",
@@ -103,11 +109,16 @@ class SecurityAnalyzer:
         }
     
     def _calculate_overall_risk(self, risk_levels: List[str]) -> str:
-        """Calculate overall risk level based on individual risks."""
+        """
+        Calculate overall risk level based on individual risks.
+        Priority order: critical > high > medium > low
+        """
         if not risk_levels:
             return "low"
-        
-        if "high" in risk_levels:
+
+        if "critical" in risk_levels:
+            return "critical"
+        elif "high" in risk_levels:
             return "high"
         elif "medium" in risk_levels:
             return "medium"
