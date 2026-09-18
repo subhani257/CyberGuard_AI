@@ -71,17 +71,17 @@ def test_rbac_learner_cannot_access_admin_endpoint():
     assert response.status_code == 403
     assert "Access denied" in response.json()["detail"]
 
-def test_sync_user_endpoint():
+def test_sync_user_endpoint(learner_headers):
     response = client.post("/api/auth/sync-user", json={
         "user_id": "99999999-9999-9999-9999-999999999999",
         "email": "sync_test@novatech.com",
         "full_name": "Sync Test User",
         "role": "Cloud Architect"
-    })
+    }, headers=learner_headers)
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True
-    assert data["user_id"] == "99999999-9999-9999-9999-999999999999"
+    assert data["user_id"] == "11111111-1111-1111-1111-111111111111"
 
 
 def test_google_auth_endpoint():

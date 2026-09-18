@@ -54,10 +54,11 @@ def sanitize_input(text: str) -> str:
 
     sanitized = text
 
-    # 1. Mask concrete pattern matches (emails, phones, financial amounts)
+    # 1. Mask concrete pattern matches. Financial identifiers run before the
+    # broad phone pattern so account numbers retain the correct privacy label.
     sanitized = EMAIL_REGEX.sub("[MASKED_EMAIL]", sanitized)
-    sanitized = PHONE_REGEX.sub("[MASKED_PHONE]", sanitized)
     sanitized = FINANCIAL_REGEX.sub("[MASKED_FINANCIAL]", sanitized)
+    sanitized = PHONE_REGEX.sub("[MASKED_PHONE]", sanitized)
 
     # 2. Mask Named Entities via spaCy if loaded
     if nlp:

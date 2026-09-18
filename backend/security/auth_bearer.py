@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 # JWT Configuration
-JWT_SECRET = os.environ.get("JWT_SECRET", "cyberguard_ai_secret_super_secure_key_2026")
+JWT_SECRET = os.environ.get("JWT_SECRET", "")
 JWT_ALGORITHM = "HS256"
 TOKEN_EXPIRATION_SECONDS = 86400  # 24 hours
 
@@ -26,6 +26,7 @@ class CurrentUser(BaseModel):
     access_role: str = "learner"  # "learner", "trainer", "admin"
     role: str = "Finance Manager"  # Business/job role for scenarios
     full_name: str = "Learner User"
+    company: str = "Your Organization"
     is_active: bool = True
 
 
@@ -40,6 +41,8 @@ def _base64url_decode(data: str) -> bytes:
 
 def create_access_token(payload: Dict[str, Any], expires_delta: Optional[int] = None) -> str:
     """Create a standard HS256 cryptographically signed JWT token."""
+    if len(JWT_SECRET) < 32:
+        raise RuntimeError("JWT_SECRET must be configured with at least 32 characters")
     header = {"alg": "HS256", "typ": "JWT"}
     exp = int(time.time()) + (expires_delta if expires_delta else TOKEN_EXPIRATION_SECONDS)
     
@@ -59,6 +62,11 @@ def create_access_token(payload: Dict[str, Any], expires_delta: Optional[int] = 
 
 def decode_access_token(token: str) -> Dict[str, Any]:
     """Decode and cryptographically verify an HS256 JWT token."""
+    if len(JWT_SECRET) < 32:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service is not configured"
+        )
     parts = token.strip().split('.')
     if len(parts) != 3:
         raise HTTPException(
@@ -123,6 +131,7 @@ async def get_current_user(
     access_role = payload.get("access_role", "learner")
     role = payload.get("role", "Finance Manager")
     full_name = payload.get("full_name", "CyberGuard Learner")
+    company = payload.get("company", "Your Organization")
     is_active = payload.get("is_active", True)
     
     if not user_id:
@@ -143,6 +152,7 @@ async def get_current_user(
         access_role=access_role,
         role=role,
         full_name=full_name,
+        company=company,
         is_active=is_active
     )
 
@@ -165,6 +175,7 @@ async def get_optional_current_user(
             access_role=payload.get("access_role", "learner"),
             role=payload.get("role", "Finance Manager"),
             full_name=payload.get("full_name", "CyberGuard Learner"),
+            company=payload.get("company", "Your Organization"),
             is_active=payload.get("is_active", True)
         )
     except Exception:

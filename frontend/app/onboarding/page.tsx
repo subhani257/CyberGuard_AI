@@ -41,7 +41,6 @@ export default function OnboardingPage() {
       }
 
       if (accessToken) {
-        localStorage.setItem('cyberguard_token', accessToken);
         try {
           const payload = JSON.parse(atob(accessToken.split('.')[1]));
           const name = payload.user_metadata?.full_name || payload.user_metadata?.name || payload.email?.split('@')[0] || 'Team Member';
@@ -63,17 +62,18 @@ export default function OnboardingPage() {
           if (oauthUser.company) setCompanyName(oauthUser.company);
           if (oauthUser.role && oauthUser.role !== 'Employee') setRoleTitle(oauthUser.role);
 
-          // Proactively synchronize Google OAuth user directly to public.users table in Supabase
-          fetch('http://localhost:8000/api/auth/sync-user', {
+          // Exchange the verified Supabase session for the API's signed application token.
+          fetch('http://localhost:8000/api/auth/google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_id: oauthId,
-              email: email,
-              full_name: name,
-              role: role
+            body: JSON.stringify({ access_token: accessToken })
+          })
+            .then(r => r.ok ? r.json() : Promise.reject(r))
+            .then(session => {
+              localStorage.setItem('cyberguard_token', session.access_token);
+              localStorage.setItem('cyberguard_user', JSON.stringify(session.user));
             })
-          }).catch(() => {});
+            .catch(() => setErrorMessage('Google session verification failed. Please sign in again.'));
         } catch (e) {}
         window.history.replaceState(null, '', window.location.pathname);
       }
@@ -118,6 +118,11 @@ export default function OnboardingPage() {
     setIngestionStatus('1/2 Ingesting and vectorizing organizational policies (Member 1)...');
 
     try {
+      const token = localStorage.getItem('cyberguard_token');
+      if (!token) {
+        router.replace('/login');
+        throw new Error('Authentication is required before onboarding.');
+      }
       // 1. Ingest Organization Policy (Member 1)
       const formData = new FormData();
       formData.append('user_id', userId);
@@ -130,13 +135,15 @@ export default function OnboardingPage() {
 
       const orgRes = await fetch('http://localhost:8000/api/org/onboard-policy', {
         method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
 
-      let orgResult = { chunks_ingested: 3, rules_extracted: 3, organization: companyName, role: roleTitle, department: department, source: file ? file.name : "Custom Policy Input" };
-      if (orgRes.ok) {
-        orgResult = await orgRes.json();
+      if (!orgRes.ok) {
+        const errorPayload = await orgRes.json().catch(() => ({}));
+        throw new Error(errorPayload.detail || 'Organization policy ingestion failed.');
       }
+      const orgResult = await orgRes.json();
       setIngestedResult(orgResult);
 
       // 2. Trigger Dynamic AI Role & Org Analysis (Member 3 Coach Agent)
@@ -144,7 +151,10 @@ export default function OnboardingPage() {
       
       const coachRes = await fetch('http://localhost:8000/api/coach/onboard-user', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           user_id: userId,
           email: userEmail,
@@ -156,20 +166,12 @@ export default function OnboardingPage() {
         })
       });
 
-      let coachData = null;
-      if (coachRes.ok) {
-        const cJson = await coachRes.json();
-        coachData = cJson.learning_profile;
-      } else {
-        coachData = {
-          next_difficulty: "beginner",
-          next_focus: `Defense Playbook for ${roleTitle}`,
-          target_channel: "email",
-          primary_attack_surface: `High-value assets and communication channels managed by ${roleTitle}.`,
-          orientation_tip: `Welcome to Midnight Intelligence. Security defense active for ${roleTitle}.`,
-          nist_reference: "NIST SP 800-50"
-        };
+      if (!coachRes.ok) {
+        const errorPayload = await coachRes.json().catch(() => ({}));
+        throw new Error(errorPayload.detail || 'Adaptive learning profile creation failed.');
       }
+      const cJson = await coachRes.json();
+      const coachData = cJson.learning_profile;
       setCoachProfile(coachData);
 
       // 3. Update localStorage user profile
@@ -524,4 +526,3 @@ export default function OnboardingPage() {
     </main>
   );
 }
-
