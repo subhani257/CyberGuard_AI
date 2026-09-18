@@ -56,6 +56,8 @@ export interface ReasoningReviewData {
   strengths: string[];
   weaknesses: string[];
   explanation?: string;
+  isAdversarial?: boolean;
+  adversarialAnalysis?: string;
 }
 
 export interface CoachTakeawayData {
@@ -65,3 +67,12 @@ export interface CoachTakeawayData {
   fullAnalysis?: string;
   confidence?: number;
 }
+
+export interface ThreatKnowledgeItem {
+  category?: string;
+  source?: string;
+  content?: string;
+  similarity?: number | null;
+  metadata?: Record<string, any>;
+}
+

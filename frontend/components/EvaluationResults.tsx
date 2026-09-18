@@ -7,6 +7,7 @@ import { ThreatIndicatorList } from './evaluation/ThreatIndicatorList';
 import { DecisionGapCard } from './evaluation/DecisionGapCard';
 import { ReasoningReview } from './evaluation/ReasoningReview';
 import { CoachTakeaway } from './evaluation/CoachTakeaway';
+import { ThreatKnowledge } from './evaluation/ThreatKnowledge';
 import { 
   getDecisionVerdict, 
   getSkillLevel, 
@@ -16,7 +17,8 @@ import {
 } from '@/lib/evaluation_helpers';
 import type { 
   DecisionGapData, 
-  ReasoningReviewData 
+  ReasoningReviewData,
+  ThreatKnowledgeItem
 } from './evaluation/types';
 
 export interface EvaluationResultsProps {
@@ -40,6 +42,10 @@ export interface EvaluationResultsProps {
       weaknesses?: string[];
       improvement?: string;
     };
+    threat_knowledge?: ThreatKnowledgeItem[];
+    scenario_clues?: string[];
+    is_adversarial?: boolean;
+    adversarial_analysis?: string;
   };
   userAction: string;
   userReasoning: string;
@@ -69,7 +75,11 @@ export const EvaluationResults: React.FC<EvaluationResultsProps> = ({
     threat_indicators,
     reasoning_category,
     expected_behavior,
-    llm_evaluation
+    llm_evaluation,
+    threat_knowledge,
+    scenario_clues,
+    is_adversarial,
+    adversarial_analysis
   } = evaluation;
 
   // 1. Authoritative Verdict Resolution
@@ -113,7 +123,9 @@ export const EvaluationResults: React.FC<EvaluationResultsProps> = ({
     confidence: llm_evaluation?.confidence,
     strengths,
     weaknesses,
-    explanation: llm_evaluation?.explanation
+    explanation: llm_evaluation?.explanation,
+    isAdversarial: Boolean(is_adversarial || reasoning_category === 'adversarial'),
+    adversarialAnalysis: adversarial_analysis
   };
 
   // 6. Coach Takeaway Data (Hierarchical resolution)
@@ -244,6 +256,17 @@ export const EvaluationResults: React.FC<EvaluationResultsProps> = ({
           <CoachTakeaway data={coachTakeawayData} />
         </div>
       </motion.div>
+
+      {/* ── INTELLIGENCE & CITATIONS SECTION: RAG Threat Knowledge & Clues */}
+      {((threat_knowledge && threat_knowledge.length > 0) || (scenario_clues && scenario_clues.length > 0)) && (
+        <motion.div variants={itemVariants} className="w-full">
+          <ThreatKnowledge 
+            knowledge={threat_knowledge} 
+            scenarioClues={scenario_clues} 
+            channel={channel} 
+          />
+        </motion.div>
+      )}
     </motion.div>
   );
 };

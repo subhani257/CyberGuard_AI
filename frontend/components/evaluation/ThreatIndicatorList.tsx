@@ -3,7 +3,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   ShieldAlert, AlertTriangle, Key, Globe, Smartphone, 
-  HardDrive, QrCode, Mail, Lock, Shield 
+  HardDrive, QrCode, Mail, Lock, Shield, CreditCard, 
+  Clock, UserX, Paperclip, Truck, PhoneCall, Monitor, BellRing, Link2
 } from 'lucide-react';
 import type { NormalizedIndicator } from './types';
 
@@ -25,13 +26,21 @@ export const ThreatIndicatorList: React.FC<ThreatIndicatorListProps> = ({
     ? "Critical threat evidence not addressed in your decision" 
     : "Security evidence and deceptive indicators present in this challenge";
 
-  // Helper to pick contextual icon
+  // Helper to pick contextual icon across all 11 threat types
   const getIndicatorIcon = (type: string) => {
     const t = type.toLowerCase();
-    if (t.includes('domain') || t.includes('spoof') || t.includes('url')) return Globe;
-    if (t.includes('token') || t.includes('oauth') || t.includes('scope') || t.includes('permission')) return Key;
-    if (t.includes('mfa') || t.includes('push') || t.includes('phone')) return Smartphone;
-    if (t.includes('qr')) return QrCode;
+    if (t.includes('financial') || t.includes('wire') || t.includes('invoice') || t.includes('payment')) return CreditCard;
+    if (t.includes('urgency') || t.includes('pressure') || t.includes('deadline')) return Clock;
+    if (t.includes('authority') || t.includes('executive') || t.includes('impersonation') || t.includes('ceo')) return UserX;
+    if (t.includes('mfa') || t.includes('push') || t.includes('bombing') || t.includes('fatigue')) return BellRing;
+    if (t.includes('qr') || t.includes('quishing')) return QrCode;
+    if (t.includes('supply') || t.includes('vendor') || t.includes('supplier')) return Truck;
+    if (t.includes('vishing') || t.includes('call') || t.includes('voice')) return PhoneCall;
+    if (t.includes('remote') || t.includes('anydesk') || t.includes('desktop')) return Monitor;
+    if (t.includes('attachment') || t.includes('file') || t.includes('payload')) return Paperclip;
+    if (t.includes('token') || t.includes('oauth') || t.includes('scope') || t.includes('consent') || t.includes('permission')) return Key;
+    if (t.includes('domain') || t.includes('spoof') || t.includes('lookalike')) return Globe;
+    if (t.includes('url') || t.includes('link') || t.includes('phishing')) return Link2;
     if (t.includes('usb') || t.includes('hardware') || t.includes('drive')) return HardDrive;
     if (t.includes('email') || t.includes('sender')) return Mail;
     if (t.includes('lock') || t.includes('auth')) return Lock;

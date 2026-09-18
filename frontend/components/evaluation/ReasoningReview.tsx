@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { MessageSquareQuote, CheckCircle2, AlertCircle } from 'lucide-react';
+import { MessageSquareQuote, CheckCircle2, AlertCircle, ShieldAlert, AlertOctagon } from 'lucide-react';
 import type { ReasoningReviewData } from './types';
 
 interface ReasoningReviewProps {
@@ -14,18 +14,22 @@ export const ReasoningReview: React.FC<ReasoningReviewProps> = ({ data }) => {
     confidence,
     strengths,
     weaknesses,
-    explanation
+    explanation,
+    isAdversarial,
+    adversarialAnalysis
   } = data;
 
   const hasConfidence = typeof confidence === 'number' && !isNaN(confidence);
 
   return (
-    <div className="bg-[#111A24] border border-[#1E293B] rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col justify-between h-full space-y-4">
+    <div className={`bg-[#111A24] border rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col justify-between h-full space-y-4 ${
+      isAdversarial ? 'border-coral/40 ring-1 ring-coral/20' : 'border-[#1E293B]'
+    }`}>
       {/* Header with Classification Label */}
       <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#1E293B]/70">
         <div>
           <h2 className="text-xs font-mono font-bold tracking-wider uppercase text-primary flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-cyan"></span>
+            <span className={`w-2 h-2 rounded-full ${isAdversarial ? 'bg-coral animate-ping' : 'bg-cyan'}`}></span>
             REASONING REVIEW
           </h2>
           <p className="text-xs text-muted mt-0.5">
@@ -34,8 +38,12 @@ export const ReasoningReview: React.FC<ReasoningReviewProps> = ({ data }) => {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="px-2.5 py-1 rounded bg-cyan/10 border border-cyan/30 text-cyan text-xs font-mono font-semibold">
-            {classificationLabel}
+          <span className={`px-2.5 py-1 rounded text-xs font-mono font-semibold ${
+            isAdversarial
+              ? 'bg-coral/15 border border-coral/40 text-coral'
+              : 'bg-cyan/10 border border-cyan/30 text-cyan'
+          }`}>
+            {isAdversarial ? 'ADVERSARIAL INJECTION' : classificationLabel}
           </span>
           {hasConfidence && (
             <span className="text-[10px] font-mono text-muted hidden sm:inline">
@@ -45,13 +53,28 @@ export const ReasoningReview: React.FC<ReasoningReviewProps> = ({ data }) => {
         </div>
       </div>
 
+      {/* Adversarial Alert Banner (when detected) */}
+      {isAdversarial && (
+        <div className="p-3.5 rounded-xl bg-coral/10 border border-coral/30 space-y-1.5">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-coral uppercase tracking-wide">
+            <ShieldAlert className="w-4 h-4 shrink-0" />
+            <span>Adversarial Prompt Injection Intercepted</span>
+          </div>
+          <p className="text-xs text-coral/90 leading-relaxed">
+            {adversarialAnalysis || 'System prompt override or jailbreak pattern detected in submitted reasoning. The evaluation engine neutralized this attempt, enforced naive classification, and logged the event for security review.'}
+          </p>
+        </div>
+      )}
+
       {/* Quoted User Reasoning Block */}
       <div className="space-y-1.5">
         <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-muted flex items-center gap-1.5">
-          <MessageSquareQuote className="w-3.5 h-3.5 text-cyan" />
+          <MessageSquareQuote className={`w-3.5 h-3.5 ${isAdversarial ? 'text-coral' : 'text-cyan'}`} />
           YOUR SUBMITTED REASONING
         </span>
-        <blockquote className="border-l-2 border-cyan/50 pl-3.5 py-2 text-xs sm:text-sm text-primary/90 italic bg-surface/50 rounded-r-xl leading-relaxed">
+        <blockquote className={`border-l-2 pl-3.5 py-2 text-xs sm:text-sm text-primary/90 italic bg-surface/50 rounded-r-xl leading-relaxed ${
+          isAdversarial ? 'border-coral/60' : 'border-cyan/50'
+        }`}>
           &ldquo;{userReasoning || 'No reasoning provided.'}&rdquo;
         </blockquote>
       </div>
