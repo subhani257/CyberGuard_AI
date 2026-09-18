@@ -4,10 +4,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { FirstUserGuide } from '@/components/FirstUserGuide';
+import UserProfileModal from '@/components/profile/UserProfileModal';
 import {
   Lightbulb, ScrollText, X, Shield, Compass, Target,
   Phone, Mail, MessageSquare, QrCode, Cloud, Smartphone, HardDrive,
-  LayoutDashboard, Map, History, Sparkles, CheckCircle2, AlertCircle, ArrowRight
+  LayoutDashboard, Map, History, Sparkles, CheckCircle2, AlertCircle, ArrowRight,
+  LogOut, User
 } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -132,6 +134,7 @@ export default function Dashboard() {
 
   const [policiesCount, setPoliciesCount] = useState<number>(3);
   const [showTour, setShowTour]         = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [priorityChannel, setPriority]  = useState('voice_phone');
   const [nextDifficulty, setDifficulty] = useState('beginner');
   const [personalizedMap, setPersonalizedMap] = useState<any[]>([]);
@@ -269,6 +272,36 @@ export default function Dashboard() {
 
       <FirstUserGuide isOpen={showTour} onClose={() => setShowTour(false)} userRole={data.user.role} companyName={data.user.company || 'TechCorp Global'} />
 
+      <UserProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        user={{
+          id: data.user.id,
+          name: data.user.name,
+          role: data.user.role,
+          company: data.user.company,
+          department: data.user.department,
+          access_role: data.user.access_role,
+          readiness_score: data.readiness_score
+        }}
+        readinessScore={data.readiness_score}
+        completedDecisions={data.decision_journey.length}
+        priorityChannel={priorityChannel}
+        onUpdateUser={(updated) => {
+          setData(prev => ({
+            ...prev,
+            user: {
+              ...prev.user,
+              name: updated.name || prev.user.name,
+              role: updated.role || prev.user.role,
+              company: updated.company || prev.user.company,
+              department: updated.department || prev.user.department
+            }
+          }));
+        }}
+        onLogout={handleLogout}
+      />
+
       {/* ── Nav ─────────────────────────────────────────────────────────── */}
       <nav className="shrink-0 border-b border-primary/5 py-4">
         <div className="max-w-[1600px] mx-auto px-8 md:px-12 flex items-center justify-between">
@@ -280,13 +313,26 @@ export default function Dashboard() {
             <button onClick={() => setShowTour(true)} className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-cyan/10 text-cyan hover:bg-cyan/20 transition-all border border-cyan/20">
               <Lightbulb className="w-3.5 h-3.5" /><span className="tracking-wide">Tour & Tips</span>
             </button>
-            <Link href="/onboarding" className="hidden sm:flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-primary/5 text-muted hover:text-primary hover:bg-primary/10 transition-colors border border-primary/10">
-              <ScrollText className="w-3.5 h-3.5" /><span>Policies</span>
+            <Link href="/policies" className="hidden sm:flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-primary/5 text-muted hover:text-cyan hover:bg-primary/10 transition-colors border border-primary/10">
+              <ScrollText className="w-3.5 h-3.5 text-cyan" /><span>Policies</span>
             </Link>
-            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-blue/10 text-cyan uppercase tracking-wider">{data.user.role}</span>
-            <button onClick={handleLogout} className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-red-400 transition-colors ml-1">
-              <span>{data.user.name.split(' ')[0]}</span>
-              <X className="w-3.5 h-3.5 opacity-60" />
+            <button
+              onClick={() => setIsProfileOpen(true)}
+              title="Open profile & settings"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5 hover:bg-cyan/10 border border-primary/10 hover:border-cyan/30 text-xs font-semibold text-primary hover:text-cyan transition-all"
+            >
+              <div className="w-5 h-5 rounded-full bg-cyan/20 text-cyan flex items-center justify-center text-[10px] font-bold">
+                {data.user.name ? data.user.name.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <span>{data.user.name ? data.user.name.split(' ')[0] : 'Profile'}</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue/15 text-cyan uppercase tracking-wider hidden md:inline">{data.user.role}</span>
+            </button>
+            <button
+              onClick={handleLogout}
+              title="Sign Out"
+              className="p-1.5 rounded-lg text-muted/60 hover:text-coral hover:bg-coral/10 transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -318,7 +364,14 @@ export default function Dashboard() {
                       {data.user.company || 'TechCorp Global'} • {data.user.department || 'Finance & Accounting'}
                     </p>
                     <p className="text-[11px] text-muted">
-                      Logged in as <strong className="text-primary">{data.user.name}</strong> ({data.user.role})
+                      Logged in as{' '}
+                      <button
+                        onClick={() => setIsProfileOpen(true)}
+                        className="text-primary font-bold hover:text-cyan hover:underline transition-colors cursor-pointer"
+                      >
+                        {data.user.name}
+                      </button>{' '}
+                      ({data.user.role})
                     </p>
                   </div>
 
@@ -343,7 +396,7 @@ export default function Dashboard() {
                         </p>
                       </div>
                     </div>
-                    <Link href="/onboarding" className="text-[10px] font-semibold text-cyan hover:underline tracking-wide shrink-0">Update →</Link>
+                    <Link href="/policies" className="text-[10px] font-semibold text-cyan hover:underline tracking-wide shrink-0">Manage Policies →</Link>
                   </div>
 
                   {/* Coach Recommended Challenge */}

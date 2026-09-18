@@ -106,6 +106,13 @@ class SyncUserRequest(BaseModel):
     role: Optional[str] = "Employee"
 
 
+class ProfileUpdateRequest(BaseModel):
+    full_name: Optional[str] = None
+    role: Optional[str] = None
+    company: Optional[str] = None
+    department: Optional[str] = None
+
+
 class LoginResponse(BaseModel):
     success: bool
     access_token: str
@@ -436,4 +443,69 @@ async def list_users_admin(current_user: CurrentUser = Depends(get_current_user)
         "admin": current_user.email,
         "total_users": len(users_list),
         "users": users_list
+    }
+
+
+@router.put("/profile")
+async def update_user_profile(
+    request: ProfileUpdateRequest,
+    current_user: CurrentUser = Depends(get_current_user)
+):
+    """
+    Update learner profile attributes (name, role, company, department).
+    Updates database/demo user record and returns refreshed user session and token.
+    """
+    user_id = current_user.id
+    new_name = (request.full_name or current_user.full_name).strip()
+    new_role = (request.role or current_user.role).strip()
+    new_company = (request.company or current_user.company).strip()
+    new_department = (request.department or "").strip()
+
+    if supabase:
+        try:
+            update_fields: Dict[str, Any] = {
+                "full_name": new_name,
+                "role": new_role,
+                "company": new_company,
+            }
+            if new_department:
+                update_fields["department"] = new_department
+            supabase.table("users").update(update_fields).eq("id", user_id).execute()
+        except Exception as e:
+            print(f"Notice: Supabase update in update_user_profile: {e}")
+
+    # Synchronize DEMO_USERS in-memory store if demo mode
+    for demo_email, demo_data in DEMO_USERS.items():
+        if demo_data.get("id") == user_id or demo_email == current_user.email:
+            demo_data["full_name"] = new_name
+            demo_data["role"] = new_role
+            demo_data["company"] = new_company
+
+    updated_user = {
+        "id": user_id,
+        "email": current_user.email,
+        "full_name": new_name,
+        "role": new_role,
+        "company": new_company,
+        "department": new_department,
+        "access_role": current_user.access_role,
+        "is_active": current_user.is_active
+    }
+
+    # Issue refreshed token with new claims
+    new_token = create_access_token({
+        "sub": user_id,
+        "email": current_user.email,
+        "access_role": current_user.access_role,
+        "role": new_role,
+        "full_name": new_name,
+        "company": new_company,
+        "is_active": True
+    })
+
+    return {
+        "success": True,
+        "message": "User profile updated successfully",
+        "user": updated_user,
+        "access_token": new_token
     }

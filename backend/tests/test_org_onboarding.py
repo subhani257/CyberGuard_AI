@@ -102,3 +102,52 @@ def test_scenario_generation_with_company_context():
         user_id="test-user-uuid-12345"
     )
     assert "Apex Financial" in context or "APEX" in context or "wire" in context.lower()
+
+
+def test_get_custom_policies_and_default_fallback(apex_headers):
+    """Test retrieving structured policies with default fallback and custom rules."""
+    # Test retrieving custom policies for Apex Financial
+    res = client.get("/api/org/policies/Apex%20Financial", headers=apex_headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["success"] is True
+    assert "rules" in data
+    assert len(data["rules"]) >= 1
+    first_rule = data["rules"][0]
+    assert "rule_code" in first_rule
+    assert "title" in first_rule
+    assert "enforcement_level" in first_rule
+
+    # Test fallback to default organizational baseline for an unknown org
+    res_default = client.get("/api/org/policies/UnknownCorp")
+    assert res_default.status_code == 200
+    default_data = res_default.json()
+    assert default_data["success"] is True
+    assert default_data["count"] >= 5
+    assert any("FIN" in r["rule_code"] or "SEC" in r["rule_code"] for r in default_data["rules"])
+
+
+def test_delete_custom_policy_rule(apex_headers):
+    """Test deleting an organization policy rule by rule_code."""
+    delete_res = client.delete("/api/org/policies/APEX-FIN-01", headers=apex_headers)
+    assert delete_res.status_code == 200
+    assert delete_res.json()["success"] is True
+
+
+def test_update_user_profile(apex_headers):
+    """Test updating user profile attributes via PUT /api/auth/profile."""
+    payload = {
+        "full_name": "Alexander Turner",
+        "role": "Chief Financial Officer",
+        "company": "TechCorp Global",
+        "department": "Finance & Treasury"
+    }
+    res = client.put("/api/auth/profile", json=payload, headers=apex_headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["success"] is True
+    assert data["user"]["full_name"] == "Alexander Turner"
+    assert data["user"]["role"] == "Chief Financial Officer"
+    assert data["user"]["company"] == "TechCorp Global"
+    assert "access_token" in data
+
