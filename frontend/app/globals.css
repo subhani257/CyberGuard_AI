@@ -15,4 +15,50 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Y2K fine grid overlay */
+  .grid-overlay {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Glass surface */
+  .glass {
+    background: rgba(255, 255, 255, 0.028);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  /* Chrome text gradient — Y2K metallic */
+  .chrome-text {
+    background: linear-gradient(
+      135deg,
+      #c8d0dc 0%,
+      #e8edf2 35%,
+      #9aa6b4 55%,
+      #e8edf2 75%,
+      #b0bcc8 100%
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: chrome-shift 6s ease infinite;
+  }
+
+  /* Separator gradient line */
+  .separator {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  }
 }
+
+@keyframes chrome-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
