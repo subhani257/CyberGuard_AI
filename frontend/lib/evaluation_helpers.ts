@@ -237,13 +237,13 @@ export function calculateHistoricalDelta(
  * Preserves backend numeric confidence only when provided. Never fabricates evidence.
  */
 const CHANNEL_INDICATOR_KEYWORDS: Record<string, string[]> = {
-  cloud_oauth: ['oauth', 'scope', 'publisher', 'token', 'permission', 'consent', 'unverified', 'third-party', 'api', 'cloud', 'directory'],
-  sms_push: ['mfa', 'push', 'authenticator', 'prompt', 'fatigue', 'bombing', 'login attempt', 'ip geolocation', 'phone', 'device'],
-  voice_phone: ['voice', 'call', 'vishing', 'phone', 'wire', 'caller id', 'extension', 'verbal', 'telephony', 'urgent', 'spoofed number'],
-  email: ['email', 'domain', 'spoof', 'wire transfer', 'sender', 'invoice', 'bec', 'executive', 'urgency', 'payment'],
-  slack_teams: ['slack', 'teams', 'message', 'chat', 'link', 'token', 'coworker', 'direct message', 'workspace', 'url'],
-  qr_code: ['qr', 'quishing', 'code', 'physical', 'flyer', 'notice', 'scanner', 'redirect', 'printer'],
-  physical_media: ['usb', 'drive', 'flash', 'hardware', 'removable', 'peripheral', 'autorun', 'dropped', 'payload']
+  cloud_oauth: ['oauth', 'scope', 'publisher', 'token', 'permission', 'consent', 'unverified', 'third-party', 'api', 'cloud', 'directory', 'app', 'access', 'integration'],
+  sms_push: ['mfa', 'push', 'authenticator', 'prompt', 'fatigue', 'bombing', 'login attempt', 'ip geolocation', 'phone', 'device', 'notification', 'code'],
+  voice_phone: ['voice', 'call', 'vishing', 'phone', 'wire', 'caller id', 'extension', 'verbal', 'telephony', 'urgent', 'spoofed number', 'remote access', 'helpdesk', 'support', 'it department', 'executive', 'authority'],
+  email: ['email', 'domain', 'spoof', 'wire transfer', 'sender', 'invoice', 'bec', 'executive', 'urgency', 'payment', 'attachment', 'url', 'phishing', 'link', 'vendor', 'supply chain', 'qr', 'quishing', 'authority', 'malicious'],
+  slack_teams: ['slack', 'teams', 'message', 'chat', 'link', 'token', 'coworker', 'direct message', 'workspace', 'url', 'dm', 'vishing', 'remote access', 'support', 'helpdesk', 'urgent', 'authority', 'phishing'],
+  qr_code: ['qr', 'quishing', 'code', 'physical', 'flyer', 'notice', 'scanner', 'redirect', 'printer', 'url', 'link', 'scan', 'camera'],
+  physical_media: ['usb', 'drive', 'flash', 'hardware', 'removable', 'peripheral', 'autorun', 'dropped', 'payload', 'device', 'media']
 };
 
 export function isIndicatorRelevantForChannel(indicatorType: string, description: string, channel: string): boolean {
