@@ -167,7 +167,6 @@ export default function Dashboard() {
       const hp = new URLSearchParams(window.location.hash.substring(1));
       const at = hp.get('access_token');
       if (at) {
-        localStorage.setItem('cyberguard_token', at);
         try {
           const p = JSON.parse(atob(at.split('.')[1]));
           const ou = { id: p.sub || p.id, email: p.email, full_name: p.user_metadata?.full_name || p.user_metadata?.name || p.email?.split('@')[0], role: p.user_metadata?.role || 'Employee', company: p.user_metadata?.company || 'Your Organization', access_role: p.app_metadata?.access_role || 'learner' };
@@ -175,7 +174,15 @@ export default function Dashboard() {
           let ep = null;
           if (ex) { try { const ep2 = JSON.parse(ex); if (ep2.id === ou.id) ep = ep2.learning_profile || null; } catch (_) {} }
           localStorage.setItem('cyberguard_user', JSON.stringify({ ...ou, ...(ep ? { learning_profile: ep } : {}) }));
-          fetch('http://localhost:8000/api/auth/sync-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: ou.id, email: ou.email, full_name: ou.full_name, role: ou.role }) }).catch(() => {});
+          fetch('http://localhost:8000/api/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ access_token: at })
+          }).then(r => r.ok ? r.json() : Promise.reject(r)).then(session => {
+            localStorage.setItem('cyberguard_token', session.access_token);
+            localStorage.setItem('cyberguard_user', JSON.stringify({ ...session.user, ...(ep ? { learning_profile: ep } : {}) }));
+            window.location.reload();
+          }).catch(() => router.replace('/login'));
         } catch (_) {}
         window.history.replaceState(null, '', window.location.pathname);
       }
@@ -214,9 +221,9 @@ export default function Dashboard() {
     if (sc) setPoliciesCount(Number(sc));
 
     // 2. API calls
-    fetch(`http://localhost:8000/api/org/policies/${encodeURIComponent(company)}`).then(r => r.json()).then(d => { if (d?.success && typeof d.count === 'number') setPoliciesCount(d.count); }).catch(() => {});
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
+    fetch(`http://localhost:8000/api/org/policies/${encodeURIComponent(company)}`, { headers }).then(r => r.json()).then(d => { if (d?.success && typeof d.count === 'number') setPoliciesCount(d.count); }).catch(() => {});
     fetch('http://localhost:8000/api/coach/dashboard-summary', { headers })
       .then(r => { if (!r.ok) throw new Error('unauth'); return r.json(); })
       .then(d => {

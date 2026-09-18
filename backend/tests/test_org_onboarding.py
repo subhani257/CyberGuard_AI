@@ -42,7 +42,7 @@ def test_auth_google():
     assert data["user"]["email"] == "alex.turner@techcorp.io"
 
 
-def test_onboard_policy_text_submission():
+def test_onboard_policy_text_submission(apex_headers):
     """Test onboarding organizational policy via direct text submission."""
     form_data = {
         "user_id": "test-user-uuid-12345",
@@ -57,7 +57,7 @@ def test_onboard_policy_text_submission():
             "must be immediately rejected and reported to the fraud prevention desk."
         )
     }
-    response = client.post("/api/org/onboard-policy", data=form_data)
+    response = client.post("/api/org/onboard-policy", data=form_data, headers=apex_headers)
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True
@@ -65,7 +65,7 @@ def test_onboard_policy_text_submission():
     assert data["chunks_ingested"] >= 1
 
 
-def test_onboard_policy_pdf_upload():
+def test_onboard_policy_pdf_upload(apex_headers):
     """Test onboarding policy via in-memory PDF document upload using pypdf."""
     # Create an in-memory test PDF
     pdf_writer = pypdf.PdfWriter()
@@ -86,7 +86,7 @@ def test_onboard_policy_pdf_upload():
         "policy_text": "APEX-SEC-99: Backup policy for internal audit controls."
     }
 
-    response = client.post("/api/org/onboard-policy", data=form_data, files=files)
+    response = client.post("/api/org/onboard-policy", data=form_data, files=files, headers=apex_headers)
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True

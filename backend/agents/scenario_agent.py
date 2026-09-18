@@ -160,7 +160,7 @@ class ScenarioAgent:
             except Exception:
                 pass
 
-    def generate(self, role: str, difficulty: str, org_context: str = "", channel: Optional[str] = None) -> Dict[str, Any]:
+    def generate(self, role: str, difficulty: str, org_context: str = "", channel: Optional[str] = None, topic: Optional[str] = None) -> Dict[str, Any]:
         """
         Generate a personalized cybersecurity scenario formatted for the Context Card UI.
         When `channel` is provided (e.g. from the Training Arena), the scenario is scoped
@@ -182,6 +182,7 @@ Your objective is to generate an authentic, realistic cybersecurity situation fo
 LEARNER PROFILE:
 - Target Role: {role}
 - Training Difficulty: {difficulty}
+- Recommended Training Focus: {topic or 'Role-appropriate cybersecurity awareness'}
 
 ORGANIZATIONAL CONTEXT (NovaTech Corporate Policies):
 {org_context}
@@ -577,7 +578,6 @@ Output strictly valid JSON with these exact keys:
 # Convenience function maintaining interface compatibility
 _scenario_agent_instance = ScenarioAgent()
 
-def generate_scenario(role: str, difficulty: str, org_context: str, channel: Optional[str] = None) -> str:
-    scenario_dict = _scenario_agent_instance.generate(role, difficulty, org_context, channel=channel)
+def generate_scenario(role: str, difficulty: str, org_context: str, channel: Optional[str] = None, topic: Optional[str] = None) -> str:
+    scenario_dict = _scenario_agent_instance.generate(role, difficulty, org_context, channel=channel, topic=topic)
     return json.dumps(scenario_dict)
-

@@ -4,10 +4,12 @@
 
 [![Module](https://img.shields.io/badge/Module-IT%203041-blue)]()
 [![Type](https://img.shields.io/badge/Type-Agentic%20AI%20%2F%20Multi--Agent%20System-orange)]()
-[![Status](https://img.shields.io/badge/Status-In%20Development-yellow)]()
+[![Status](https://img.shields.io/badge/Status-Functional%20Prototype-green)]()
 [![License](https://img.shields.io/badge/License-MIT-green)]()
 
 > An intelligent, agent-based training platform that teaches people to make **safer cybersecurity decisions** through realistic, adaptive, AI-generated scenarios — instead of static slides and generic quizzes.
+
+**Final submission package:** [assignment report](FINAL_ASSIGNMENT_REPORT_2026-09-16.md) · [evaluation evidence](EVALUATION_REPORT_2026-09-16.md) · [demo runbook](FINAL_DEMO_RUNBOOK.md) · [raw benchmark results](evidence/evaluation_results.json)
 
 ---
 
@@ -75,7 +77,7 @@ The system presents this scenario, lets the user choose a response and explain t
 
 ## 🤖 Multi-Agent Architecture
 
-CyberGuard AI is powered by **four specialized, cooperating agents**, each with a clearly defined responsibility:
+CyberGuard AI uses **three member-owned pipelines containing four specialized components**, each with a clearly defined responsibility:
 
 | Agent | Responsibility |
 |---|---|
@@ -162,19 +164,19 @@ Scenario Agent → Security Agent → [User Response] → Evaluation Agent → I
 
 | Layer | Technology |
 |---|---|
-| Frontend | React / Next.js |
-| Backend | Python (FastAPI) |
-| Database | PostgreSQL |
-| Agent Orchestration | LangGraph / custom orchestration |
-| LLM | Cloud-hosted or local LLM |
-| NLP | spaCy / Transformers |
-| Embeddings | Sentence Transformers |
-| Vector Store | FAISS / Chroma |
+| Frontend | Next.js 14 / React / TypeScript |
+| Backend | Python / FastAPI / Pydantic |
+| Database | Supabase PostgreSQL |
+| Agent Orchestration | Custom REST/JSON pipeline |
+| LLM | OpenAI `gpt-4o-mini` with deterministic fallbacks |
+| NLP | spaCy-compatible rules, entity masking, classification, summarization |
+| Embeddings | `text-embedding-3-small`; optional local MiniLM |
+| Vector Store | Supabase pgvector |
 | Communication | REST + JSON |
-| Auth | JWT / managed authentication |
-| Password Hashing | Argon2 / bcrypt |
-| Deployment | Docker (local or cloud) |
-| Testing | Pytest, Postman, Playwright |
+| Auth | Supabase Auth + signed application JWT |
+| Password storage | Supabase Auth managed storage |
+| Deployment | Local prototype; cloud deployment is future work |
+| Testing | Pytest, Node test runner, browser E2E walkthrough |
 | Version Control | Git / GitHub |
 
 ---
@@ -182,39 +184,21 @@ Scenario Agent → Security Agent → [User Response] → Evaluation Agent → I
 ## 📁 Project Structure
 
 ```
-CyberGuard-AI/
-│
-├── frontend/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-│
+CyberGuard_AI/
 ├── backend/
-│   ├── api/
-│   ├── models/
-│   ├── database/
-│   └── auth/
-│
-├── agents/
-│   ├── scenario_agent/
-│   ├── security_agent/
-│   ├── evaluation_agent/
-│   └── coach_agent/
-│
-├── nlp/
-│   ├── ner/
-│   ├── classifier/
-│   └── summarizer/
-│
-├── rag/
-│   ├── documents/
-│   ├── embeddings/
-│   └── retrieval/
-│
-├── tests/
-├── docs/
-├── docker-compose.yml
-└── README.md
+│   ├── agents/       # scenario, evaluation and Coach components
+│   ├── api/          # authenticated FastAPI routes
+│   ├── database/     # Supabase/pgvector schema
+│   ├── nlp/          # NER/masking, extraction, classification, summarization
+│   ├── rag/          # organization, threat and training retrieval
+│   ├── scripts/      # seeders and reproducible assignment evaluation
+│   └── tests/
+├── frontend/
+│   ├── app/          # Next.js application routes
+│   ├── components/
+│   ├── lib/
+│   └── tests/
+└── docs/             # proposal, evidence, report and demo runbook
 ```
 
 ---
@@ -226,37 +210,30 @@ CyberGuard-AI/
 - Python 3.10+
 - Node.js 18+
 - PostgreSQL 14+
-- Docker & Docker Compose (recommended)
-- An LLM API key (or local LLM setup)
+- A Supabase project with the provided schema applied
+- An OpenAI API key for live generation/embeddings
 
 ### Installation
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/<your-org>/CyberGuard-AI.git
-cd CyberGuard-AI
-
-# 2. Set up environment variables
-cp .env.example .env
-# fill in DB credentials, LLM API key, JWT secret, etc.
-
-# 3. Start all services with Docker
-docker-compose up --build
-```
-
-### Running locally without Docker
-
-```bash
-# Backend
+```powershell
+# Backend (Windows PowerShell)
 cd backend
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+Copy-Item .env.example .env
+# Fill backend/.env, then apply backend/database/schema.sql in Supabase.
+.\.venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000
 
-# Frontend
+# Frontend (second terminal)
 cd frontend
 npm install
-npm run dev
+npm run dev -- --hostname 127.0.0.1
+```
+
+Seed the two source-linked knowledge collections with:
+
+```powershell
+backend\.venv\Scripts\python.exe backend\scripts\seed_vector_db.py --tables cyber_threats cyber_training --refresh
 ```
 
 The app should now be running at `http://localhost:3000` (frontend) and `http://localhost:8000` (API).
@@ -267,22 +244,29 @@ The app should now be running at `http://localhost:3000` (frontend) and `http://
 
 | Endpoint | Description |
 |---|---|
-| `POST /api/auth/login` | Authenticate a user |
-| `POST /api/agents/scenario` | Generate a new scenario |
-| `POST /api/agents/security-analysis` | Analyze a scenario for threat indicators |
-| `POST /api/agents/evaluate` | Evaluate a user's decision |
-| `POST /api/agents/coach` | Generate personalized feedback |
-| `GET /api/training/history` | Retrieve a user's training history |
-| `GET /api/training/progress` | Retrieve a user's progress metrics |
-| `POST /api/admin/scenarios` | Manage scenarios (admin only) |
+| `POST /api/auth/signup` | Create an email learner account |
+| `POST /api/auth/login` | Authenticate a learner |
+| `POST /api/auth/google` | Exchange a verified Supabase OAuth session |
+| `POST /api/org/onboard-policy` | Ingest tenant-scoped policy knowledge |
+| `POST /api/coach/onboard-user` | Build the initial profile and training map |
+| `POST /api/generate-scenario` | Generate and persist an owned scenario |
+| `GET /api/scenarios/{scenario_id}` | Read an owned scenario |
+| `POST /api/agents/evaluate` | Evaluate an owned scenario decision |
+| `POST /api/coach/process-decision` | Adapt from the stored evaluation |
+| `GET /api/coach/dashboard-summary` | Return readiness and next challenge |
 
 **Example — Scenario Agent output:**
 ```json
 {
-  "scenario_id": "SC001",
-  "scenario": "Your manager asks you to urgently send supplier payment information...",
-  "difficulty": "medium",
-  "choices": ["Send", "Verify", "Ignore", "Forward"]
+  "success": true,
+  "scenario_id": "bcc7891d-c0b4-41c9-afb7-16de6417a54c",
+  "scenario": {
+    "situation_title": "A payment request that cannot wait",
+    "body": "Your manager requests an urgent vendor-bank change...",
+    "difficulty": "medium",
+    "channel": "email",
+    "choices": ["Approve", "Reply", "Verify out-of-band", "Report"]
+  }
 }
 ```
 
@@ -294,12 +278,12 @@ CyberGuard AI is a *cybersecurity* project, so the platform itself is built secu
 
 - Authentication (JWT/session-based)
 - Role-Based Access Control (Learner / Trainer / Admin)
-- Password hashing with Argon2/bcrypt
+- Password storage managed by Supabase Auth
 - Input validation & sanitization on all endpoints
-- HTTPS/TLS for data in transit
+- TLS for deployed services is a deployment requirement; localhost uses HTTP
 - **Prompt-injection protection** — user reasoning is always treated as *data*, never as instructions to the LLM
-- Rate limiting and audit logging
-- Parameterized queries / ORM to prevent SQL injection
+- Per-user evaluation rate limiting and selected authentication/Coach audit logging
+- Supabase client queries and validated Pydantic request models
 
 ---
 
@@ -371,7 +355,7 @@ CyberGuard AI is designed as an academic prototype with a clear path to a **SaaS
 
 - **Target market**: SMEs, educational institutions, corporate training providers, tech companies, MSPs
 - **Pricing tiers**: Free/Student → Starter → Professional → Enterprise
-- **Deployment**: Docker (local demo) or cloud (multi-tenant SaaS)
+- **Deployment path**: containerized or cloud multi-tenant SaaS after production hardening
 - **Differentiators**: multi-agent architecture, reasoning-aware evaluation, RAG-grounded feedback, security-by-design
 
 ---

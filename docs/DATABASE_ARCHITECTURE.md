@@ -6,7 +6,7 @@
 
 ## The Big Picture
 
-CyberGuard AI has **3 AI agents**, each with specific jobs, and **every single action they take is written to the database**. The database has 8 tables total, split into 3 layers:
+CyberGuard AI has **three member-owned pipelines containing four specialized components**. Durable learner state and selected authentication/Coach audit events are written to eight database tables, split into three layers:
 
 ```
 ┌─────────────────────────────────────────────────────────┐

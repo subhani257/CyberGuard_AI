@@ -301,10 +301,16 @@ class TrainingCoachAgent:
         
         # Extract evaluation components
         final_score = evaluation_data.get("final_score", 50)
-        weaknesses = evaluation_data.get("weaknesses", [])
-        threat_indicators = evaluation_data.get("threat_indicators", [])
-        
-        all_weakness_keys = weaknesses + threat_indicators
+        weaknesses = evaluation_data.get("weaknesses") or []
+        raw_indicators = evaluation_data.get("threat_indicators") or []
+        if isinstance(raw_indicators, dict):
+            threat_indicators = [name for name, signals in raw_indicators.items() if signals]
+        elif isinstance(raw_indicators, list):
+            threat_indicators = [str(item) for item in raw_indicators]
+        else:
+            threat_indicators = [str(raw_indicators)]
+
+        all_weakness_keys = list(weaknesses) + threat_indicators
         if not all_weakness_keys:
             all_weakness_keys = ["urgency_bias"]
 
@@ -317,7 +323,7 @@ class TrainingCoachAgent:
         history_summary = self.summarizer.summarize_user_tendencies(past_decisions)
         
         # 3. Calculate Adaptive Difficulty
-        recent_scores = [d.get("evaluation", {}).get("final_score", 50) for d in past_decisions[-4:]]
+        recent_scores = [d.get("evaluation", {}).get("final_score", 50) for d in past_decisions[:4]]
         recent_scores.append(final_score)
         next_difficulty = self.calculate_next_difficulty(current_difficulty, recent_scores)
 
@@ -362,6 +368,18 @@ class TrainingCoachAgent:
         if not coaching_plan:
             is_safe = evaluation_data.get("is_safe", final_score >= 70)
             dominant = history_summary.get("dominant_weakness", "urgency_bias")
+            focus = weaknesses[0] if weaknesses else (threat_indicators[0] if threat_indicators else "verification_behavior")
+            focus_labels = {
+                "urgency_bias": "Urgency and Time Pressure",
+                "authority_bias": "Authority Impersonation",
+                "sender_verification": "Sender Identity Verification",
+                "link_verification": "Suspicious Link Verification",
+                "payment_verification": "Payment Request Verification",
+                "attachment_safety": "Attachment Safety",
+                "security_reasoning": "Recognizing Threat Indicators",
+                "verification_behavior": "Independent Verification",
+            }
+            topic = focus_labels.get(focus, focus.replace("_", " ").title())
             
             if is_safe:
                 feedback = (
@@ -369,14 +387,13 @@ class TrainingCoachAgent:
                     f"and adhered to verified verification channels."
                 )
                 tip = "Continue maintaining dual-control authorization before acting on anomalous requests."
-                topic = "Advanced Spear Phishing & Impersonation"
+                topic = f"Advanced {topic}"
             else:
                 feedback = (
                     f"Your decision showed awareness, but artificial urgency led you to execute before verifying. "
                     f"Adversaries specifically craft deadlines to trigger this reaction."
                 )
                 tip = "When a communication demands action within a narrow deadline, pause and verify via a known second channel."
-                topic = "Urgency Indicators & BEC Defense"
 
             coaching_plan = {
                 "feedback": feedback,
@@ -386,6 +403,12 @@ class TrainingCoachAgent:
                 "reason_for_path": f"Adaptive path set to {next_difficulty} based on score of {final_score}/100."
             }
 
+        # The adaptive algorithm is authoritative even when an LLM supplies the prose.
+        coaching_plan["next_difficulty"] = next_difficulty
+        coaching_plan.setdefault(
+            "recommended_topic",
+            weaknesses[0].replace("_", " ").title() if weaknesses else "Independent Verification"
+        )
         coaching_plan["nist_reference"] = nist_reference
         coaching_plan["longitudinal_summary"] = history_summary["summary_text"]
         coaching_plan["overall_accuracy"] = history_summary["overall_accuracy_rate"]

@@ -1,0 +1,406 @@
+{
+  "generated_at": "2026-09-16T10:42:35Z",
+  "methodology": {
+    "purpose": "Small labeled assignment evidence set; results are not production benchmarks.",
+    "environment": "Local Windows application with live Supabase and configured OpenAI services."
+  },
+  "nlp": {
+    "threat_indicator_extraction": {
+      "precision": 0.8235,
+      "recall": 0.875,
+      "f1": 0.8485,
+      "true_positives": 14,
+      "false_positives": 3,
+      "false_negatives": 2,
+      "cases": 10
+    },
+    "reasoning_classification": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "per_class": {
+        "naive": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4
+        },
+        "security_aware": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4
+        },
+        "trust_based": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4
+        }
+      },
+      "predictions": [
+        {
+          "expected": "security_aware",
+          "predicted": "security_aware"
+        },
+        {
+          "expected": "security_aware",
+          "predicted": "security_aware"
+        },
+        {
+          "expected": "security_aware",
+          "predicted": "security_aware"
+        },
+        {
+          "expected": "security_aware",
+          "predicted": "security_aware"
+        },
+        {
+          "expected": "trust_based",
+          "predicted": "trust_based"
+        },
+        {
+          "expected": "trust_based",
+          "predicted": "trust_based"
+        },
+        {
+          "expected": "trust_based",
+          "predicted": "trust_based"
+        },
+        {
+          "expected": "trust_based",
+          "predicted": "trust_based"
+        },
+        {
+          "expected": "naive",
+          "predicted": "naive"
+        },
+        {
+          "expected": "naive",
+          "predicted": "naive"
+        },
+        {
+          "expected": "naive",
+          "predicted": "naive"
+        },
+        {
+          "expected": "naive",
+          "predicted": "naive"
+        }
+      ]
+    },
+    "pii_pattern_sanitization": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "true_positives": 7,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "cases": 6,
+      "scope": "Email, phone, and financial regex patterns; person-name NER excluded because en_core_web_sm is optional and not installed."
+    }
+  },
+  "retrieval": {
+    "embedding_model": "text-embedding-3-small",
+    "match_threshold": 0.35,
+    "top_k": 3,
+    "live_row_counts": {
+      "cyber_threats": 32,
+      "cyber_training": 32
+    },
+    "threat_retrieval": {
+      "queries": 10,
+      "precision_at_3": 0.5667,
+      "recall_at_3": 0.7333,
+      "hit_rate_at_3": 1,
+      "mean_reciprocal_rank": 1.0,
+      "latency_ms_mean": 770.56,
+      "latency_ms_p95": 1818.34,
+      "details": [
+        {
+          "query": "urgent CEO wire transfer business email compromise",
+          "returned_ids": [
+            "THR-001",
+            "THR-020",
+            "THR-002"
+          ],
+          "relevant_ids": [
+            "THR-001",
+            "THR-002",
+            "THR-026"
+          ]
+        },
+        {
+          "query": "malicious OAuth app excessive mailbox permissions",
+          "returned_ids": [
+            "THR-012",
+            "THR-014",
+            "THR-003"
+          ],
+          "relevant_ids": [
+            "THR-012",
+            "THR-013",
+            "THR-014"
+          ]
+        },
+        {
+          "query": "repeated unexpected MFA push notifications fatigue",
+          "returned_ids": [
+            "THR-011",
+            "THR-010"
+          ],
+          "relevant_ids": [
+            "THR-010",
+            "THR-011"
+          ]
+        },
+        {
+          "query": "QR code sends employee to credential phishing page",
+          "returned_ids": [
+            "THR-024",
+            "THR-006",
+            "THR-007"
+          ],
+          "relevant_ids": [
+            "THR-004",
+            "THR-007",
+            "THR-024"
+          ]
+        },
+        {
+          "query": "unknown USB drive found in office parking lot",
+          "returned_ids": [
+            "THR-016"
+          ],
+          "relevant_ids": [
+            "THR-016",
+            "THR-017",
+            "THR-031"
+          ]
+        },
+        {
+          "query": "phone caller impersonates help desk and asks for password",
+          "returned_ids": [
+            "THR-023",
+            "THR-029",
+            "THR-010"
+          ],
+          "relevant_ids": [
+            "THR-018",
+            "THR-023",
+            "THR-029"
+          ]
+        },
+        {
+          "query": "vendor changes bank account immediately before invoice payment",
+          "returned_ids": [
+            "THR-027",
+            "THR-032"
+          ],
+          "relevant_ids": [
+            "THR-001",
+            "THR-015",
+            "THR-027"
+          ]
+        },
+        {
+          "query": "stolen browser session cookie cloud account",
+          "returned_ids": [
+            "THR-013",
+            "THR-007",
+            "THR-014"
+          ],
+          "relevant_ids": [
+            "THR-013",
+            "THR-014"
+          ]
+        },
+        {
+          "query": "evil twin wireless network copies company wifi",
+          "returned_ids": [
+            "THR-021",
+            "THR-016"
+          ],
+          "relevant_ids": [
+            "THR-021"
+          ]
+        },
+        {
+          "query": "public employee names and email addresses used for reconnaissance",
+          "returned_ids": [
+            "THR-019",
+            "THR-006",
+            "THR-020"
+          ],
+          "relevant_ids": [
+            "THR-019",
+            "THR-020"
+          ]
+        }
+      ]
+    },
+    "training_retrieval": {
+      "queries": 8,
+      "precision_at_3": 0.5417,
+      "recall_at_3": 0.75,
+      "hit_rate_at_3": 1,
+      "mean_reciprocal_rank": 1.0,
+      "latency_ms_mean": 631.87,
+      "latency_ms_p95": 667.17,
+      "details": [
+        {
+          "query": "verify a changed vendor bank account before payment",
+          "returned_ids": [
+            "TRN-005",
+            "TRN-029",
+            "TRN-019"
+          ],
+          "relevant_ids": [
+            "TRN-005",
+            "TRN-029"
+          ]
+        },
+        {
+          "query": "respond to repeated MFA push notifications",
+          "returned_ids": [
+            "TRN-014",
+            "TRN-013",
+            "TRN-015"
+          ],
+          "relevant_ids": [
+            "TRN-013",
+            "TRN-014"
+          ]
+        },
+        {
+          "query": "unknown USB drive found in a parking lot",
+          "returned_ids": [
+            "TRN-023"
+          ],
+          "relevant_ids": [
+            "TRN-023",
+            "TRN-024"
+          ]
+        },
+        {
+          "query": "malicious OAuth consent app response",
+          "returned_ids": [
+            "TRN-017",
+            "TRN-007",
+            "TRN-013"
+          ],
+          "relevant_ids": [
+            "TRN-016",
+            "TRN-017",
+            "TRN-018"
+          ]
+        },
+        {
+          "query": "suspicious QR code on an office poster",
+          "returned_ids": [
+            "TRN-022",
+            "TRN-021",
+            "TRN-025"
+          ],
+          "relevant_ids": [
+            "TRN-021",
+            "TRN-022"
+          ]
+        },
+        {
+          "query": "caller asks for password and one time code",
+          "returned_ids": [
+            "TRN-011",
+            "TRN-013",
+            "TRN-009"
+          ],
+          "relevant_ids": [
+            "TRN-009",
+            "TRN-010",
+            "TRN-011"
+          ]
+        },
+        {
+          "query": "suspicious direct message from compromised coworker",
+          "returned_ids": [
+            "TRN-019",
+            "TRN-002",
+            "TRN-026"
+          ],
+          "relevant_ids": [
+            "TRN-019",
+            "TRN-020"
+          ]
+        },
+        {
+          "query": "phishing attachment could deliver ransomware",
+          "returned_ids": [
+            "TRN-032",
+            "TRN-004",
+            "TRN-002"
+          ],
+          "relevant_ids": [
+            "TRN-004",
+            "TRN-032"
+          ]
+        }
+      ]
+    }
+  },
+  "scoring_and_responsible_ai": {
+    "consistency": {
+      "repetitions": 20,
+      "unique_scores": [
+        91.80000000000001
+      ],
+      "standard_deviation": 0.0
+    },
+    "role_fairness": {
+      "roles": {
+        "Intern": 91.80000000000001,
+        "Finance Operations Analyst": 91.80000000000001,
+        "Chief Executive Officer": 91.80000000000001,
+        "Security Administrator": 91.80000000000001
+      },
+      "max_score_difference": 0.0,
+      "note": "Role is not an input to the authoritative deterministic scoring functions."
+    },
+    "prompt_injection": {
+      "unsafe_action_score": 10,
+      "reasoning_category": "naive",
+      "final_score": 16.0,
+      "awarded_requested_100": false
+    }
+  },
+  "scenario_agent_reliability": {
+    "live_calls": 3,
+    "valid_response_rate": 1.0,
+    "latency_ms_mean": 4203.89,
+    "latency_ms_min": 3692.5,
+    "latency_ms_max": 5119.15,
+    "cases": [
+      {
+        "role": "Finance Operations Analyst",
+        "channel": "email",
+        "valid": true,
+        "latency_ms": 3692.5
+      },
+      {
+        "role": "IT Support Specialist",
+        "channel": "voice_phone",
+        "valid": true,
+        "latency_ms": 5119.15
+      },
+      {
+        "role": "Cloud Administrator",
+        "channel": "cloud_oauth",
+        "valid": true,
+        "latency_ms": 3800.02
+      }
+    ],
+    "forced_provider_failure_fallback": {
+      "valid": true,
+      "latency_ms": 0.08
+    }
+  },
+  "total_runtime_seconds": 26.54
+}

@@ -128,6 +128,8 @@ def extract_with_heuristics(raw_text: str, company_name: str = "Organization", d
         r'|(?:Section|Article|Policy|SOP|Rule)\s+\d+[:\.]?' # Section 1, Rule 2:
         r'|[•\-\*\>]\s+'                            # Bullets: •, -, *, >
         r'|\*\*[^*]+\*\*'                           # Bold header like **Rule Name:**
+        r'|(?:first(?:ly|\s+off)?|second(?:ly)?|third(?:ly)?|fourth(?:ly)?)\b[,:]?\s+'
+                                                              # Casual enumerations
         r')',
         re.IGNORECASE
     )

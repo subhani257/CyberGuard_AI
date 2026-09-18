@@ -2,7 +2,6 @@ import os
 from typing import List, Dict, Any, Optional
 from dotenv import load_dotenv
 from supabase import create_client, Client
-from openai import OpenAI
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
@@ -137,7 +136,8 @@ class TrainingRetriever:
         self.supabase_url = os.environ.get("SUPABASE_URL")
         self.supabase_key = os.environ.get("SUPABASE_SERVICE_KEY") or os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
         self.supabase: Optional[Client] = None
-        self.openai_client: Optional[OpenAI] = None
+        self.hf_model = None
+        self.openai_client = None
 
         try:
             if self.supabase_url and "your-project" not in self.supabase_url and self.supabase_key:
@@ -145,25 +145,29 @@ class TrainingRetriever:
         except Exception as e:
             print(f"Notice: Supabase client in TrainingRetriever using local cache fallback: {e}")
 
-        api_key = os.environ.get("OPENAI_API_KEY")
-        if api_key and not api_key.startswith("sk-proj-placeholder"):
-            try:
-                self.openai_client = OpenAI(api_key=api_key)
-            except Exception:
-                pass
-
     def _get_embedding(self, text: str) -> Optional[List[float]]:
-        if not self.openai_client:
-            return None
         try:
-            response = self.openai_client.embeddings.create(
-                model="text-embedding-3-small",
-                input=text
-            )
-            return response.data[0].embedding
+            if self.hf_model is None:
+                from sentence_transformers import SentenceTransformer
+                self.hf_model = SentenceTransformer("all-MiniLM-L6-v2")
+            vector = self.hf_model.encode(text).tolist()
+            return vector + [0.0] * (1536 - len(vector)) if len(vector) < 1536 else vector[:1536]
         except Exception as e:
-            print(f"Notice: OpenAI embedding generation skipped, using fallback search: {e}")
-            return None
+            try:
+                if self.openai_client is None:
+                    from openai import OpenAI
+                    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+                    if not api_key:
+                        return None
+                    self.openai_client = OpenAI(api_key=api_key)
+                response = self.openai_client.embeddings.create(
+                    model="text-embedding-3-small",
+                    input=text,
+                )
+                return response.data[0].embedding
+            except Exception as openai_error:
+                print(f"Notice: training embedding unavailable, using curated retrieval: {openai_error or e}")
+                return None
 
     def retrieve_guidance(self, weaknesses: List[Any], top_k: int = 2) -> List[Dict[str, Any]]:
         """
@@ -184,8 +188,26 @@ class TrainingRetriever:
             flat_weaknesses = ["urgency_bias"]
 
         search_query = " ".join(flat_weaknesses)
+
+        # 1. Use pgvector when configured. Stored and query vectors both use MiniLM.
+        if self.supabase:
+            query_embedding = self._get_embedding(search_query)
+            if query_embedding:
+                try:
+                    res = self.supabase.rpc(
+                        'match_training',
+                        {
+                            'query_embedding': query_embedding,
+                            'match_threshold': 0.35,
+                            'match_count': top_k
+                        }
+                    ).execute()
+                    if res.data:
+                        return res.data[:top_k]
+                except Exception as e:
+                    print(f"Notice: training pgvector retrieval unavailable, using curated ranking: {e}")
         
-        # 1. Match against curated high-fidelity NIST/SANS knowledge store using scored IR ranking
+        # 2. Match against the curated repository using deterministic scored ranking.
         STOP_WORDS = {"defense", "detection", "protection", "training", "bias", "indicator", "general", "cyber"}
         scored_modules = []
         
@@ -229,23 +251,5 @@ class TrainingRetriever:
             # Sort descending by IR score
             scored_modules.sort(key=lambda x: x[0], reverse=True)
             return [m[1] for m in scored_modules[:top_k]]
-
-        # 2. Try pgvector similarity search in Supabase if online
-        if self.supabase:
-            query_embedding = self._get_embedding(search_query)
-            if query_embedding:
-                try:
-                    res = self.supabase.rpc(
-                        'match_training',
-                        {
-                            'query_embedding': query_embedding,
-                            'match_threshold': 0.75,
-                            'match_count': top_k
-                        }
-                    ).execute()
-                    if res.data and len(res.data) > 0:
-                        return res.data[:top_k]
-                except Exception:
-                    pass
 
         return DEFAULT_CYBER_TRAINING_MODULES[:top_k]

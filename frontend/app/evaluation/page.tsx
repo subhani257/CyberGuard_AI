@@ -63,6 +63,7 @@ function EvaluationContent() {
   // Hub Drawer State
   const [isHubOpen, setIsHubOpen] = useState(false);
   const hubLauncherRef = useRef<HTMLButtonElement>(null);
+  const evaluationStartedRef = useRef(false);
 
   // Dynamic Telemetry State (from coach / dashboard summary)
   const [readinessScore, setReadinessScore] = useState<number>(74);
@@ -200,18 +201,27 @@ function EvaluationContent() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('cyberguard_current_decision');
     }
-    router.push(`/scenario?channel=${priorityChannel}`);
+    const nextTopic = backendCoaching?.recommended_topic || recommendedSituation;
+    const nextDifficulty = backendCoaching?.next_difficulty;
+    const query = new URLSearchParams({ channel: priorityChannel, topic: nextTopic });
+    if (nextDifficulty) query.set('difficulty', nextDifficulty);
+    router.push(`/scenario?${query.toString()}`);
   };
 
   // 2. Evaluation Data Fetching & Feedback Loop
   useEffect(() => {
+    // React Strict Mode replays effects in development. Evaluation is a
+    // state-changing request, so allow only one submission per page mount.
+    if (evaluationStartedRef.current) return;
+    evaluationStartedRef.current = true;
+
     let storedDecision: any = null;
     try {
       const raw = localStorage.getItem('cyberguard_current_decision');
       if (raw) storedDecision = JSON.parse(raw);
     } catch (e) {}
 
-    const targetScenarioId = storedDecision?.scenario_id || searchParams.get('scenario_id') || 'SC004';
+    const targetScenarioId = storedDecision?.scenario_id || searchParams.get('scenario_id') || '';
     const action = storedDecision?.user_action || searchParams.get('choice') || "Verify through another channel";
     const reasoning = storedDecision?.user_reasoning || "The authorization request appeared anomalous and lacked verified publisher status.";
     const resolvedChannel = storedDecision?.channel || searchParams.get('channel') || 'cloud_oauth';
@@ -223,7 +233,14 @@ function EvaluationContent() {
     setUserReasoning(reasoning);
     setResponseTimeSeconds(recordedTiming);
 
-    let userId = "11111111-1111-1111-1111-111111111111";
+    let userId = "";
+    const token = localStorage.getItem('cyberguard_token');
+    if (!token || !targetScenarioId) {
+      setError(!token ? 'Please sign in to evaluate this decision.' : 'No generated scenario was selected for evaluation.');
+      setLoading(false);
+      if (!token) router.replace('/login');
+      return;
+    }
     try {
       const u = localStorage.getItem('cyberguard_user');
       if (u) userId = JSON.parse(u).id || userId;
@@ -232,7 +249,10 @@ function EvaluationContent() {
     // Call Member 2's Unified Evaluation Agent Endpoint
     fetch('http://localhost:8000/api/agents/evaluate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify({
         scenario_id: targetScenarioId,
         user_action: action,
@@ -305,16 +325,12 @@ function EvaluationContent() {
           // Trigger Coach Agent to close feedback loop
           fetch('http://localhost:8000/api/coach/process-decision', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify({
-              scenario_id: targetScenarioId,
-              score: parsedEvaluation.final_score,
-              threat_type: storedDecision?.threat_type || "Corporate Security Verification",
-              weaknesses: parsedEvaluation.final_score < 70 ? ["urgency_bias"] : [],
-              is_safe: parsedEvaluation.is_safe ?? (parsedEvaluation.final_score >= 70),
-              chosen_action: action,
-              reasoning: reasoning,
-              user_id: userId
+              scenario_id: targetScenarioId
             })
           })
             .then(cRes => (cRes.ok ? cRes.json() : null))
@@ -333,24 +349,7 @@ function EvaluationContent() {
         }
       })
       .catch(err => {
-        console.log('Notice: Live evaluation API fallback:', err);
-        // Resilient fallback with genuine channel context
-        setEvaluation({
-          action_score: 85,
-          reasoning_score: 75,
-          final_score: 81,
-          is_safe: true,
-          threat_indicators: [],
-          reasoning_category: "security-aware",
-          expected_behavior: "Verify authorization request through alternate official channel before taking action",
-          llm_evaluation: {
-            confidence: 88,
-            explanation: "User showed strong security awareness by inspecting the request parameters and adhering to verification protocol.",
-            strengths: ["Inspected authorization source", "Followed verification protocol"],
-            weaknesses: [],
-            improvement: "Always cross-check unverified application requests with IT directory."
-          }
-        });
+        setError(err.message || 'Evaluation could not be completed for this scenario.');
       })
       .finally(() => setLoading(false));
   }, [searchParams, fetchTelemetry]);
@@ -359,6 +358,20 @@ function EvaluationContent() {
   const historicalDelta = evaluation
     ? calculateHistoricalDelta(evaluation.final_score, scenarioId, decisionJourney)
     : null;
+
+  if (!loading && error && !evaluation) {
+    return (
+      <main className="min-h-screen bg-[#080D12] text-primary flex items-center justify-center p-8">
+        <div className="max-w-lg rounded-2xl border border-red-500/30 bg-red-500/5 p-8 text-center">
+          <h1 className="text-xl font-semibold">Evaluation unavailable</h1>
+          <p className="mt-3 text-sm text-muted">{error}</p>
+          <button onClick={() => router.push('/scenario')} className="mt-6 rounded-lg bg-blue px-5 py-3 text-sm font-semibold text-white">
+            Return to training
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-[#080D12] text-primary font-sans selection:bg-blue/20 relative">

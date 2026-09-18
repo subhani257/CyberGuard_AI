@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MOCK_CASES = [
@@ -55,6 +56,7 @@ const MOCK_CASES = [
 ];
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [cases, setCases] = useState(MOCK_CASES);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [overrideReason, setOverrideReason] = useState("");
@@ -62,6 +64,22 @@ export default function AdminDashboard() {
 
   const selectedCase = cases.find(c => c.id === selectedCaseId);
   const pendingCount = cases.filter(c => c.status === 'pending').length;
+
+  useEffect(() => {
+    const token = localStorage.getItem('cyberguard_token');
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+    fetch('http://localhost:8000/api/auth/me', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(r => r.ok ? r.json() : Promise.reject(r))
+      .then(data => {
+        if (data?.user?.access_role !== 'admin') router.replace('/dashboard');
+      })
+      .catch(() => router.replace('/login'));
+  }, [router]);
 
   const handleAction = (id: string, actionType: 'confirmed' | 'overridden') => {
     setCases(cases.map(c => c.id === id ? { ...c, status: actionType } : c));
