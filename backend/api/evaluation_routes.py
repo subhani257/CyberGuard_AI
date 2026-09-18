@@ -246,7 +246,9 @@ async def evaluate_decision(
             threat_analysis={
                 "indicators": threat_indicators,
                 "safe_behavior": safe_behavior,
-                "threat_knowledge": threat_knowledge
+                "threat_knowledge": threat_knowledge,
+                # Gap 1 fix: pass the actual classification so it is stored in the DB
+                "reasoning_category": reasoning_classification.get("category", "naive")
             }
         )
         
@@ -353,13 +355,22 @@ def _derive_weaknesses(
     if is_safe:
         return []
 
+    # Gap 3 fix: full mapping covering all 11 threat indicator categories
     mapping = {
-        "urgency_indicators": "urgency_bias",
-        "authority_abuse": "authority_bias",
-        "spoofed_domains": "sender_verification",
-        "suspicious_urls": "link_verification",
-        "financial_requests": "payment_verification",
-        "attachment_requests": "attachment_safety",
+        # Original 6
+        "urgency_indicators":    "urgency_bias",
+        "authority_abuse":       "authority_bias",
+        "spoofed_domains":       "sender_verification",
+        "spoofed_identifiers":   "sender_verification",
+        "suspicious_urls":       "link_verification",
+        "financial_requests":    "payment_verification",
+        "attachment_requests":   "attachment_safety",
+        # Previously missing 5 multi-channel threat types
+        "qr_code_attacks":       "quishing_detection",
+        "supply_chain_pretext":  "vendor_fraud_awareness",
+        "cloud_app_consent":     "oauth_consent_defense",
+        "mfa_fatigue":           "mfa_fatigue_defense",
+        "vishing_dm_pretext":    "vishing_defense",
     }
     weaknesses = [
         weakness for indicator, weakness in mapping.items()
@@ -369,12 +380,15 @@ def _derive_weaknesses(
         weaknesses.append("trust_based_reasoning")
     if reasoning_classification.get("category") == "naive":
         weaknesses.append("security_reasoning")
+    # Adversarial injection flag from classifier
+    if reasoning_classification.get("adversarial"):
+        weaknesses.append("adversarial_awareness")
     channel_weaknesses = {
-        "cloud_oauth": "oauth_consent_defense",
-        "voice_phone": "vishing_defense",
-        "slack_teams": "chat_compromise_defense",
-        "qr_code": "quishing_detection",
-        "sms_push": "mfa_fatigue_defense",
+        "cloud_oauth":    "oauth_consent_defense",
+        "voice_phone":    "vishing_defense",
+        "slack_teams":    "chat_compromise_defense",
+        "qr_code":        "quishing_detection",
+        "sms_push":       "mfa_fatigue_defense",
         "physical_media": "removable_media_defense",
     }
     if channel in channel_weaknesses:
