@@ -9,13 +9,21 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from supabase import create_client, Client
 import pypdf
-from security.auth_bearer import get_current_user, CurrentUser
+from security.auth_bearer import get_current_user, get_optional_current_user, CurrentUser
 from nlp.ner import sanitize_input
 
 try:
     from backend.rag.policy_extractor import extract_policy_rules, format_rule_for_embedding
 except ImportError:
     from rag.policy_extractor import extract_policy_rules, format_rule_for_embedding
+
+try:
+    from backend.rag.retrieval import DEFAULT_ORG_KNOWLEDGE
+except ImportError:
+    try:
+        from rag.retrieval import DEFAULT_ORG_KNOWLEDGE
+    except ImportError:
+        DEFAULT_ORG_KNOWLEDGE = []
 
 
 # Load environment variables
@@ -124,15 +132,15 @@ async def onboard_organization_policy(
     role_description: Optional[str] = Form(None),
     policy_text: Optional[str] = Form(None),
     file: Optional[UploadFile] = File(None),
-    current_user: CurrentUser = Depends(get_current_user)
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user)
 ):
     """
     Ingest, parse, chunk, embed, and store an organization's custom security policies.
     Supports PDF document upload or raw text submission.
     Embeds with local Hugging Face all-MiniLM-L6-v2 and stores in public.org_knowledge.
     """
-    user_id = current_user.id
-    if current_user.company not in ("", "Your Organization"):
+    user_id = current_user.id if current_user else (user_id or "default-user")
+    if current_user and current_user.company not in ("", "Your Organization"):
         company_name = current_user.company
     raw_text = ""
     source_label = "Direct Text Submission"
@@ -274,22 +282,125 @@ async def onboard_organization_policy(
 @router.get("/policies/{company_or_user_id}")
 def get_custom_policies(
     company_or_user_id: str,
-    current_user: CurrentUser = Depends(get_current_user)
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user)
 ):
-    """Retrieve only the authenticated learner's organizational policies."""
-    key = current_user.id
-    policies = CUSTOM_ORG_POLICIES_CACHE.get(key, [])
-    
+    """
+    Retrieve structured organizational security policies.
+    Returns custom uploaded rules if present, otherwise falls back to curated baseline policies.
+    """
+    user_id = current_user.id if current_user else None
+    org_name = (
+        (current_user.company if current_user and current_user.company not in ("", "Your Organization") else None)
+        or (company_or_user_id if company_or_user_id not in ("", "Your Organization", "default") else "NovaTech Solutions")
+    )
+
+    # 1. Look up custom cached policies by user id, company name, or parameter
+    policies = []
+    lookup_keys = [k for k in [user_id, org_name.lower(), company_or_user_id.lower()] if k]
+    for k in lookup_keys:
+        if k in CUSTOM_ORG_POLICIES_CACHE and CUSTOM_ORG_POLICIES_CACHE[k]:
+            policies = CUSTOM_ORG_POLICIES_CACHE[k]
+            break
+
+    # 2. Check Supabase if connected and not found in memory
     if supabase and not policies:
         try:
-            res = supabase.table("org_knowledge").select("content, metadata, category").contains("metadata", {"user_id": current_user.id}).execute()
-            if res.data:
-                policies = res.data
-        except Exception:
-            pass
+            if user_id:
+                res = supabase.table("org_knowledge").select("content, metadata, category").contains("metadata", {"user_id": user_id}).execute()
+                if res.data:
+                    policies = res.data
+            if not policies and org_name:
+                res = supabase.table("org_knowledge").select("content, metadata, category").contains("metadata", {"organization": org_name}).execute()
+                if res.data:
+                    policies = res.data
+        except Exception as e:
+            print(f"Notice: Supabase fetch error in org_routes: {e}")
+
+    # 3. Format structured rules
+    structured_rules = []
+    if policies:
+        for idx, p in enumerate(policies):
+            meta = p.get("metadata") or {}
+            content = p.get("content", "")
+            rule_code = meta.get("rule_code") or meta.get("policy_id") or f"RULE-{idx+1:02d}"
+            title = meta.get("title") or f"{meta.get('department', 'Security')} Policy Rule"
+            enforcement = meta.get("enforcement_level") or "MANDATORY"
+            dept = meta.get("department") or p.get("category", "General").capitalize()
+            summary = meta.get("rule_summary") or (content[:140] + ("..." if len(content) > 140 else ""))
+            keywords = meta.get("trigger_keywords") or []
+            source = meta.get("source", "Uploaded Document")
+
+            structured_rules.append({
+                "rule_code": rule_code,
+                "title": title,
+                "enforcement_level": enforcement,
+                "department": dept,
+                "summary": summary,
+                "content": content,
+                "full_text": content,
+                "trigger_keywords": keywords,
+                "source": source,
+                "is_custom": True
+            })
+    else:
+        # Fall back to default organizational knowledge (NovaTech baseline)
+        for idx, item in enumerate(DEFAULT_ORG_KNOWLEDGE):
+            meta = item.get("metadata") or {}
+            content = item.get("content", "")
+            rule_code = meta.get("policy_id") or f"TCG-{idx+1:02d}"
+            title = item.get("title") or meta.get("title") or f"{meta.get('department', 'Corporate')} Policy"
+            dept = meta.get("department") or item.get("category", "General").capitalize()
+            summary = content[:140] + ("..." if len(content) > 140 else "")
+
+            structured_rules.append({
+                "rule_code": rule_code,
+                "title": title,
+                "enforcement_level": "MANDATORY" if ("FIN" in rule_code or "SEC" in rule_code) else "STANDARD",
+                "department": dept,
+                "summary": summary,
+                "content": content,
+                "full_text": content,
+                "trigger_keywords": [dept.lower(), "verification", "compliance"],
+                "source": meta.get("source", "NovaTech Corporate Security Baseline"),
+                "is_custom": False
+            })
 
     return {
         "success": True,
-        "count": len(policies),
-        "policies": [p.get("content") for p in policies]
+        "count": len(structured_rules),
+        "organization": org_name,
+        "rules": structured_rules,
+        "policies": [r["content"] for r in structured_rules]
     }
+
+
+@router.delete("/policies/{rule_code}")
+def delete_policy_rule(
+    rule_code: str,
+    current_user: Optional[CurrentUser] = Depends(get_optional_current_user)
+):
+    """Delete a custom organization policy rule by rule code."""
+    # Remove from memory cache
+    deleted_count = 0
+    for key, items in list(CUSTOM_ORG_POLICIES_CACHE.items()):
+        original_len = len(items)
+        CUSTOM_ORG_POLICIES_CACHE[key] = [
+            p for p in items
+            if (p.get("metadata", {}).get("rule_code") != rule_code and
+                p.get("metadata", {}).get("policy_id") != rule_code)
+        ]
+        deleted_count += (original_len - len(CUSTOM_ORG_POLICIES_CACHE[key]))
+
+    # Delete from Supabase if connected
+    if supabase:
+        try:
+            supabase.table("org_knowledge").delete().contains("metadata", {"rule_code": rule_code}).execute()
+        except Exception as e:
+            print(f"Notice: Supabase delete in org_routes: {e}")
+
+    return {
+        "success": True,
+        "message": f"Rule '{rule_code}' successfully removed.",
+        "rule_code": rule_code
+    }
+
