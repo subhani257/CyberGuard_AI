@@ -9,7 +9,7 @@ import {
   Lightbulb, ScrollText, X, Shield, Compass, Target,
   Phone, Mail, MessageSquare, QrCode, Cloud, Smartphone, HardDrive,
   LayoutDashboard, Map, History, Sparkles, CheckCircle2, AlertCircle, ArrowRight,
-  LogOut, Clock, ChevronRight,
+  LogOut, Clock, ChevronRight, ArrowLeft,
 } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -95,56 +95,9 @@ function ScoreBadge({ score, isPriority }: { score: number; isPriority: boolean 
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Tab bar
+// Navigation Tab Type
 // ─────────────────────────────────────────────────────────────────────────────
 type TabId = 'overview' | 'arena';
-
-const TABS = [
-  { id: 'overview' as TabId, label: 'Overview',     Icon: LayoutDashboard },
-  { id: 'arena'    as TabId, label: 'Training Map', Icon: Map              },
-];
-
-function TabBar({ active, onChange }: { active: TabId; onChange: (t: TabId) => void }) {
-  return (
-    <div className="flex justify-center py-3 shrink-0">
-      <div className="relative flex items-center gap-0.5 p-1 rounded-xl"
-        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-        {/* Sliding pill */}
-        <motion.div
-          layoutId="tab-pill"
-          className="absolute inset-y-1 rounded-lg pointer-events-none"
-          style={{
-            left:  active === 'overview' ? '4px' : '50%',
-            right: active === 'overview' ? '50%' : '4px',
-            background: 'rgba(255,255,255,0.055)',
-            border: '1px solid rgba(255,255,255,0.1)',
-          }}
-          transition={{ type: 'spring', stiffness: 420, damping: 38 }}
-        />
-        {TABS.map(({ id, label, Icon }) => (
-          <button
-            key={id}
-            onClick={() => onChange(id)}
-            className="relative z-10 flex items-center gap-2 px-5 py-2 rounded-lg text-[11px] font-mono tracking-[0.12em] uppercase transition-colors duration-200 select-none"
-            style={{ color: active === id ? '#E8EDF2' : 'rgba(141,152,165,0.55)' }}
-          >
-            <Icon className="w-3.5 h-3.5" />
-            <span>{label}</span>
-            {id === 'arena' && (
-              <span className="text-[8px] font-mono px-1.5 py-0.5 rounded"
-                style={{
-                  background: active === id ? 'rgba(79,124,255,0.15)' : 'rgba(255,255,255,0.04)',
-                  color: active === id ? 'rgba(165,184,255,0.8)' : 'rgba(141,152,165,0.4)',
-                }}>
-                AI
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Readiness ring — SVG circular progress
@@ -406,9 +359,9 @@ export default function Dashboard() {
       />
 
       {/* ── Nav ──────────────────────────────────────────────────────────── */}
-      <nav className="shrink-0 py-3.5"
+      <nav className="shrink-0 py-2.5"
         style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(11,15,20,0.85)', backdropFilter: 'blur(14px)' }}>
-        <div className="max-w-[1600px] mx-auto px-8 md:px-12 flex items-center justify-between">
+        <div className="max-w-[1600px] mx-auto px-6 md:px-10 flex items-center justify-between">
 
           {/* Brand */}
           <Link href="/" className="flex items-center gap-2.5 group">
@@ -478,25 +431,20 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      {/* ── Tab bar ──────────────────────────────────────────────────────── */}
-      <div className="max-w-[1600px] w-full mx-auto px-8 md:px-12 shrink-0">
-        <TabBar active={activeTab} onChange={setActiveTab} />
-      </div>
-
-      {/* ── Tab content ──────────────────────────────────────────────────── */}
-      <div className="flex-1 min-h-0 max-w-[1600px] w-full mx-auto px-8 md:px-12 pb-4">
+      {/* ── Main Content ─────────────────────────────────────────────────── */}
+      <div className="flex-1 min-h-0 max-w-[1600px] w-full mx-auto px-6 md:px-10 pt-2.5 pb-3 flex flex-col overflow-hidden">
         <AnimatePresence mode="wait">
 
           {/* ══════════════════════════════════════════════════════════════
-              OVERVIEW TAB (Corporate Executive Bento Layout)
+              OVERVIEW TAB (Corporate Executive Bento Layout - Viewport Fit)
           ══════════════════════════════════════════════════════════════ */}
           {activeTab === 'overview' && (
-            <motion.div key="overview" variants={slideIn} initial="hidden" animate="visible" exit="exit" className="h-full overflow-y-auto pr-1 pb-4 scrollbar-hide">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 min-h-[620px]">
+            <motion.div key="overview" variants={slideIn} initial="hidden" animate="visible" exit="exit" className="h-full w-full overflow-hidden flex flex-col min-h-0">
+              <div className="h-full w-full grid grid-cols-1 lg:grid-cols-12 gap-3.5 min-h-0 flex-1">
 
                 {/* ── PANEL 1: LEFT (4 cols) - Executive Personnel & Readiness Card ── */}
                 <div 
-                  className="lg:col-span-4 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden"
+                  className="lg:col-span-4 rounded-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden h-full"
                   style={{
                     background: 'rgba(17,24,33,0.7)',
                     border: '1px solid rgba(255,255,255,0.08)',
@@ -510,14 +458,12 @@ export default function Dashboard() {
 
                   {/* Card Header */}
                   <div className="flex items-center justify-between relative z-10">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[12px] font-mono uppercase tracking-[0.16em] text-primary font-semibold">
-                        Personnel Profile
-                      </span>
-                    </div>
+                    <span className="text-[11px] font-mono uppercase tracking-[0.16em] text-primary font-semibold">
+                      Personnel Profile
+                    </span>
                     <button
                       onClick={() => setIsProfileOpen(true)}
-                      className="text-[11px] font-mono text-muted hover:text-primary transition-colors flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:border-white/15"
+                      className="text-[10px] font-mono text-muted hover:text-primary transition-colors flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:border-white/15"
                     >
                       <span>Edit</span>
                       <ChevronRight className="w-3 h-3" />
@@ -525,10 +471,10 @@ export default function Dashboard() {
                   </div>
 
                   {/* Center: Profile Picture & Greetings */}
-                  <div className="flex flex-col items-center text-center my-4 relative z-10">
+                  <div className="flex flex-col items-center text-center my-1 relative z-10">
                     {/* Avatar Container with Ring */}
                     <div className="relative group cursor-pointer" onClick={() => setIsProfileOpen(true)}>
-                      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 border-2 border-dashed border-blue/40 group-hover:border-blue transition-colors flex items-center justify-center">
+                      <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full p-1 border-2 border-dashed border-blue/40 group-hover:border-blue transition-colors flex items-center justify-center">
                         <div className="w-full h-full rounded-full overflow-hidden bg-surface/90 flex items-center justify-center shadow-lg">
                           <img
                             src={data.user.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
@@ -542,14 +488,14 @@ export default function Dashboard() {
                       </div>
                       {/* Overlaid Tier / Level Badge */}
                       <div 
-                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider text-white shadow-md shrink-0 whitespace-nowrap"
+                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-semibold uppercase tracking-wider text-white shadow-md shrink-0 whitespace-nowrap"
                         style={{
                           background: nextDifficulty === 'advanced' 
                             ? 'linear-gradient(90deg, #D96868, #E2847A)' 
                             : nextDifficulty === 'intermediate'
                             ? 'linear-gradient(90deg, #4F7CFF, #5CC8D7)'
                             : 'linear-gradient(90deg, #D96868, #E08560)',
-                          boxShadow: '0 2px 10px rgba(217,104,104,0.35)'
+                          boxShadow: '0 2px 8px rgba(217,104,104,0.35)'
                         }}
                       >
                         {nextDifficulty === 'advanced' ? 'Tier 3 · Advanced' : nextDifficulty === 'intermediate' ? 'Tier 2 · Specialist' : 'Tier 1 · Baseline'}
@@ -557,40 +503,40 @@ export default function Dashboard() {
                     </div>
 
                     {/* Greeting & Name */}
-                    <h2 className="text-[20px] sm:text-[22px] font-bold text-primary tracking-tight mt-5">
+                    <h2 className="text-[18px] sm:text-[20px] font-bold text-primary tracking-tight mt-3">
                       Welcome, {data.user.name ? data.user.name.split(' ')[0] : 'Learner'} 👋
                     </h2>
-                    <p className="text-[12px] font-mono text-muted mt-0.5">
+                    <p className="text-[11px] font-mono text-muted mt-0.5">
                       {data.user.role} · {data.user.company || 'NovaTech Solutions'}
                     </p>
-                    <div className="mt-2 flex items-center gap-1.5 flex-wrap justify-center">
-                      <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/70">
+                    <div className="mt-1.5 flex items-center gap-1.5 flex-wrap justify-center">
+                      <span className="text-[8px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/70">
                         {data.user.department || 'Corporate Operations'}
                       </span>
-                      <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-blue/10 border border-blue/20 text-cyan">
+                      <span className="text-[8px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-blue/10 border border-blue/20 text-cyan">
                         {data.user.access_role || 'Learner'}
                       </span>
                     </div>
                   </div>
 
                   {/* Readiness Score Section */}
-                  <div className="p-4 rounded-xl my-2 relative z-10" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div className="flex items-baseline justify-between mb-2">
+                  <div className="p-3 rounded-xl my-1 relative z-10" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="flex items-baseline justify-between mb-1.5">
                       <div className="flex items-baseline gap-2">
-                        <span className="text-[32px] font-bold tracking-tight text-primary leading-none">
+                        <span className="text-[26px] font-bold tracking-tight text-primary leading-none">
                           {data.readiness_score}%
                         </span>
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-muted leading-tight">
+                        <span className="text-[9px] font-mono uppercase tracking-wider text-muted leading-tight">
                           Defense<br />Readiness
                         </span>
                       </div>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan/10 border border-cyan/20 text-cyan">
+                      <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan/10 border border-cyan/20 text-cyan">
                         Active Index
                       </span>
                     </div>
 
                     {/* Multi-color segment breakdown bar */}
-                    <div className="w-full h-2 rounded-full overflow-hidden flex gap-1 bg-white/[0.04] mb-2 p-0.5">
+                    <div className="w-full h-1.5 rounded-full overflow-hidden flex gap-1 bg-white/[0.04] mb-1.5 p-0.5">
                       <div 
                         style={{ width: `${Math.max(15, (data.weakness_breakdown['Phishing & Spoofing'] || 50) * 0.4)}%`, background: '#5CC8D7' }} 
                         className="h-full rounded-full transition-all duration-500" 
@@ -608,7 +554,7 @@ export default function Dashboard() {
                       />
                     </div>
 
-                    <div className="flex items-center justify-between text-[9px] font-mono text-muted/60">
+                    <div className="flex items-center justify-between text-[8px] font-mono text-muted/60">
                       <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-cyan inline-block" /> Phish</span>
                       <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber inline-block" /> BEC</span>
                       <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue inline-block" /> Policy</span>
@@ -616,42 +562,42 @@ export default function Dashboard() {
                   </div>
 
                   {/* 3 Metric Pills */}
-                  <div className="grid grid-cols-3 gap-2.5 mt-2 relative z-10">
-                    <div className="p-3 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 bg-blue/10 text-cyan">
-                        <Clock className="w-3.5 h-3.5" />
+                  <div className="grid grid-cols-3 gap-2 mt-1 relative z-10">
+                    <div className="p-2 sm:p-2.5 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12">
+                      <div className="w-6 h-6 rounded-lg flex items-center justify-center mb-1 bg-blue/10 text-cyan">
+                        <Clock className="w-3 h-3" />
                       </div>
-                      <span className="text-[16px] font-bold text-primary leading-none">07</span>
-                      <span className="text-[9px] font-mono text-muted mt-1 uppercase tracking-tight">Vectors</span>
+                      <span className="text-[14px] font-bold text-primary leading-none">07</span>
+                      <span className="text-[8px] font-mono text-muted mt-0.5 uppercase tracking-tight">Vectors</span>
                     </div>
 
-                    <Link href="/policies" className="p-3 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12 group">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 bg-amber/10 text-amber group-hover:scale-105 transition-transform">
-                        <ScrollText className="w-3.5 h-3.5" />
+                    <Link href="/policies" className="p-2 sm:p-2.5 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12 group">
+                      <div className="w-6 h-6 rounded-lg flex items-center justify-center mb-1 bg-amber/10 text-amber group-hover:scale-105 transition-transform">
+                        <ScrollText className="w-3 h-3" />
                       </div>
-                      <span className="text-[16px] font-bold text-primary leading-none">0{policiesCount}</span>
-                      <span className="text-[9px] font-mono text-muted mt-1 uppercase tracking-tight">Policies</span>
+                      <span className="text-[14px] font-bold text-primary leading-none">0{policiesCount}</span>
+                      <span className="text-[8px] font-mono text-muted mt-0.5 uppercase tracking-tight">Policies</span>
                     </Link>
 
                     <button 
                       onClick={() => setIsJourneyModalOpen(true)}
-                      className="p-3 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12 group cursor-pointer"
+                      className="p-2 sm:p-2.5 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12 group cursor-pointer"
                     >
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 bg-coral/10 text-coral group-hover:scale-105 transition-transform">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
+                      <div className="w-6 h-6 rounded-lg flex items-center justify-center mb-1 bg-coral/10 text-coral group-hover:scale-105 transition-transform">
+                        <CheckCircle2 className="w-3 h-3" />
                       </div>
-                      <span className="text-[16px] font-bold text-primary leading-none">{data.decision_journey.length}</span>
-                      <span className="text-[9px] font-mono text-muted mt-1 uppercase tracking-tight">Simulated</span>
+                      <span className="text-[14px] font-bold text-primary leading-none">{data.decision_journey.length}</span>
+                      <span className="text-[8px] font-mono text-muted mt-0.5 uppercase tracking-tight">Simulated</span>
                     </button>
                   </div>
                 </div>
 
                 {/* ── RIGHT COLUMN (8 cols) ── */}
-                <div className="lg:col-span-8 flex flex-col gap-5">
+                <div className="lg:col-span-8 flex flex-col gap-3.5 h-full min-h-0">
 
                   {/* ── TOP HERO SECTION: Active Training Directives ── */}
                   <div 
-                    className="rounded-2xl p-5 md:p-6 relative overflow-hidden"
+                    className="flex-[1.15] min-h-0 rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between relative overflow-hidden"
                     style={{
                       background: 'linear-gradient(135deg, rgba(79,124,255,0.14) 0%, rgba(17,24,33,0.95) 45%, rgba(11,15,20,0.98) 100%)',
                       border: '1px solid rgba(79,124,255,0.22)',
@@ -659,56 +605,56 @@ export default function Dashboard() {
                     }}
                   >
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-2">
                       <div>
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="w-2 h-2 rounded-full bg-blue animate-pulse" />
-                          <h2 className="text-[16px] sm:text-[18px] font-bold text-primary tracking-tight">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue animate-pulse" />
+                          <h2 className="text-[15px] font-bold text-primary tracking-tight">
                             Active Training Directives
                           </h2>
                         </div>
-                        <p className="text-[11px] font-mono text-muted">
+                        <p className="text-[10px] font-mono text-muted">
                           AI-generated adaptive simulations calibrated for {data.user.role}
                         </p>
                       </div>
 
                       <button
                         onClick={() => setActiveTab('arena')}
-                        className="text-[11px] font-mono px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-primary transition-colors flex items-center gap-1.5"
+                        className="text-[10px] font-mono px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-primary transition-colors flex items-center gap-1"
                       >
                         <span>View All (7)</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-cyan" />
+                        <ArrowRight className="w-3 h-3 text-cyan" />
                       </button>
                     </div>
 
                     {/* 3 Directive Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 flex-1 min-h-0">
                       {/* Card 1: Top Priority Coach Directive */}
-                      <div className="p-4 rounded-xl flex flex-col justify-between bg-surface/90 border border-blue/30 shadow-lg relative overflow-hidden group">
+                      <div className="p-3 rounded-xl flex flex-col justify-between bg-surface/90 border border-blue/30 shadow-md relative overflow-hidden group">
                         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue to-cyan" />
                         <div>
-                          <div className="flex items-center justify-between gap-1 mb-2">
-                            <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-blue/20 text-cyan border border-blue/30">
+                          <div className="flex items-center justify-between gap-1 mb-1.5">
+                            <span className="text-[8px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue/20 text-cyan border border-blue/30">
                               Coach Priority
                             </span>
-                            <span className="text-[9px] font-mono text-muted">
+                            <span className="text-[8px] font-mono text-muted">
                               ~{data.next_situation.estimated_minutes} min
                             </span>
                           </div>
-                          <h3 className="text-[13px] font-semibold text-primary line-clamp-2 leading-snug mb-1">
+                          <h3 className="text-[12px] font-semibold text-primary line-clamp-2 leading-snug mb-1">
                             {data.next_situation.title}
                           </h3>
-                          <p className="text-[10px] font-mono text-muted/70 mb-3">
+                          <p className="text-[9px] font-mono text-muted/70 mb-1 truncate">
                             Target: {data.next_situation.tactic_target.replace('_', ' ')}
                           </p>
                         </div>
 
                         <div>
-                          <div className="flex items-center justify-between text-[10px] font-mono text-muted mb-1">
+                          <div className="flex items-center justify-between text-[9px] font-mono text-muted mb-1">
                             <span>Readiness Target</span>
                             <span className="text-cyan font-bold">{data.readiness_score || 50}%</span>
                           </div>
-                          <div className="w-full h-1.5 rounded-full bg-white/[0.05] overflow-hidden mb-3">
+                          <div className="w-full h-1 rounded-full bg-white/[0.05] overflow-hidden mb-2">
                             <div 
                               className="h-full rounded-full bg-gradient-to-r from-blue to-cyan"
                               style={{ width: `${Math.min(100, Math.max(15, data.readiness_score || 50))}%` }}
@@ -717,7 +663,7 @@ export default function Dashboard() {
 
                           <Link
                             href={scenarioUrl(priorityChannel, data.next_situation.category)}
-                            className="w-full py-2 px-3 rounded-lg bg-blue hover:bg-blue/90 text-white text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(79,124,255,0.25)]"
+                            className="w-full py-1.5 px-2 rounded-lg bg-blue hover:bg-blue/90 text-white text-[11px] font-medium transition-all flex items-center justify-center gap-1 shadow-[0_0_12px_rgba(79,124,255,0.2)]"
                           >
                             <span>Launch Scenario</span>
                             <ArrowRight className="w-3 h-3" />
@@ -726,30 +672,30 @@ export default function Dashboard() {
                       </div>
 
                       {/* Card 2: Cloud & OAuth Directive */}
-                      <div className="p-4 rounded-xl flex flex-col justify-between bg-surface/70 border border-white/[0.08] hover:border-white/15 transition-all group">
+                      <div className="p-3 rounded-xl flex flex-col justify-between bg-surface/70 border border-white/[0.08] hover:border-white/15 transition-all group">
                         <div>
-                          <div className="flex items-center justify-between gap-1 mb-2">
-                            <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white/[0.04] text-muted border border-white/[0.08]">
+                          <div className="flex items-center justify-between gap-1 mb-1.5">
+                            <span className="text-[8px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/[0.04] text-muted border border-white/[0.08]">
                               Cloud & OAuth
                             </span>
-                            <span className="text-[9px] font-mono text-muted">
+                            <span className="text-[8px] font-mono text-muted">
                               ~3 min
                             </span>
                           </div>
-                          <h3 className="text-[13px] font-semibold text-primary line-clamp-2 leading-snug mb-1">
+                          <h3 className="text-[12px] font-semibold text-primary line-clamp-2 leading-snug mb-1">
                             Illicit Third-Party App & Token Hijacking
                           </h3>
-                          <p className="text-[10px] font-mono text-muted/70 mb-3">
+                          <p className="text-[9px] font-mono text-muted/70 mb-1 truncate">
                             Target: consent_grant_abuse
                           </p>
                         </div>
 
                         <div>
-                          <div className="flex items-center justify-between text-[10px] font-mono text-muted mb-1">
+                          <div className="flex items-center justify-between text-[9px] font-mono text-muted mb-1">
                             <span>Sector Score</span>
                             <span className="text-primary font-bold">{getSectorScore('cloud_oauth', data.weakness_breakdown) || 68}%</span>
                           </div>
-                          <div className="w-full h-1.5 rounded-full bg-white/[0.05] overflow-hidden mb-3">
+                          <div className="w-full h-1 rounded-full bg-white/[0.05] overflow-hidden mb-2">
                             <div 
                               className="h-full rounded-full bg-cyan/70"
                               style={{ width: `${getSectorScore('cloud_oauth', data.weakness_breakdown) || 68}%` }}
@@ -758,7 +704,7 @@ export default function Dashboard() {
 
                           <Link
                             href={scenarioUrl('cloud_oauth', 'Cloud & OAuth Consent Verification')}
-                            className="w-full py-2 px-3 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-primary text-[11px] font-medium border border-white/[0.08] hover:border-white/20 transition-all flex items-center justify-center gap-1.5"
+                            className="w-full py-1.5 px-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-primary text-[11px] font-medium border border-white/[0.08] hover:border-white/20 transition-all flex items-center justify-center gap-1"
                           >
                             <span>Launch Scenario</span>
                             <ArrowRight className="w-3 h-3 text-muted" />
@@ -767,30 +713,30 @@ export default function Dashboard() {
                       </div>
 
                       {/* Card 3: Voice & BEC Directive */}
-                      <div className="p-4 rounded-xl flex flex-col justify-between bg-surface/70 border border-white/[0.08] hover:border-white/15 transition-all group">
+                      <div className="p-3 rounded-xl flex flex-col justify-between bg-surface/70 border border-white/[0.08] hover:border-white/15 transition-all group">
                         <div>
-                          <div className="flex items-center justify-between gap-1 mb-2">
-                            <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white/[0.04] text-muted border border-white/[0.08]">
+                          <div className="flex items-center justify-between gap-1 mb-1.5">
+                            <span className="text-[8px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/[0.04] text-muted border border-white/[0.08]">
                               Voice & BEC
                             </span>
-                            <span className="text-[9px] font-mono text-muted">
+                            <span className="text-[8px] font-mono text-muted">
                               ~4 min
                             </span>
                           </div>
-                          <h3 className="text-[13px] font-semibold text-primary line-clamp-2 leading-snug mb-1">
+                          <h3 className="text-[12px] font-semibold text-primary line-clamp-2 leading-snug mb-1">
                             Urgent Wire Authorization & Caller Spoofing
                           </h3>
-                          <p className="text-[10px] font-mono text-muted/70 mb-3">
+                          <p className="text-[9px] font-mono text-muted/70 mb-1 truncate">
                             Target: executive_authority_bias
                           </p>
                         </div>
 
                         <div>
-                          <div className="flex items-center justify-between text-[10px] font-mono text-muted mb-1">
+                          <div className="flex items-center justify-between text-[9px] font-mono text-muted mb-1">
                             <span>Sector Score</span>
                             <span className="text-primary font-bold">{getSectorScore('voice_phone', data.weakness_breakdown) || 54}%</span>
                           </div>
-                          <div className="w-full h-1.5 rounded-full bg-white/[0.05] overflow-hidden mb-3">
+                          <div className="w-full h-1 rounded-full bg-white/[0.05] overflow-hidden mb-2">
                             <div 
                               className="h-full rounded-full bg-amber/70"
                               style={{ width: `${getSectorScore('voice_phone', data.weakness_breakdown) || 54}%` }}
@@ -799,7 +745,7 @@ export default function Dashboard() {
 
                           <Link
                             href={scenarioUrl('voice_phone', 'Executive Wire Authorization Phone Call')}
-                            className="w-full py-2 px-3 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-primary text-[11px] font-medium border border-white/[0.08] hover:border-white/20 transition-all flex items-center justify-center gap-1.5"
+                            className="w-full py-1.5 px-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-primary text-[11px] font-medium border border-white/[0.08] hover:border-white/20 transition-all flex items-center justify-center gap-1"
                           >
                             <span>Launch Scenario</span>
                             <ArrowRight className="w-3 h-3 text-muted" />
@@ -810,33 +756,33 @@ export default function Dashboard() {
                   </div>
 
                   {/* ── BOTTOM ROW: 2 Cards (Threat Vector Mastery + Midnight AI Coach) ── */}
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-5 flex-1 min-h-[240px]">
+                  <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-12 gap-3.5">
 
                     {/* Threat Vector Mastery (Study process in reference) - 7 cols */}
                     <div 
-                      className="md:col-span-7 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden"
+                      className="md:col-span-7 rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between relative overflow-hidden h-full"
                       style={{
                         background: 'rgba(17,24,33,0.7)',
                         border: '1px solid rgba(255,255,255,0.08)',
                         backdropFilter: 'blur(14px)'
                       }}
                     >
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-between mb-1">
                         <div>
-                          <h3 className="text-[14px] font-bold text-primary tracking-tight">
+                          <h3 className="text-[13px] font-bold text-primary tracking-tight">
                             Threat Vector Mastery
                           </h3>
-                          <p className="text-[10px] font-mono text-muted">
+                          <p className="text-[9px] font-mono text-muted">
                             Dynamic Defense Proficiency
                           </p>
                         </div>
-                        <span className="text-[10px] font-mono px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-muted">
+                        <span className="text-[9px] font-mono px-2 py-0.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-muted">
                           Live Metrics ▾
                         </span>
                       </div>
 
                       {/* 4 Vertical Bars like Study process */}
-                      <div className="grid grid-cols-4 gap-3 items-end h-36 pt-4 pb-1">
+                      <div className="flex-1 min-h-0 grid grid-cols-4 gap-2.5 items-end pt-1 pb-1">
                         {[
                           { label: 'Phishing', score: data.weakness_breakdown['Phishing & Spoofing'] || 66, highlight: false },
                           { label: 'BEC', score: data.weakness_breakdown['Urgency & BEC Defense'] || 40, highlight: false },
@@ -846,7 +792,7 @@ export default function Dashboard() {
                           <div key={i} className="flex flex-col items-center h-full justify-end group">
                             {/* Score pill */}
                             <span 
-                              className={`text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded mb-1 transition-all ${
+                              className={`text-[8px] font-mono font-semibold px-1 py-0.5 rounded mb-1 transition-all ${
                                 bar.highlight 
                                   ? 'bg-blue text-white shadow-sm' 
                                   : 'bg-white/[0.05] text-muted group-hover:text-primary'
@@ -855,18 +801,18 @@ export default function Dashboard() {
                               {bar.score}%
                             </span>
                             {/* Bar container */}
-                            <div className="w-full max-w-[48px] h-24 bg-white/[0.03] rounded-xl p-1 flex items-end">
+                            <div className="w-full max-w-[42px] h-20 sm:h-24 bg-white/[0.03] rounded-xl p-1 flex items-end">
                               <div 
                                 className={`w-full rounded-lg transition-all duration-700 ${
                                   bar.highlight 
-                                    ? 'bg-gradient-to-t from-blue to-cyan shadow-[0_0_15px_rgba(79,124,255,0.3)]' 
+                                    ? 'bg-gradient-to-t from-blue to-cyan shadow-[0_0_12px_rgba(79,124,255,0.3)]' 
                                     : 'bg-white/[0.12] group-hover:bg-white/[0.2]'
                                 }`}
                                 style={{ height: `${Math.max(15, bar.score)}%` }}
                               />
                             </div>
                             {/* Label */}
-                            <span className="text-[10px] font-mono text-muted mt-1.5 tracking-tight truncate w-full text-center">
+                            <span className="text-[9px] font-mono text-muted mt-1 tracking-tight truncate w-full text-center">
                               {bar.label}
                             </span>
                           </div>
@@ -876,7 +822,7 @@ export default function Dashboard() {
 
                     {/* Midnight AI Coach Card (AI assistant in reference) - 5 cols */}
                     <div 
-                      className="md:col-span-5 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden"
+                      className="md:col-span-5 rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between relative overflow-hidden h-full"
                       style={{
                         background: 'radial-gradient(ellipse at top right, rgba(79,124,255,0.18) 0%, rgba(17,24,33,0.85) 75%)',
                         border: '1px solid rgba(79,124,255,0.25)',
@@ -884,23 +830,23 @@ export default function Dashboard() {
                       }}
                     >
                       <div>
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-lg bg-blue/20 text-cyan flex items-center justify-center border border-blue/30">
-                              <Sparkles className="w-3.5 h-3.5" />
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-5 h-5 rounded-lg bg-blue/20 text-cyan flex items-center justify-center border border-blue/30">
+                              <Sparkles className="w-3 h-3" />
                             </div>
-                            <h3 className="text-[13px] font-bold text-primary tracking-tight">
+                            <h3 className="text-[12px] font-bold text-primary tracking-tight">
                               AI Defense Coach
                             </h3>
                           </div>
-                          <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan/10 text-cyan border border-cyan/20">
+                          <span className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-cyan/10 text-cyan border border-cyan/20">
                             Live
                           </span>
                         </div>
 
                         {/* Live Headline Bubble */}
-                        <div className="p-3 rounded-xl bg-black/30 border border-white/[0.06] mb-3">
-                          <p className="text-[11px] text-primary/90 leading-relaxed font-sans line-clamp-3">
+                        <div className="p-2 sm:p-2.5 rounded-xl bg-black/30 border border-white/[0.06] mb-2">
+                          <p className="text-[10px] text-primary/90 leading-snug font-sans line-clamp-2">
                             "{data.feedback_headline}"
                           </p>
                         </div>
@@ -923,24 +869,24 @@ export default function Dashboard() {
                             value={coachInput}
                             onChange={(e) => setCoachInput(e.target.value)}
                             placeholder="Ask Coach something..."
-                            className="w-full pl-3 pr-9 py-2 rounded-xl bg-black/40 border border-white/[0.1] focus:border-blue/70 text-[11px] text-primary placeholder:text-muted/50 transition-colors"
+                            className="w-full pl-2.5 pr-8 py-1.5 rounded-xl bg-black/40 border border-white/[0.1] focus:border-blue/70 text-[10px] text-primary placeholder:text-muted/50 transition-colors"
                           />
                           <button
                             type="submit"
-                            className="absolute right-1.5 w-6 h-6 rounded-lg bg-blue hover:bg-blue/90 text-white flex items-center justify-center transition-colors shadow-sm"
+                            className="absolute right-1 w-5 h-5 rounded-lg bg-blue hover:bg-blue/90 text-white flex items-center justify-center transition-colors shadow-sm"
                           >
                             <ArrowRight className="w-3 h-3" />
                           </button>
                         </form>
 
                         {/* Quick Tip Prompts */}
-                        <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                        <div className="flex items-center gap-1 mt-1.5 flex-wrap">
                           {['Urgency checklist', 'SOP protocol', 'Quishing tip'].map((tip, idx) => (
                             <button
                               key={idx}
                               type="button"
                               onClick={() => handleAskCoach(tip)}
-                              className="text-[9px] font-mono px-2 py-0.5 rounded bg-white/[0.03] hover:bg-white/[0.08] text-muted hover:text-primary border border-white/[0.06] transition-colors"
+                              className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-white/[0.03] hover:bg-white/[0.08] text-muted hover:text-primary border border-white/[0.06] transition-colors"
                             >
                               {tip}
                             </button>
@@ -966,6 +912,13 @@ export default function Dashboard() {
               <div className="shrink-0 pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4"
                 style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <div>
+                  <button
+                    onClick={() => setActiveTab('overview')}
+                    className="inline-flex items-center gap-1.5 text-[11px] font-mono px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] hover:border-white/20 text-muted hover:text-primary transition-all mb-3"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 text-cyan" />
+                    <span>← Return to Personnel Dashboard</span>
+                  </button>
                   <p className="text-[9px] font-mono tracking-[0.2em] uppercase flex items-center gap-2 mb-1"
                     style={{ color: 'rgba(141,152,165,0.4)' }}>
                     <span className="w-1 h-1 rounded-full animate-pulse" style={{ background: 'rgba(79,124,255,0.7)' }} />
