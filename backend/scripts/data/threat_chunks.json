@@ -1,0 +1,467 @@
+[
+  {
+    "category": "incident_report",
+    "content": "FBI IC3 recorded roughly $2.77 billion in reported Business Email Compromise losses for 2024. BEC commonly abuses trusted business identities and payment workflows to redirect funds, making unexpected account changes and urgent transfer requests high-risk signals.",
+    "metadata": {
+      "record_id": "THR-001",
+      "source": "FBI Internet Crime Report 2024",
+      "url": "https://www.ic3.gov/AnnualReport/Reports/2024_IC3Report.pdf",
+      "attack_type": "Business Email Compromise",
+      "channel": "email",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "incident_report",
+    "content": "The FBI describes BEC schemes that use convincing generated text and cloned voices to imitate executives or business contacts. A familiar writing style or recognizable voice is therefore not sufficient proof of identity for a payment or sensitive-data request.",
+    "metadata": {
+      "record_id": "THR-002",
+      "source": "FBI Internet Crime Report 2025",
+      "url": "https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf",
+      "attack_type": "AI-enabled Business Email Compromise",
+      "channel": "email_voice",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "An adversary may send a targeted attachment and persuade the recipient to open it. The file can contain malicious content or lead to further execution, so unexpected documents should be verified through a trusted channel before opening.",
+    "metadata": {
+      "record_id": "THR-003",
+      "source": "MITRE ATT&CK T1566.001",
+      "url": "https://attack.mitre.org/techniques/T1566/001/",
+      "attack_type": "Spearphishing Attachment",
+      "channel": "email",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1566.001"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "An adversary may place a link in a targeted message to send the user to credential capture, malware delivery, or another attacker-controlled destination. Display text and the true destination can differ.",
+    "metadata": {
+      "record_id": "THR-004",
+      "source": "MITRE ATT&CK T1566.002",
+      "url": "https://attack.mitre.org/techniques/T1566/002/",
+      "attack_type": "Spearphishing Link",
+      "channel": "email_chat_sms",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1566.002"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Phishing can arrive through third-party services such as social networks, personal webmail, or collaboration platforms. A message appearing inside a familiar service does not establish that the sender account is trustworthy.",
+    "metadata": {
+      "record_id": "THR-005",
+      "source": "MITRE ATT&CK T1566.003",
+      "url": "https://attack.mitre.org/techniques/T1566/003/",
+      "attack_type": "Spearphishing via Service",
+      "channel": "social_chat",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1566.003"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Some phishing operations seek information rather than immediate code execution. Requests for credentials, employee details, authentication methods, or internal processes can support later targeting and account compromise.",
+    "metadata": {
+      "record_id": "THR-006",
+      "source": "MITRE ATT&CK T1598",
+      "url": "https://attack.mitre.org/techniques/T1598/",
+      "attack_type": "Phishing for Information",
+      "channel": "email_voice_chat",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1598"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A counterfeit login page can capture credentials entered by a user. Attackers often imitate cloud identity providers and use look-alike domains, so users should navigate through a known bookmark rather than an unsolicited link.",
+    "metadata": {
+      "record_id": "THR-007",
+      "source": "MITRE ATT&CK T1056.003",
+      "url": "https://attack.mitre.org/techniques/T1056/003/",
+      "attack_type": "Credential Harvesting Web Portal",
+      "channel": "web",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1056.003"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Adversaries frequently depend on a user clicking a malicious link to continue an intrusion. Urgent account warnings, document shares, and delivery notices are common social contexts used to trigger the click.",
+    "metadata": {
+      "record_id": "THR-008",
+      "source": "MITRE ATT&CK T1204.001",
+      "url": "https://attack.mitre.org/techniques/T1204/001/",
+      "attack_type": "Malicious Link User Execution",
+      "channel": "email_chat_web",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1204.001"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A malicious file may be disguised as an invoice, resume, report, or shared document. The attacker relies on the recipient to open the file or enable active content.",
+    "metadata": {
+      "record_id": "THR-009",
+      "source": "MITRE ATT&CK T1204.002",
+      "url": "https://attack.mitre.org/techniques/T1204/002/",
+      "attack_type": "Malicious File User Execution",
+      "channel": "email_cloud_media",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1204.002"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "After obtaining a password, an adversary may generate repeated multi-factor authentication requests and pressure the account owner to approve one. Unsolicited prompts indicate a possible first-factor compromise.",
+    "metadata": {
+      "record_id": "THR-010",
+      "source": "MITRE ATT&CK T1621",
+      "url": "https://attack.mitre.org/techniques/T1621/",
+      "attack_type": "MFA Request Generation",
+      "channel": "sms_push",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1621"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "Bulk or unexpected MFA confirmations can be used to exhaust or confuse a user. CISA advises training users to reject and report unknown requests because a prompt normally follows successful entry of the password.",
+    "metadata": {
+      "record_id": "THR-011",
+      "source": "CISA Implementing Number Matching",
+      "url": "https://www.cisa.gov/sites/default/files/publications/fact-sheet-implement-number-matching-in-mfa-applications-508c.pdf",
+      "attack_type": "MFA Fatigue and Push Bombing",
+      "channel": "sms_push",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A malicious application can request OAuth permissions through a phishing link. If the user grants consent, its access token may allow continuing access to mail, files, or other cloud resources without collecting the password.",
+    "metadata": {
+      "record_id": "THR-012",
+      "source": "MITRE ATT&CK T1528",
+      "url": "https://attack.mitre.org/techniques/T1528/",
+      "attack_type": "Malicious OAuth Consent",
+      "channel": "cloud_oauth",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1528"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A stolen web session cookie can let an attacker act as an authenticated user and may bypass a fresh password or MFA challenge while the session remains valid.",
+    "metadata": {
+      "record_id": "THR-013",
+      "source": "MITRE ATT&CK T1550.004",
+      "url": "https://attack.mitre.org/techniques/T1550/004/",
+      "attack_type": "Stolen Web Session Cookie",
+      "channel": "web_cloud",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1550.004"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Compromised cloud accounts allow adversaries to use legitimate services and permissions, which can make their activity resemble normal work. Unexpected sign-ins and unusual resource access are important context.",
+    "metadata": {
+      "record_id": "THR-014",
+      "source": "MITRE ATT&CK T1078.004",
+      "url": "https://attack.mitre.org/techniques/T1078/004/",
+      "attack_type": "Valid Cloud Account Abuse",
+      "channel": "cloud",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1078.004"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Adversaries can exploit access or trust granted to suppliers, contractors, and service providers. A message from a known partner can still be malicious if that partner account or relationship has been compromised.",
+    "metadata": {
+      "record_id": "THR-015",
+      "source": "MITRE ATT&CK T1199",
+      "url": "https://attack.mitre.org/techniques/T1199/",
+      "attack_type": "Trusted Relationship Abuse",
+      "channel": "email_supply_chain",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1199"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Adversaries may introduce computer accessories, networking devices, or removable media to gain access. An unknown USB device can present more risk than ordinary file storage and should not be connected to a corporate endpoint.",
+    "metadata": {
+      "record_id": "THR-016",
+      "source": "MITRE ATT&CK T1200",
+      "url": "https://attack.mitre.org/techniques/T1200/",
+      "attack_type": "Hardware Addition and Rogue USB",
+      "channel": "physical_media",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1200"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "CISA describes removable-media attacks as a route for malware to enter systems behind network perimeter controls. Auto-execution and user-opened files can turn an inserted device into an internal compromise path.",
+    "metadata": {
+      "record_id": "THR-017",
+      "source": "CISA ICT Supply Chain Risk Management Threat Scenarios",
+      "url": "https://www.cisa.gov/sites/default/files/2023-01/ict-scrm-task-force-threat-scenarios-report_0.pdf",
+      "attack_type": "Removable Media Malware Delivery",
+      "channel": "physical_media",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "An adversary may impersonate a trusted person or organization to obtain information or induce an action. Authority, familiarity, and urgency are persuasion signals rather than identity proof.",
+    "metadata": {
+      "record_id": "THR-018",
+      "source": "MITRE ATT&CK T1656",
+      "url": "https://attack.mitre.org/techniques/T1656/",
+      "attack_type": "Impersonation",
+      "channel": "email_voice_chat_social",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1656"
+    }
+  },
+  {
+    "category": "reconnaissance",
+    "content": "Public employee names and roles can be collected to make later phishing messages more believable. References to a real manager, department, or project can come from reconnaissance rather than an internal sender.",
+    "metadata": {
+      "record_id": "THR-019",
+      "source": "MITRE ATT&CK T1589.003",
+      "url": "https://attack.mitre.org/techniques/T1589/003/",
+      "attack_type": "Employee Name Collection",
+      "channel": "public_web_social",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1589.003"
+    }
+  },
+  {
+    "category": "reconnaissance",
+    "content": "Attackers may gather corporate email addresses before password attacks or targeted phishing. A message addressed accurately to the recipient is not evidence that the sender is legitimate.",
+    "metadata": {
+      "record_id": "THR-020",
+      "source": "MITRE ATT&CK T1589.002",
+      "url": "https://attack.mitre.org/techniques/T1589/002/",
+      "attack_type": "Email Address Collection",
+      "channel": "public_web",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1589.002"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A fraudulent wireless access point may copy a legitimate network name and present a fake captive portal. Connecting can expose traffic or credentials, especially when the network is open or certificate warnings appear.",
+    "metadata": {
+      "record_id": "THR-021",
+      "source": "MITRE ATT&CK T1557.004",
+      "url": "https://attack.mitre.org/techniques/T1557/004/",
+      "attack_type": "Evil Twin Wi-Fi",
+      "channel": "wireless",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1557.004"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "Phishing is not limited to email; malicious requests can arrive by text message. Unexpected delivery, banking, or account notices may use short links and time pressure to move a user to an attacker-controlled page.",
+    "metadata": {
+      "record_id": "THR-022",
+      "source": "NIST Small Business Cybersecurity: Phishing",
+      "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing",
+      "attack_type": "Smishing",
+      "channel": "sms",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "Phishing can be delivered through telephone calls or voicemail. Callers may pose as support staff, banks, executives, or authorities and ask for passwords, codes, remote access, or payments.",
+    "metadata": {
+      "record_id": "THR-023",
+      "source": "NIST Small Business Cybersecurity: Phishing",
+      "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing",
+      "attack_type": "Vishing",
+      "channel": "voice_phone",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "A malicious QR code can hide a destination until it is scanned and may lead to a counterfeit payment or login site. Attackers can also replace legitimate physical codes with their own.",
+    "metadata": {
+      "record_id": "THR-024",
+      "source": "FBI IC3 QR Code PSA",
+      "url": "https://www.ic3.gov/PSA/2022/PSA220118",
+      "attack_type": "QR Code Phishing",
+      "channel": "qr_code",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Phishing messages can imitate trusted brands or people through display names and look-alike domains. Users should inspect the complete sender address and domain rather than relying on logos or the displayed name.",
+    "metadata": {
+      "record_id": "THR-025",
+      "source": "CISA Phishing Guidance: Stopping the Attack Cycle",
+      "url": "https://www.cisa.gov/sites/default/files/2025-03/Phishing%20Guidance%20-%20Stopping%20the%20Attack%20Cycle%20at%20Phase%20One%20508.pdf",
+      "attack_type": "Domain and Display-Name Spoofing",
+      "channel": "email",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Scammers may impersonate a manager or organization and demand gift cards, then request the card numbers or PINs. Gift cards are a payment method that legitimate organizations do not use to settle urgent business obligations.",
+    "metadata": {
+      "record_id": "THR-026",
+      "source": "Federal Trade Commission Gift Card Scam Guidance",
+      "url": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+      "attack_type": "Gift Card Executive Impersonation",
+      "channel": "email_sms",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A compromised or imitated vendor account can announce new bank details shortly before payment. Existing business history does not validate a new destination account; the change must be verified using previously known contact information.",
+    "metadata": {
+      "record_id": "THR-027",
+      "source": "FBI Business Email Compromise PSA",
+      "url": "https://www.ic3.gov/PSA/2023/PSA230609",
+      "attack_type": "Vendor Payment Redirection",
+      "channel": "email_supply_chain",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Social engineering may appear inside a real conversation after an account is compromised. Familiar subject lines and quoted history can lower suspicion while an attacker changes an attachment, link, or payment instruction.",
+    "metadata": {
+      "record_id": "THR-028",
+      "source": "NIST SP 800-171 Rev. 3",
+      "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/800-171r3/NIST.SP.800-171r3.html",
+      "attack_type": "Thread and Conversation Hijacking",
+      "channel": "email",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Threat actors can impersonate employees or IT personnel and contact help desks to reset credentials, enroll new authenticators, or gain remote access. Identity verification must not rely only on facts an attacker can collect publicly.",
+    "metadata": {
+      "record_id": "THR-029",
+      "source": "CISA Scattered Spider Advisory AA23-320A",
+      "url": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-320a",
+      "attack_type": "Remote Support Pretext",
+      "channel": "voice_chat",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A user can be directed to an impostor verifier by email, search results, advertisements, or another route. The risk is the counterfeit authentication endpoint, not only the channel used to reach it.",
+    "metadata": {
+      "record_id": "THR-030",
+      "source": "NIST SP 800-63B-4",
+      "url": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "attack_type": "Search and Advertisement Login Lure",
+      "channel": "web",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Phishing links and attachments can provide initial access that precedes ransomware deployment. The visible message is therefore only the first stage of a broader intrusion and should be reported quickly.",
+    "metadata": {
+      "record_id": "THR-031",
+      "source": "CISA StopRansomware Guide",
+      "url": "https://www.cisa.gov/stopransomware/ransomware-guide",
+      "attack_type": "Ransomware Initial Access through Phishing",
+      "channel": "email",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Requests for bank details, identity numbers, credentials, or other sensitive information are common phishing objectives. The recipient should use an approved process and independently verify the requester before disclosure.",
+    "metadata": {
+      "record_id": "THR-032",
+      "source": "NIST Small Business Cybersecurity: Phishing",
+      "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing",
+      "attack_type": "Sensitive Data Solicitation",
+      "channel": "email_voice_chat",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  }
+]

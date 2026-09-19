@@ -1,0 +1,31 @@
+{
+  "dataset_name": "CyberGuard AI curated knowledge corpus",
+  "version": "2026-09-16",
+  "method": "Manual paraphrase and normalization from linked authoritative public sources; no raw personal data.",
+  "files": {
+    "threat_chunks.json": {
+      "records": 32,
+      "purpose": "Evaluation Agent threat-pattern RAG",
+      "provenance": "FBI IC3, CISA, NIST, MITRE ATT&CK, FTC"
+    },
+    "training_chunks.json": {
+      "records": 32,
+      "purpose": "Coach Agent remediation RAG",
+      "provenance": "CISA, NIST, FBI IC3, MITRE ATT&CK"
+    },
+    "org_knowledge_chunks.json": {
+      "records": 12,
+      "purpose": "Scenario Agent organization-context RAG",
+      "provenance": "Fictional NovaTech demonstration policies"
+    }
+  },
+  "source_policy": {
+    "allowed": [
+      "United States government publications",
+      "MITRE ATT&CK official technique pages"
+    ],
+    "content_form": "Original paraphrases with direct source URLs",
+    "statistics": "Included only when tied to a named official report and reporting year",
+    "personal_data": "None"
+  }
+}

@@ -1,21 +1,21 @@
 -- ==========================================
 -- CyberGuard AI : Mock Data Seed
--- Run this in your Supabase SQL Editor
+-- Run this in your Supabase SQL Editor for basic testing accounts
+-- (Training knowledge base is ingested via backend/scripts/seed_training_data.py)
 -- ==========================================
 
 -- 1. Insert Mock Users
--- Note: In a real app, these would be created via a Supabase Auth Trigger when they sign up.
 INSERT INTO public.users (id, email, full_name, role, readiness_score) 
 VALUES 
   ('11111111-1111-1111-1111-111111111111', 'kasun.perera@novatech.lk', 'Kasun Perera', 'Finance Manager', 72),
   ('22222222-2222-2222-2222-222222222222', 'sarah.t@novatech.lk', 'Sarah T.', 'HR Officer', 65)
 ON CONFLICT (id) DO NOTHING;
 
--- 2. Insert Coach Agent Learning Profiles
-INSERT INTO public.user_learning_profile (user_id, next_difficulty, next_focus, avoid_type, tactic_to_target)
+-- 2. Insert Coach Agent Learning Profiles (Multi-Channel Adaptive Baselines)
+INSERT INTO public.user_learning_profile (user_id, next_difficulty, next_focus, avoid_type, tactic_to_target, target_channel, primary_attack_surface)
 VALUES
-  ('11111111-1111-1111-1111-111111111111', 'medium', 'phishing', 'BEC-email', 'urgency+authority'),
-  ('22222222-2222-2222-2222-222222222222', 'beginner', 'credential_theft', 'sms-phishing', 'curiosity')
+  ('11111111-1111-1111-1111-111111111111', 'medium', 'BEC & Wire Diversion', 'credential_theft', 'urgency+authority', 'voice_phone', 'Authorization of corporate bank accounts and international wire transfers.'),
+  ('22222222-2222-2222-2222-222222222222', 'beginner', 'Direct Deposit Modification & Macro Malware', 'invoice_fraud', 'curiosity+urgency', 'slack_teams', 'Employee PII, payroll configuration, and recruiting candidate attachments.')
 ON CONFLICT (user_id) DO NOTHING;
 
 -- 3. Insert Mock Scenarios
@@ -27,7 +27,7 @@ VALUES
    '{"sender_name": "IT Helpdesk", "sender_email": "support@novatech-it.com", "subject": "Action Required: Update Password", "body": "Your Office365 password expires in 2 hours. Click here to retain your access."}')
 ON CONFLICT (id) DO NOTHING;
 
--- 4. Insert Mock Decisions (For the HITL Admin Dashboard)
+-- 4. Insert Mock Decisions (For HITL Admin Dashboard Review)
 INSERT INTO public.decisions (id, user_id, scenario_id, chosen_action, reasoning, is_safe, human_review_required, evaluation)
 VALUES
   ('55555555-5555-5555-5555-555555555555', '11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', 
@@ -41,7 +41,7 @@ VALUES
    '{"confidence": 54, "reason_for_escalation": "Conflicting behavioral signals", "evidence": [{"type": "positive", "text": "Attempted verification"}, {"type": "negative", "text": "Replied to attacker"}]}')
 ON CONFLICT (id) DO NOTHING;
 
--- 5. Insert Mock RAG Knowledge (Empty Embeddings for now, just to show data exists)
+-- 5. Threat Intel & Org Policies
 INSERT INTO public.org_knowledge (category, content, metadata)
 VALUES
   ('policy', 'Payment requests must be verified using an independent communication channel.', '{"id": "FIN-SEC-04", "title": "Payment Verification"}'),
@@ -49,8 +49,5 @@ VALUES
 
 INSERT INTO public.cyber_threats (category, source, content, metadata)
 VALUES
-  ('threat_definition', 'FBI IC3', 'Business Email Compromise (BEC) is a scam targeting businesses working with foreign suppliers and/or businesses that regularly perform wire transfer payments.', '{"url": "ic3.gov/AnnualReport"}');
-
-INSERT INTO public.cyber_training (category, source, content, metadata)
-VALUES
-  ('best_practice', 'NCSC', 'Always verify urgent financial requests using a known, trusted secondary channel (e.g. phone call to known number).', '{"topic": "Verification"}');
+  ('threat_definition', 'FBI IC3', 'Business Email Compromise (BEC) is a scam targeting businesses working with foreign suppliers and/or businesses that regularly perform wire transfer payments.', '{"url": "ic3.gov/AnnualReport"}'),
+  ('threat_definition', 'CISA Alert', 'Voice Phishing (Vishing) uses deepfake audio and caller ID spoofing to manipulate finance and operational employees into approving wire transfers or sharing MFA tokens.', '{"url": "cisa.gov/vishing"}');
