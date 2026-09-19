@@ -15,7 +15,15 @@ export interface UserProfileData {
   department?: string;
   access_role?: string;
   readiness_score?: number;
+  avatar_url?: string;
 }
+
+export const CORPORATE_AVATAR_PRESETS = [
+  { id: 'exec-1', label: 'Executive 1', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80' },
+  { id: 'exec-2', label: 'Executive 2', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80' },
+  { id: 'exec-3', label: 'Executive 3', url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80' },
+  { id: 'exec-4', label: 'Executive 4', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80' },
+];
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -42,6 +50,7 @@ export default function UserProfileModal({
   const [role, setRole] = useState(user.role || 'Employee');
   const [company, setCompany] = useState(user.company || 'TechCorp Global');
   const [department, setDepartment] = useState(user.department || 'Finance & Accounting');
+  const [avatarUrl, setAvatarUrl] = useState(user.avatar_url || '');
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -56,6 +65,7 @@ export default function UserProfileModal({
       setRole(user.role || 'Employee');
       setCompany(user.company || 'TechCorp Global');
       setDepartment(user.department || 'Finance & Accounting');
+      setAvatarUrl(user.avatar_url || '');
       setSaveStatus('idle');
       setErrorMessage('');
       setShowLogoutConfirm(false);
@@ -139,7 +149,8 @@ export default function UserProfileModal({
           full_name: fullName.trim(),
           role: role.trim(),
           company: company.trim(),
-          department: department.trim()
+          department: department.trim(),
+          avatar_url: avatarUrl.trim()
         };
         localStorage.setItem('cyberguard_user', JSON.stringify(merged));
       }
@@ -150,7 +161,8 @@ export default function UserProfileModal({
           name: fullName.trim(),
           role: role.trim(),
           company: company.trim(),
-          department: department.trim()
+          department: department.trim(),
+          avatar_url: avatarUrl.trim()
         });
       }
 
@@ -209,8 +221,12 @@ export default function UserProfileModal({
             {/* Modal Header */}
             <div className="shrink-0 px-6 py-5 border-b border-[#1E293B] bg-[#080D12] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan/20 to-blue/20 border border-cyan/30 flex items-center justify-center text-cyan font-bold text-sm tracking-wider shadow-[0_0_15px_rgba(69,217,232,0.15)]">
-                  {initials}
+                <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-cyan/20 to-blue/20 border border-cyan/30 flex items-center justify-center text-cyan font-bold text-sm tracking-wider shadow-[0_0_15px_rgba(69,217,232,0.15)] shrink-0">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt={fullName} className="w-full h-full object-cover" />
+                  ) : (
+                    initials
+                  )}
                 </div>
                 <div>
                   <h2 id="profile-modal-title" className="text-sm font-bold text-primary tracking-tight">
@@ -280,6 +296,58 @@ export default function UserProfileModal({
                       required
                       className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#0E141D] border border-[#1E293B] focus:border-cyan/60 focus:ring-1 focus:ring-cyan/50 text-primary text-xs transition-colors placeholder:text-muted/50"
                     />
+                  </div>
+                </div>
+
+                {/* Executive Avatar / Profile Picture */}
+                <div>
+                  <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-muted mb-1.5">
+                    Executive Profile Picture
+                  </label>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden border border-cyan/40 bg-surface/80 flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(69,217,232,0.12)]">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-mono text-muted">{initials}</span>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="url"
+                        value={avatarUrl}
+                        onChange={(e) => setAvatarUrl(e.target.value)}
+                        placeholder="Paste image URL (e.g. Google photo or portrait)"
+                        className="w-full px-3 py-2 rounded-xl bg-[#0E141D] border border-[#1E293B] focus:border-cyan/60 focus:ring-1 focus:ring-cyan/50 text-primary text-xs transition-colors placeholder:text-muted/40"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-muted/70">Or choose preset:</span>
+                    <div className="flex items-center gap-1.5">
+                      {CORPORATE_AVATAR_PRESETS.map((preset) => (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() => setAvatarUrl(preset.url)}
+                          className={`w-7 h-7 rounded-lg overflow-hidden border transition-all ${
+                            avatarUrl === preset.url ? 'border-cyan ring-1 ring-cyan/60 scale-105' : 'border-white/10 opacity-70 hover:opacity-100'
+                          }`}
+                          title={preset.label}
+                        >
+                          <img src={preset.url} alt={preset.label} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                      {avatarUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setAvatarUrl('')}
+                          className="text-[10px] font-mono text-muted/60 hover:text-coral transition-colors ml-1"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 

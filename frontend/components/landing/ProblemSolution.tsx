@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 const rows = [
   {
@@ -38,9 +38,9 @@ const listVariants = {
   visible: { transition: { staggerChildren: 0.08 } },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, x: -8 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: 'easeOut' as const } },
 };
 
 export default function ProblemSolution() {
