@@ -9,14 +9,14 @@ import {
   Lightbulb, ScrollText, X, Shield, Compass, Target,
   Phone, Mail, MessageSquare, QrCode, Cloud, Smartphone, HardDrive,
   LayoutDashboard, Map, History, Sparkles, CheckCircle2, AlertCircle, ArrowRight,
-  LogOut,
+  LogOut, Clock, ChevronRight,
 } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 interface DashboardData {
-  user: { id: string; name: string; role: string; company?: string; department?: string; access_role: string };
+  user: { id: string; name: string; role: string; company?: string; department?: string; access_role: string; avatar_url?: string };
   readiness_score: number;
   feedback_headline: string;
   next_situation: { title: string; role: string; category: string; difficulty: string; estimated_minutes: number; tactic_target: string };
@@ -194,7 +194,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
 
   const [data, setData] = useState<DashboardData>({
-    user: { id: '', name: '', role: 'Employee', company: '', department: '', access_role: 'learner' },
+    user: { id: '', name: '', role: 'Employee', company: '', department: '', access_role: 'learner', avatar_url: '' },
     readiness_score: 0,
     feedback_headline: "Welcome — your first adaptive simulation is ready. Let's establish your baseline.",
     next_situation: { title: 'A payment request that cannot wait.', role: 'Employee', category: 'Payment & Invoice Verification', difficulty: 'beginner', estimated_minutes: 3, tactic_target: 'urgency_bias' },
@@ -205,9 +205,25 @@ export default function Dashboard() {
   const [policiesCount, setPoliciesCount]   = useState<number>(3);
   const [showTour, setShowTour]             = useState(false);
   const [isProfileOpen, setIsProfileOpen]   = useState(false);
+  const [isJourneyModalOpen, setIsJourneyModalOpen] = useState(false);
+  const [coachInput, setCoachInput]                 = useState('');
+  const [coachTipModal, setCoachTipModal]           = useState<string | null>(null);
   const [priorityChannel, setPriority]      = useState('voice_phone');
   const [nextDifficulty, setDifficulty]     = useState('beginner');
   const [personalizedMap, setPersonalizedMap] = useState<any[]>([]);
+
+  const handleAskCoach = (query: string) => {
+    const q = query.toLowerCase();
+    if (q.includes('urgency') || q.includes('checklist')) {
+      setCoachTipModal("⚡ Urgency Bias Protocol: Attackers manufacture artificial time pressure to bypass dual-control checks. Verify any rush payment or credential request over an out-of-band confirmed phone number.");
+    } else if (q.includes('sop') || q.includes('protocol') || q.includes('policy')) {
+      setCoachTipModal(`📋 SOP Policy Verification: ${policiesCount} corporate rules are active for ${data.user.company || 'your organization'}. All external wire transfers above threshold require secondary signatory approval.`);
+    } else if (q.includes('quish') || q.includes('qr')) {
+      setCoachTipModal("📱 Quishing Defense: Never scan unknown QR codes in emails or physical areas to authorize login sessions. QR codes obscure destination URLs and bypass email scanner filters.");
+    } else {
+      setCoachTipModal(`💡 AI Coach Guidance for ${data.user.role}: When presented with unexpected requests, pause and inspect the sender header and cryptographic consent scopes before taking action.`);
+    }
+  };
 
   interface SelectedSectorModalData {
     channel: string;
@@ -238,7 +254,15 @@ export default function Dashboard() {
       if (at) {
         try {
           const p = JSON.parse(atob(at.split('.')[1]));
-          const ou = { id: p.sub || p.id, email: p.email, full_name: p.user_metadata?.full_name || p.user_metadata?.name || p.email?.split('@')[0], role: p.user_metadata?.role || 'Employee', company: p.user_metadata?.company || 'Your Organization', access_role: p.app_metadata?.access_role || 'learner' };
+          const ou = { 
+            id: p.sub || p.id, 
+            email: p.email, 
+            full_name: p.user_metadata?.full_name || p.user_metadata?.name || p.email?.split('@')[0], 
+            role: p.user_metadata?.role || 'Employee', 
+            company: p.user_metadata?.company || 'Your Organization', 
+            access_role: p.app_metadata?.access_role || 'learner',
+            avatar_url: p.user_metadata?.avatar_url || p.user_metadata?.picture || ''
+          };
           const ex = localStorage.getItem('cyberguard_user');
           let ep = null;
           if (ex) { try { const ep2 = JSON.parse(ex); if (ep2.id === ou.id) ep = ep2.learning_profile || null; } catch (_) {} }
@@ -279,7 +303,17 @@ export default function Dashboard() {
       try {
         const u = JSON.parse(stored);
         company = u.company || company;
-        setData(prev => ({ ...prev, user: { ...prev.user, name: u.full_name || u.name || u.email || 'User', role: u.role || 'Employee', company: u.company || 'Your Organization', department: u.department || '' } }));
+        setData(prev => ({ 
+          ...prev, 
+          user: { 
+            ...prev.user, 
+            name: u.full_name || u.name || u.email || 'User', 
+            role: u.role || 'Employee', 
+            company: u.company || 'Your Organization', 
+            department: u.department || '',
+            avatar_url: u.avatar_url || u.picture || ''
+          } 
+        }));
         if (u.learning_profile?.target_channel) setPriority(u.learning_profile.target_channel);
         if (u.learning_profile?.next_difficulty) setDifficulty(u.learning_profile.next_difficulty);
         if (u.learning_profile?.training_map && Array.isArray(u.learning_profile.training_map)) setPersonalizedMap(u.learning_profile.training_map);
@@ -342,14 +376,30 @@ export default function Dashboard() {
       <UserProfileModal
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
-        user={{ id: data.user.id, name: data.user.name, role: data.user.role, company: data.user.company, department: data.user.department, access_role: data.user.access_role, readiness_score: data.readiness_score }}
+        user={{ 
+          id: data.user.id, 
+          name: data.user.name, 
+          role: data.user.role, 
+          company: data.user.company, 
+          department: data.user.department, 
+          access_role: data.user.access_role, 
+          readiness_score: data.readiness_score,
+          avatar_url: data.user.avatar_url
+        }}
         readinessScore={data.readiness_score}
         completedDecisions={data.decision_journey.length}
         priorityChannel={priorityChannel}
         onUpdateUser={(updated) => {
           setData(prev => ({
             ...prev,
-            user: { ...prev.user, name: updated.name || prev.user.name, role: updated.role || prev.user.role, company: updated.company || prev.user.company, department: updated.department || prev.user.department }
+            user: { 
+              ...prev.user, 
+              name: updated.name || prev.user.name, 
+              role: updated.role || prev.user.role, 
+              company: updated.company || prev.user.company, 
+              department: updated.department || prev.user.department,
+              avatar_url: updated.avatar_url !== undefined ? updated.avatar_url : prev.user.avatar_url
+            }
           }));
         }}
         onLogout={handleLogout}
@@ -398,9 +448,13 @@ export default function Dashboard() {
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.13)'; e.currentTarget.style.color = '#E8EDF2'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(141,152,165,0.7)'; }}
             >
-              <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
-                style={{ background: 'rgba(79,124,255,0.15)', color: 'rgba(165,184,255,0.8)' }}>
-                {userInitial}
+              <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center text-[10px] font-bold shrink-0"
+                style={{ background: 'rgba(79,124,255,0.15)', color: 'rgba(165,184,255,0.8)', border: '1px solid rgba(79,124,255,0.3)' }}>
+                {data.user.avatar_url ? (
+                  <img src={data.user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  userInitial
+                )}
               </div>
               <span>{data.user.name ? data.user.name.split(' ')[0] : 'Profile'}</span>
               <span className="text-[9px] font-mono uppercase tracking-wider hidden md:inline px-2 py-0.5 rounded"
@@ -434,265 +488,467 @@ export default function Dashboard() {
         <AnimatePresence mode="wait">
 
           {/* ══════════════════════════════════════════════════════════════
-              OVERVIEW TAB
+              OVERVIEW TAB (Corporate Executive Bento Layout)
           ══════════════════════════════════════════════════════════════ */}
           {activeTab === 'overview' && (
-            <motion.div key="overview" variants={slideIn} initial="hidden" animate="visible" exit="exit" className="h-full">
-              <div className="h-full grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
+            <motion.div key="overview" variants={slideIn} initial="hidden" animate="visible" exit="exit" className="h-full overflow-y-auto pr-1 pb-4 scrollbar-hide">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 min-h-[620px]">
 
-                {/* LEFT — Coach Narrative */}
-                <div className="lg:col-span-5 flex flex-col gap-4 overflow-y-auto pr-1 scrollbar-hide min-h-0">
+                {/* ── PANEL 1: LEFT (4 cols) - Executive Personnel & Readiness Card ── */}
+                <div 
+                  className="lg:col-span-4 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden"
+                  style={{
+                    background: 'rgba(17,24,33,0.7)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    boxShadow: '0 12px 40px rgba(0,0,0,0.35)',
+                    backdropFilter: 'blur(16px)'
+                  }}
+                >
+                  {/* Subtle top glow */}
+                  <div className="absolute -top-24 -left-24 w-48 h-48 rounded-full pointer-events-none"
+                    style={{ background: 'radial-gradient(circle, rgba(79,124,255,0.15) 0%, transparent 70%)' }} />
 
-                  {/* Context line */}
-                  <div>
-                    <p className="text-[10px] font-mono tracking-[0.18em] uppercase flex items-center gap-2 mb-1"
-                      style={{ color: 'rgba(141,152,165,0.45)' }}>
-                      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'rgba(79,124,255,0.6)' }} />
-                      {data.user.company || 'TechCorp Global'} · {data.user.department || 'Finance & Accounting'}
-                    </p>
-                    <p className="text-[11px]" style={{ color: 'rgba(141,152,165,0.55)' }}>
-                      Signed in as{' '}
-                      <button
-                        onClick={() => setIsProfileOpen(true)}
-                        className="font-semibold transition-colors"
-                        style={{ color: '#E8EDF2' }}
-                        onMouseEnter={e => (e.currentTarget.style.color = 'rgba(165,184,255,0.9)')}
-                        onMouseLeave={e => (e.currentTarget.style.color = '#E8EDF2')}
-                      >
-                        {data.user.name}
-                      </button>{' '}
-                      ({data.user.role})
-                    </p>
+                  {/* Card Header */}
+                  <div className="flex items-center justify-between relative z-10">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] font-mono uppercase tracking-[0.16em] text-primary font-semibold">
+                        Personnel Profile
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setIsProfileOpen(true)}
+                      className="text-[11px] font-mono text-muted hover:text-primary transition-colors flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:border-white/15"
+                    >
+                      <span>Edit</span>
+                      <ChevronRight className="w-3 h-3" />
+                    </button>
                   </div>
 
-                  {/* Feedback headline */}
-                  <h1 className="text-[18px] lg:text-[22px] font-semibold tracking-tight leading-snug text-primary max-w-lg">
-                    {data.feedback_headline}
-                  </h1>
-
-                  {/* Policy grounding card */}
-                  <div className="p-4 rounded-xl flex items-center justify-between shrink-0" style={glassCard}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                        style={{ background: 'rgba(79,124,255,0.08)', border: '1px solid rgba(79,124,255,0.15)' }}>
-                        <Shield className="w-3.5 h-3.5" style={{ color: 'rgba(165,184,255,0.7)' }} />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-[10px] font-mono uppercase tracking-[0.15em] text-primary">Policy Grounding Active</h4>
-                          <span className="text-[8px] font-mono px-1.5 py-0.5 rounded"
-                            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(141,152,165,0.55)' }}>
-                            HF Vectorized
-                          </span>
+                  {/* Center: Profile Picture & Greetings */}
+                  <div className="flex flex-col items-center text-center my-4 relative z-10">
+                    {/* Avatar Container with Ring */}
+                    <div className="relative group cursor-pointer" onClick={() => setIsProfileOpen(true)}>
+                      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 border-2 border-dashed border-blue/40 group-hover:border-blue transition-colors flex items-center justify-center">
+                        <div className="w-full h-full rounded-full overflow-hidden bg-surface/90 flex items-center justify-center shadow-lg">
+                          <img
+                            src={data.user.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
+                            alt={data.user.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
                         </div>
-                        <p className="text-[10px] mt-0.5" style={{ color: 'rgba(141,152,165,0.55)' }}>
-                          <strong className="text-primary">{policiesCount} rules</strong> grounded in {data.user.company || 'TechCorp Global'} SOPs
-                        </p>
+                      </div>
+                      {/* Overlaid Tier / Level Badge */}
+                      <div 
+                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider text-white shadow-md shrink-0 whitespace-nowrap"
+                        style={{
+                          background: nextDifficulty === 'advanced' 
+                            ? 'linear-gradient(90deg, #D96868, #E2847A)' 
+                            : nextDifficulty === 'intermediate'
+                            ? 'linear-gradient(90deg, #4F7CFF, #5CC8D7)'
+                            : 'linear-gradient(90deg, #D96868, #E08560)',
+                          boxShadow: '0 2px 10px rgba(217,104,104,0.35)'
+                        }}
+                      >
+                        {nextDifficulty === 'advanced' ? 'Tier 3 · Advanced' : nextDifficulty === 'intermediate' ? 'Tier 2 · Specialist' : 'Tier 1 · Baseline'}
                       </div>
                     </div>
-                    <Link href="/policies" className="text-[10px] font-mono transition-colors shrink-0"
-                      style={{ color: 'rgba(141,152,165,0.5)' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#E8EDF2')}
-                      onMouseLeave={e => (e.currentTarget.style.color = 'rgba(141,152,165,0.5)')}>
-                      Manage →
-                    </Link>
-                  </div>
 
-                  {/* Coach recommended challenge */}
-                  <div className="relative p-5 rounded-xl overflow-hidden group shrink-0" style={priorityGlow}>
-                    {/* Left accent bar */}
-                    <div className="absolute top-3 bottom-3 left-0 w-[2px] rounded-r"
-                      style={{ background: 'linear-gradient(to bottom, rgba(79,124,255,0.6), rgba(79,124,255,0.1))' }} />
-
-                    <p className="text-[9px] font-mono tracking-[0.2em] uppercase flex items-center gap-2 mb-3"
-                      style={{ color: 'rgba(141,152,165,0.45)' }}>
-                      <span className="w-1 h-1 rounded-full" style={{ background: 'rgba(79,124,255,0.7)' }} />
-                      Coach Recommended Challenge
-                    </p>
-
-                    <h2 className="text-[16px] font-semibold tracking-tight mb-2 text-primary leading-snug">
-                      {data.next_situation.title}
+                    {/* Greeting & Name */}
+                    <h2 className="text-[20px] sm:text-[22px] font-bold text-primary tracking-tight mt-5">
+                      Welcome, {data.user.name ? data.user.name.split(' ')[0] : 'Learner'} 👋
                     </h2>
-
-                    <div className="flex flex-wrap items-center gap-2 mb-5">
-                      {[
-                        data.next_situation.category,
-                        `Diff: ${data.next_situation.difficulty}`,
-                        `${data.next_situation.estimated_minutes} min`,
-                      ].map((tag, i) => (
-                        <span key={i} className="text-[10px] font-mono px-2.5 py-1 rounded-lg"
-                          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(141,152,165,0.6)' }}>
-                          {tag}
-                        </span>
-                      ))}
+                    <p className="text-[12px] font-mono text-muted mt-0.5">
+                      {data.user.role} · {data.user.company || 'NovaTech Solutions'}
+                    </p>
+                    <div className="mt-2 flex items-center gap-1.5 flex-wrap justify-center">
+                      <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/70">
+                        {data.user.department || 'Corporate Operations'}
+                      </span>
+                      <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-blue/10 border border-blue/20 text-cyan">
+                        {data.user.access_role || 'Learner'}
+                      </span>
                     </div>
-
-                    <Link
-                      href={scenarioUrl(priorityChannel, data.next_situation.category)}
-                      className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-[0.15em] transition-all"
-                      style={{ color: 'rgba(165,184,255,0.7)' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#E8EDF2')}
-                      onMouseLeave={e => (e.currentTarget.style.color = 'rgba(165,184,255,0.7)')}>
-                      Enter situation →
-                    </Link>
                   </div>
 
-                  {/* Training map jump */}
-                  <button
-                    onClick={() => setActiveTab('arena')}
-                    className="py-2.5 rounded-xl text-[10px] font-mono uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-2 group shrink-0"
-                    style={{ border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(141,152,165,0.5)', background: 'rgba(255,255,255,0.02)' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(79,124,255,0.2)'; e.currentTarget.style.color = 'rgba(165,184,255,0.7)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(141,152,165,0.5)'; }}
-                  >
-                    <Map className="w-3.5 h-3.5" />
-                    View Training Map →
-                  </button>
-                </div>
-
-                {/* CENTER — Decision Journey */}
-                <div className="lg:col-span-4 flex flex-col min-h-0" style={{ borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className="pl-6 lg:pl-8 flex flex-col min-h-0">
-                    <div className="flex items-center justify-between mb-4 shrink-0">
-                      <h3 className="text-[9px] font-mono tracking-[0.2em] uppercase" style={{ color: 'rgba(141,152,165,0.45)' }}>
-                        Decision Journey
-                      </h3>
-                      <span className="text-[9px] font-mono px-2 py-0.5 rounded"
-                        style={{ background: 'rgba(79,124,255,0.07)', border: '1px solid rgba(79,124,255,0.14)', color: 'rgba(165,184,255,0.6)' }}>
-                        Live
+                  {/* Readiness Score Section */}
+                  <div className="p-4 rounded-xl my-2 relative z-10" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="flex items-baseline justify-between mb-2">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-[32px] font-bold tracking-tight text-primary leading-none">
+                          {data.readiness_score}%
+                        </span>
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-muted leading-tight">
+                          Defense<br />Readiness
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan/10 border border-cyan/20 text-cyan">
+                        Active Index
                       </span>
                     </div>
 
-                    {/* Journey list */}
-                    <div className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1 scrollbar-hide">
-                      {data.decision_journey.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full text-center py-10">
-                          <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3"
-                            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                            <Target className="w-4 h-4" style={{ color: 'rgba(141,152,165,0.4)' }} />
-                          </div>
-                          <p className="text-[12px] font-medium" style={{ color: 'rgba(141,152,165,0.6)' }}>No simulations yet</p>
-                          <p className="text-[10px] mt-1 max-w-[160px] leading-relaxed" style={{ color: 'rgba(141,152,165,0.35)' }}>
-                            Complete your first scenario to start building your decision history.
-                          </p>
-                        </div>
-                      ) : (
-                        data.decision_journey.map((step, idx) => (
-                          <div key={step.id} className="flex gap-3 items-start group">
-                            {/* Timeline dot */}
-                            <div className="relative z-10 mt-1.5 w-3 h-3 flex items-center justify-center rounded-full shrink-0"
-                              style={{ border: '1px solid rgba(255,255,255,0.1)', background: '#0B0F14' }}>
-                              <div className="w-1.5 h-1.5 rounded-full"
-                                style={{ background: step.is_safe ? 'rgba(165,184,255,0.6)' : 'rgba(141,152,165,0.4)' }} />
-                            </div>
-                            <div className="flex-1 p-3 rounded-xl transition-all duration-200"
-                              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.055)' }}>
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-[9px] font-mono tracking-[0.12em] uppercase" style={{ color: 'rgba(141,152,165,0.45)' }}>
-                                  0{idx + 1} / {step.threat}
-                                </span>
-                                <span className="text-[10px] font-semibold tabular-nums"
-                                  style={{ color: step.is_safe ? 'rgba(165,184,255,0.8)' : 'rgba(141,152,165,0.6)' }}>
-                                  {step.score}/100
-                                </span>
-                              </div>
-                              <h4 className="text-[11px] font-semibold tracking-tight text-primary">{step.title}</h4>
-                              <p className="text-[10px] mt-0.5" style={{ color: 'rgba(141,152,165,0.5)' }}>{step.status}</p>
-                            </div>
-                          </div>
-                        ))
-                      )}
+                    {/* Multi-color segment breakdown bar */}
+                    <div className="w-full h-2 rounded-full overflow-hidden flex gap-1 bg-white/[0.04] mb-2 p-0.5">
+                      <div 
+                        style={{ width: `${Math.max(15, (data.weakness_breakdown['Phishing & Spoofing'] || 50) * 0.4)}%`, background: '#5CC8D7' }} 
+                        className="h-full rounded-full transition-all duration-500" 
+                        title="Phishing & Spoofing"
+                      />
+                      <div 
+                        style={{ width: `${Math.max(15, (data.weakness_breakdown['Urgency & BEC Defense'] || 40) * 0.35)}%`, background: '#D6A756' }} 
+                        className="h-full rounded-full transition-all duration-500" 
+                        title="Urgency & BEC Defense"
+                      />
+                      <div 
+                        style={{ width: `${Math.max(15, (data.weakness_breakdown['Policy Compliance & Verification'] || 60) * 0.35)}%`, background: '#4F7CFF' }} 
+                        className="h-full rounded-full transition-all duration-500" 
+                        title="Policy Compliance"
+                      />
                     </div>
 
-                    {/* RAI grounding */}
-                    <div className="shrink-0 mt-4 p-3.5 rounded-xl"
-                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.055)' }}>
-                      <div className="flex items-start gap-2">
-                        <Shield className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: 'rgba(141,152,165,0.4)' }} />
+                    <div className="flex items-center justify-between text-[9px] font-mono text-muted/60">
+                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-cyan inline-block" /> Phish</span>
+                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber inline-block" /> BEC</span>
+                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue inline-block" /> Policy</span>
+                    </div>
+                  </div>
+
+                  {/* 3 Metric Pills */}
+                  <div className="grid grid-cols-3 gap-2.5 mt-2 relative z-10">
+                    <div className="p-3 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12">
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 bg-blue/10 text-cyan">
+                        <Clock className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-[16px] font-bold text-primary leading-none">07</span>
+                      <span className="text-[9px] font-mono text-muted mt-1 uppercase tracking-tight">Vectors</span>
+                    </div>
+
+                    <Link href="/policies" className="p-3 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12 group">
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 bg-amber/10 text-amber group-hover:scale-105 transition-transform">
+                        <ScrollText className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-[16px] font-bold text-primary leading-none">0{policiesCount}</span>
+                      <span className="text-[9px] font-mono text-muted mt-1 uppercase tracking-tight">Policies</span>
+                    </Link>
+
+                    <button 
+                      onClick={() => setIsJourneyModalOpen(true)}
+                      className="p-3 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12 group cursor-pointer"
+                    >
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-1.5 bg-coral/10 text-coral group-hover:scale-105 transition-transform">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-[16px] font-bold text-primary leading-none">{data.decision_journey.length}</span>
+                      <span className="text-[9px] font-mono text-muted mt-1 uppercase tracking-tight">Simulated</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* ── RIGHT COLUMN (8 cols) ── */}
+                <div className="lg:col-span-8 flex flex-col gap-5">
+
+                  {/* ── TOP HERO SECTION: Active Training Directives ── */}
+                  <div 
+                    className="rounded-2xl p-5 md:p-6 relative overflow-hidden"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(79,124,255,0.14) 0%, rgba(17,24,33,0.95) 45%, rgba(11,15,20,0.98) 100%)',
+                      border: '1px solid rgba(79,124,255,0.22)',
+                      boxShadow: '0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)'
+                    }}
+                  >
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="w-2 h-2 rounded-full bg-blue animate-pulse" />
+                          <h2 className="text-[16px] sm:text-[18px] font-bold text-primary tracking-tight">
+                            Active Training Directives
+                          </h2>
+                        </div>
+                        <p className="text-[11px] font-mono text-muted">
+                          AI-generated adaptive simulations calibrated for {data.user.role}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => setActiveTab('arena')}
+                        className="text-[11px] font-mono px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-primary transition-colors flex items-center gap-1.5"
+                      >
+                        <span>View All (7)</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-cyan" />
+                      </button>
+                    </div>
+
+                    {/* 3 Directive Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                      {/* Card 1: Top Priority Coach Directive */}
+                      <div className="p-4 rounded-xl flex flex-col justify-between bg-surface/90 border border-blue/30 shadow-lg relative overflow-hidden group">
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue to-cyan" />
                         <div>
-                          <h5 className="text-[9px] font-mono uppercase tracking-[0.18em] mb-1" style={{ color: 'rgba(141,152,165,0.45)' }}>
-                            Responsible AI (RAI) Grounding
-                          </h5>
-                          <p className="text-[10px] leading-relaxed" style={{ color: 'rgba(141,152,165,0.5)' }}>
-                            All simulated payloads are benign, non-executable, and audited under our RAI framework.
+                          <div className="flex items-center justify-between gap-1 mb-2">
+                            <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-blue/20 text-cyan border border-blue/30">
+                              Coach Priority
+                            </span>
+                            <span className="text-[9px] font-mono text-muted">
+                              ~{data.next_situation.estimated_minutes} min
+                            </span>
+                          </div>
+                          <h3 className="text-[13px] font-semibold text-primary line-clamp-2 leading-snug mb-1">
+                            {data.next_situation.title}
+                          </h3>
+                          <p className="text-[10px] font-mono text-muted/70 mb-3">
+                            Target: {data.next_situation.tactic_target.replace('_', ' ')}
                           </p>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between text-[10px] font-mono text-muted mb-1">
+                            <span>Readiness Target</span>
+                            <span className="text-cyan font-bold">{data.readiness_score || 50}%</span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-white/[0.05] overflow-hidden mb-3">
+                            <div 
+                              className="h-full rounded-full bg-gradient-to-r from-blue to-cyan"
+                              style={{ width: `${Math.min(100, Math.max(15, data.readiness_score || 50))}%` }}
+                            />
+                          </div>
+
+                          <Link
+                            href={scenarioUrl(priorityChannel, data.next_situation.category)}
+                            className="w-full py-2 px-3 rounded-lg bg-blue hover:bg-blue/90 text-white text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(79,124,255,0.25)]"
+                          >
+                            <span>Launch Scenario</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Card 2: Cloud & OAuth Directive */}
+                      <div className="p-4 rounded-xl flex flex-col justify-between bg-surface/70 border border-white/[0.08] hover:border-white/15 transition-all group">
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-2">
+                            <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white/[0.04] text-muted border border-white/[0.08]">
+                              Cloud & OAuth
+                            </span>
+                            <span className="text-[9px] font-mono text-muted">
+                              ~3 min
+                            </span>
+                          </div>
+                          <h3 className="text-[13px] font-semibold text-primary line-clamp-2 leading-snug mb-1">
+                            Illicit Third-Party App & Token Hijacking
+                          </h3>
+                          <p className="text-[10px] font-mono text-muted/70 mb-3">
+                            Target: consent_grant_abuse
+                          </p>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between text-[10px] font-mono text-muted mb-1">
+                            <span>Sector Score</span>
+                            <span className="text-primary font-bold">{getSectorScore('cloud_oauth', data.weakness_breakdown) || 68}%</span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-white/[0.05] overflow-hidden mb-3">
+                            <div 
+                              className="h-full rounded-full bg-cyan/70"
+                              style={{ width: `${getSectorScore('cloud_oauth', data.weakness_breakdown) || 68}%` }}
+                            />
+                          </div>
+
+                          <Link
+                            href={scenarioUrl('cloud_oauth', 'Cloud & OAuth Consent Verification')}
+                            className="w-full py-2 px-3 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-primary text-[11px] font-medium border border-white/[0.08] hover:border-white/20 transition-all flex items-center justify-center gap-1.5"
+                          >
+                            <span>Launch Scenario</span>
+                            <ArrowRight className="w-3 h-3 text-muted" />
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Card 3: Voice & BEC Directive */}
+                      <div className="p-4 rounded-xl flex flex-col justify-between bg-surface/70 border border-white/[0.08] hover:border-white/15 transition-all group">
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-2">
+                            <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white/[0.04] text-muted border border-white/[0.08]">
+                              Voice & BEC
+                            </span>
+                            <span className="text-[9px] font-mono text-muted">
+                              ~4 min
+                            </span>
+                          </div>
+                          <h3 className="text-[13px] font-semibold text-primary line-clamp-2 leading-snug mb-1">
+                            Urgent Wire Authorization & Caller Spoofing
+                          </h3>
+                          <p className="text-[10px] font-mono text-muted/70 mb-3">
+                            Target: executive_authority_bias
+                          </p>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between text-[10px] font-mono text-muted mb-1">
+                            <span>Sector Score</span>
+                            <span className="text-primary font-bold">{getSectorScore('voice_phone', data.weakness_breakdown) || 54}%</span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-white/[0.05] overflow-hidden mb-3">
+                            <div 
+                              className="h-full rounded-full bg-amber/70"
+                              style={{ width: `${getSectorScore('voice_phone', data.weakness_breakdown) || 54}%` }}
+                            />
+                          </div>
+
+                          <Link
+                            href={scenarioUrl('voice_phone', 'Executive Wire Authorization Phone Call')}
+                            className="w-full py-2 px-3 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-primary text-[11px] font-medium border border-white/[0.08] hover:border-white/20 transition-all flex items-center justify-center gap-1.5"
+                          >
+                            <span>Launch Scenario</span>
+                            <ArrowRight className="w-3 h-3 text-muted" />
+                          </Link>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* RIGHT — Readiness Score */}
-                <div className="lg:col-span-3 flex flex-col min-h-0" style={{ borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className="pl-4 py-1 flex flex-col gap-5">
+                  {/* ── BOTTOM ROW: 2 Cards (Threat Vector Mastery + Midnight AI Coach) ── */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-5 flex-1 min-h-[240px]">
 
-                    <h3 className="text-[9px] font-mono tracking-[0.2em] uppercase shrink-0"
-                      style={{ color: 'rgba(141,152,165,0.45)' }}>
-                      Defense Readiness
-                    </h3>
+                    {/* Threat Vector Mastery (Study process in reference) - 7 cols */}
+                    <div 
+                      className="md:col-span-7 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden"
+                      style={{
+                        background: 'rgba(17,24,33,0.7)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        backdropFilter: 'blur(14px)'
+                      }}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <h3 className="text-[14px] font-bold text-primary tracking-tight">
+                            Threat Vector Mastery
+                          </h3>
+                          <p className="text-[10px] font-mono text-muted">
+                            Dynamic Defense Proficiency
+                          </p>
+                        </div>
+                        <span className="text-[10px] font-mono px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-muted">
+                          Live Metrics ▾
+                        </span>
+                      </div>
 
-                    {/* Circular ring + score */}
-                    <div className="flex items-center gap-4">
-                      <ReadinessRing score={data.readiness_score} />
-                      <div>
-                        <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(141,152,165,0.55)' }}>
-                          Threat recognition, response timeliness & reasoning against {data.user.company || 'org'} policies.
-                        </p>
+                      {/* 4 Vertical Bars like Study process */}
+                      <div className="grid grid-cols-4 gap-3 items-end h-36 pt-4 pb-1">
+                        {[
+                          { label: 'Phishing', score: data.weakness_breakdown['Phishing & Spoofing'] || 66, highlight: false },
+                          { label: 'BEC', score: data.weakness_breakdown['Urgency & BEC Defense'] || 40, highlight: false },
+                          { label: 'Cloud OAuth', score: data.weakness_breakdown['Policy Compliance & Verification'] || 87, highlight: true },
+                          { label: 'Data Privacy', score: data.weakness_breakdown['Data Protection & Privacy'] || 56, highlight: false },
+                        ].map((bar, i) => (
+                          <div key={i} className="flex flex-col items-center h-full justify-end group">
+                            {/* Score pill */}
+                            <span 
+                              className={`text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded mb-1 transition-all ${
+                                bar.highlight 
+                                  ? 'bg-blue text-white shadow-sm' 
+                                  : 'bg-white/[0.05] text-muted group-hover:text-primary'
+                              }`}
+                            >
+                              {bar.score}%
+                            </span>
+                            {/* Bar container */}
+                            <div className="w-full max-w-[48px] h-24 bg-white/[0.03] rounded-xl p-1 flex items-end">
+                              <div 
+                                className={`w-full rounded-lg transition-all duration-700 ${
+                                  bar.highlight 
+                                    ? 'bg-gradient-to-t from-blue to-cyan shadow-[0_0_15px_rgba(79,124,255,0.3)]' 
+                                    : 'bg-white/[0.12] group-hover:bg-white/[0.2]'
+                                }`}
+                                style={{ height: `${Math.max(15, bar.score)}%` }}
+                              />
+                            </div>
+                            {/* Label */}
+                            <span className="text-[10px] font-mono text-muted mt-1.5 tracking-tight truncate w-full text-center">
+                              {bar.label}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
-                    {/* Metrics grid */}
-                    <div className="grid grid-cols-2 gap-3 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                      {[
-                        { val: `0${data.decision_journey.length}`, label: 'Simulations' },
-                        { val: `0${policiesCount}`, label: 'Policies' },
-                        { val: nextDifficulty, label: 'Next Tier' },
-                        { val: '100%', label: 'RAI Audited' },
-                      ].map((m, i) => (
-                        <div key={i}>
-                          <div className="text-[18px] font-semibold tracking-tight capitalize text-primary">{m.val}</div>
-                          <div className="text-[8px] font-mono uppercase tracking-[0.15em]" style={{ color: 'rgba(141,152,165,0.45)' }}>{m.label}</div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Coach priority */}
-                    <div className="pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                      <p className="text-[8px] font-mono uppercase tracking-[0.2em] mb-2" style={{ color: 'rgba(141,152,165,0.4)' }}>
-                        Coach's Top Priority
-                      </p>
-                      <Link
-                        href={scenarioUrl(priorityChannel, data.next_situation.category)}
-                        className="block p-3.5 rounded-xl transition-all duration-200 group"
-                        style={{ background: 'rgba(79,124,255,0.04)', border: '1px solid rgba(79,124,255,0.12)' }}
-                        onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(79,124,255,0.22)')}
-                        onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(79,124,255,0.12)')}
-                      >
-                        <p className="text-[11px] font-semibold text-primary mb-1 tracking-tight leading-snug">
-                          {data.next_situation.title}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[9px] font-mono" style={{ color: 'rgba(141,152,165,0.45)' }}>{data.next_situation.category}</span>
-                          <span className="text-[9px] font-mono capitalize" style={{ color: 'rgba(141,152,165,0.45)' }}>{data.next_situation.difficulty}</span>
-                        </div>
-                        <span className="text-[9px] font-mono mt-1.5 block transition-transform group-hover:translate-x-0.5"
-                          style={{ color: 'rgba(165,184,255,0.6)' }}>
-                          Enter situation →
-                        </span>
-                      </Link>
-                    </div>
-
-                    {/* Replay tour */}
-                    <button
-                      onClick={() => setShowTour(true)}
-                      className="py-2 px-4 rounded-xl text-[10px] font-mono transition-colors flex items-center justify-center gap-2"
-                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(141,152,165,0.45)' }}
-                      onMouseEnter={e => e.currentTarget.style.color = '#E8EDF2'}
-                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(141,152,165,0.45)'}
+                    {/* Midnight AI Coach Card (AI assistant in reference) - 5 cols */}
+                    <div 
+                      className="md:col-span-5 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden"
+                      style={{
+                        background: 'radial-gradient(ellipse at top right, rgba(79,124,255,0.18) 0%, rgba(17,24,33,0.85) 75%)',
+                        border: '1px solid rgba(79,124,255,0.25)',
+                        backdropFilter: 'blur(14px)'
+                      }}
                     >
-                      <Compass className="w-3.5 h-3.5" />
-                      Replay Onboarding Guide
-                    </button>
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-lg bg-blue/20 text-cyan flex items-center justify-center border border-blue/30">
+                              <Sparkles className="w-3.5 h-3.5" />
+                            </div>
+                            <h3 className="text-[13px] font-bold text-primary tracking-tight">
+                              AI Defense Coach
+                            </h3>
+                          </div>
+                          <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan/10 text-cyan border border-cyan/20">
+                            Live
+                          </span>
+                        </div>
+
+                        {/* Live Headline Bubble */}
+                        <div className="p-3 rounded-xl bg-black/30 border border-white/[0.06] mb-3">
+                          <p className="text-[11px] text-primary/90 leading-relaxed font-sans line-clamp-3">
+                            "{data.feedback_headline}"
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Interactive Prompt Bar */}
+                      <div>
+                        <form 
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            if (coachInput.trim()) {
+                              handleAskCoach(coachInput.trim());
+                              setCoachInput('');
+                            }
+                          }}
+                          className="relative flex items-center"
+                        >
+                          <input
+                            type="text"
+                            value={coachInput}
+                            onChange={(e) => setCoachInput(e.target.value)}
+                            placeholder="Ask Coach something..."
+                            className="w-full pl-3 pr-9 py-2 rounded-xl bg-black/40 border border-white/[0.1] focus:border-blue/70 text-[11px] text-primary placeholder:text-muted/50 transition-colors"
+                          />
+                          <button
+                            type="submit"
+                            className="absolute right-1.5 w-6 h-6 rounded-lg bg-blue hover:bg-blue/90 text-white flex items-center justify-center transition-colors shadow-sm"
+                          >
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </form>
+
+                        {/* Quick Tip Prompts */}
+                        <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                          {['Urgency checklist', 'SOP protocol', 'Quishing tip'].map((tip, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => handleAskCoach(tip)}
+                              className="text-[9px] font-mono px-2 py-0.5 rounded bg-white/[0.03] hover:bg-white/[0.08] text-muted hover:text-primary border border-white/[0.06] transition-colors"
+                            >
+                              {tip}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
@@ -1085,6 +1341,119 @@ export default function Dashboard() {
             </motion.div>
           );
         })()}
+      </AnimatePresence>
+
+      {/* ── Decision Journey Modal ────────────────────────────────────────── */}
+      <AnimatePresence>
+        {isJourneyModalOpen && (
+          <motion.div
+            key="journey-modal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsJourneyModalOpen(false)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-xl rounded-2xl p-6 bg-[#0E141D] border border-white/10 shadow-2xl flex flex-col max-h-[80vh] overflow-hidden"
+            >
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-coral" />
+                  <h3 className="text-[16px] font-bold text-primary">
+                    Simulated Decision History ({data.decision_journey.length})
+                  </h3>
+                </div>
+                <button 
+                  onClick={() => setIsJourneyModalOpen(false)}
+                  className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-muted hover:text-primary transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto py-4 space-y-2.5 pr-1 scrollbar-hide">
+                {data.decision_journey.length === 0 ? (
+                  <div className="text-center py-12 text-muted text-xs font-mono">
+                    No simulations completed yet. Launch a directive to establish your record!
+                  </div>
+                ) : (
+                  data.decision_journey.map((step, idx) => (
+                    <div key={step.id || idx} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white/5 text-muted">
+                            0{idx + 1} · {step.threat}
+                          </span>
+                          <span className={`text-[10px] font-mono ${step.is_safe ? 'text-cyan' : 'text-coral'}`}>
+                            {step.status}
+                          </span>
+                        </div>
+                        <p className="text-[12px] font-semibold text-primary">{step.title}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className={`text-[14px] font-bold font-mono ${step.is_safe ? 'text-cyan' : 'text-muted'}`}>
+                          {step.score}/100
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Coach Quick Tip Modal ────────────────────────────────────────── */}
+      <AnimatePresence>
+        {coachTipModal && (
+          <motion.div
+            key="coach-tip-modal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setCoachTipModal(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-md rounded-2xl p-6 bg-[#0E141D] border border-blue/40 shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-cyan font-semibold text-sm">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Tactical Coach Advice</span>
+                </div>
+                <button 
+                  onClick={() => setCoachTipModal(null)}
+                  className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-muted hover:text-primary transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-xs text-primary/90 leading-relaxed font-sans mb-4">
+                {coachTipModal}
+              </p>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setCoachTipModal(null)}
+                  className="px-4 py-2 rounded-xl bg-blue text-white text-xs font-medium hover:bg-blue/90 transition-colors"
+                >
+                  Understood
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </main>
   );
