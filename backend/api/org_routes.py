@@ -45,7 +45,7 @@ except Exception as e:
 # Initialize Local Hugging Face Model (Free, CPU inference)
 hf_model = None
 try:
-    from sentence_transformers import SentenceTransformer
+    from sentence_transformers import SentenceTransformer  # type: ignore
     hf_model = SentenceTransformer("all-MiniLM-L6-v2")
 except Exception as e:
     print(f"Notice: Hugging Face model load deferred in org_routes: {e}")
@@ -56,7 +56,7 @@ def get_local_embedding(text: str) -> List[float]:
     global hf_model
     if hf_model is None:
         try:
-            from sentence_transformers import SentenceTransformer
+            from sentence_transformers import SentenceTransformer  # type: ignore
             hf_model = SentenceTransformer("all-MiniLM-L6-v2")
         except Exception:
             # This fallback keeps policy ingestion usable for a local demo.
