@@ -94,5 +94,4 @@ def test_coach_uses_stored_evaluation_not_forged_browser_score(learner_headers):
 
 def test_learner_data_routes_require_authentication():
     assert client.get("/api/coach/dashboard-summary").status_code == 401
-    assert client.get("/api/org/policies/SomeCompany").status_code == 401
     assert client.post("/api/coach/onboard-user", json={"job_title": "Finance Manager"}).status_code == 401

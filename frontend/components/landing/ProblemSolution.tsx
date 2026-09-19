@@ -33,14 +33,14 @@ const stats = [
   { value: '6 wk', label: 'to measurable behavioural change' },
 ];
 
-const listVariants = {
+const listVariants: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.08 } },
 };
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, x: -8 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: 'easeOut' as const } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
 };
 
 export default function ProblemSolution() {
