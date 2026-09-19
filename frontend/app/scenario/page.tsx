@@ -5,7 +5,7 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import Link from 'next/link';
 import { 
   Phone, Mail, MessageSquare, QrCode, Cloud, Smartphone, 
-  HardDrive, Shield, AlertTriangle, X, ArrowRight, CornerDownLeft, 
+  HardDrive, Shield, AlertTriangle, X, ArrowRight, ArrowLeft, CornerDownLeft, 
   RotateCcw, Sparkles 
 } from 'lucide-react';
 import ChannelRenderer from '@/components/simulation/ChannelRenderer';
@@ -469,26 +469,56 @@ function ScenarioFlow() {
     <main className="h-dvh flex flex-col overflow-hidden bg-[#080D12] text-primary font-sans selection:bg-blue/20 relative">
 
       {/* ── REGION 1: STICKY TOP NAVIGATION BAR ───────────────────────────── */}
-      <header className="shrink-0 border-b border-[#1E293B] bg-[#080D12]/95 backdrop-blur-md z-20 px-6 md:px-8 py-3.5 flex items-center justify-between gap-4">
-        
-        {/* Left: Brand + Current Sector Badge */}
-        <div className="flex items-center gap-4 min-w-0">
+      <header 
+        className="shrink-0 border-b z-20 px-6 md:px-8 py-3.5 flex items-center justify-between gap-4"
+        style={{
+          background: 'rgba(11,15,20,0.85)',
+          borderColor: 'rgba(255,255,255,0.07)',
+          backdropFilter: 'blur(20px)'
+        }}
+      >
+        {/* Left: Back to Dashboard & Sector Label */}
+        <div className="flex items-center gap-3 min-w-0">
           <button 
-            onClick={handleNavigateBrand}
-            className="flex items-center gap-2 group text-left focus:outline-none"
-            aria-label="Return to Dashboard"
+            onClick={handleExit}
+            className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.12em] px-3 py-1.5 rounded-xl transition-all duration-200 group shrink-0"
+            style={{
+              background: 'rgba(79,124,255,0.08)',
+              border: '1px solid rgba(79,124,255,0.18)',
+              color: 'rgba(165,184,255,0.85)',
+              boxShadow: '0 0 16px rgba(79,124,255,0.05)'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(79,124,255,0.14)';
+              e.currentTarget.style.borderColor = 'rgba(79,124,255,0.32)';
+              e.currentTarget.style.color = '#FFFFFF';
+              e.currentTarget.style.boxShadow = '0 0 20px rgba(79,124,255,0.14)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(79,124,255,0.08)';
+              e.currentTarget.style.borderColor = 'rgba(79,124,255,0.18)';
+              e.currentTarget.style.color = 'rgba(165,184,255,0.85)';
+              e.currentTarget.style.boxShadow = '0 0 16px rgba(79,124,255,0.05)';
+            }}
+            aria-label="Back to Dashboard"
           >
-            <span className="text-xl leading-none font-light text-cyan opacity-85 group-hover:opacity-100 transition-opacity">◉</span>
-            <span className="font-semibold text-sm tracking-tight text-primary group-hover:text-cyan transition-colors hidden sm:inline">
-              Midnight Intelligence
-            </span>
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" style={{ color: 'rgba(165,184,255,0.9)' }} />
+            <span className="hidden sm:inline">Back to Dashboard</span>
+            <span className="sm:hidden">Back</span>
           </button>
 
-          <span className="h-4 w-px bg-[#1E293B] hidden sm:inline-block"></span>
+          <span className="h-4 w-px bg-white/10 hidden sm:inline-block"></span>
 
           {/* Current Threat Sector Indicator */}
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-surface border border-[#1E293B] text-xs font-mono">
-            <SectorIcon className="w-3.5 h-3.5 text-cyan shrink-0" />
+          <div 
+            className="flex items-center gap-2 px-2.5 py-1 rounded-lg text-xs font-mono"
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.07)',
+              color: 'rgba(141,152,165,0.85)'
+            }}
+          >
+            <SectorIcon className="w-3.5 h-3.5 shrink-0" style={{ color: 'rgba(165,184,255,0.85)' }} />
             <span className="font-semibold text-primary truncate">{sectorConfig.label}</span>
           </div>
         </div>
@@ -501,19 +531,20 @@ function ScenarioFlow() {
             aria-label="Toggle Training Control Hub"
             aria-expanded={isHubOpen}
             aria-controls="hub-drawer"
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono transition-all duration-200 shadow-sm border ${
-              isHubOpen
-                ? 'bg-cyan/20 text-cyan border-cyan/40 shadow-[0_0_15px_rgba(69,217,232,0.2)]'
-                : 'bg-[#111821] text-primary/90 border-[#1E293B] hover:border-cyan/30 hover:bg-[#141C27]'
-            }`}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono transition-all duration-200 shadow-sm"
+            style={isHubOpen
+              ? { background: 'rgba(79,124,255,0.16)', border: '1px solid rgba(79,124,255,0.35)', color: '#FFFFFF', boxShadow: '0 0 20px rgba(79,124,255,0.2)' }
+              : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(141,152,165,0.7)' }
+            }
           >
-            <span className="w-2 h-2 rounded-full bg-cyan animate-pulse shrink-0"></span>
-            <span className="font-bold tracking-wider uppercase text-cyan">TRAINING HUB</span>
-            <span className="text-muted hidden md:inline">|</span>
-            <span className="text-muted hidden md:inline">READINESS: {readinessScore}%</span>
-            <span className="text-muted hidden lg:inline">|</span>
-            <span className="text-muted hidden lg:inline">NEXT: {priorityChannel.toUpperCase().replace('_', ' ')}</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-primary/10 text-muted ml-1 hidden sm:inline">
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'rgba(79,124,255,0.9)' }}></span>
+            <span className="font-semibold tracking-wider uppercase" style={{ color: 'rgba(165,184,255,0.9)' }}>TRAINING HUB</span>
+            <span className="text-muted/40 hidden md:inline">|</span>
+            <span className="hidden md:inline" style={{ color: 'rgba(141,152,165,0.6)' }}>READINESS: {readinessScore}%</span>
+            <span className="hidden lg:inline text-muted/40">|</span>
+            <span className="hidden lg:inline" style={{ color: 'rgba(141,152,165,0.6)' }}>NEXT: {priorityChannel.toUpperCase().replace('_', ' ')}</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded hidden sm:inline"
+              style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(141,152,165,0.5)' }}>
               H
             </span>
           </button>
@@ -521,14 +552,26 @@ function ScenarioFlow() {
 
         {/* Right: Difficulty & Exit Controls */}
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-[10px] font-mono font-semibold tracking-wider text-muted uppercase hidden sm:inline-block px-2 py-1 rounded bg-surface border border-[#1E293B]">
-            {scenario.difficulty?.toUpperCase()} LEVEL
+          <span 
+            className="text-[10px] font-mono uppercase tracking-[0.15em] px-2.5 py-1 rounded-lg hidden sm:inline-block"
+            style={{ background: 'rgba(79,124,255,0.07)', border: '1px solid rgba(79,124,255,0.15)', color: 'rgba(165,184,255,0.7)' }}
+          >
+            Tier: {scenario.difficulty || 'beginner'}
           </span>
 
           <button
             onClick={handleExit}
             aria-label="Exit Scenario"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface border border-[#1E293B] hover:border-coral/40 text-muted hover:text-coral transition-colors text-xs font-mono"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-mono transition-all"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(141,152,165,0.6)' }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = 'rgba(217,104,104,0.35)';
+              e.currentTarget.style.color = '#E2847A';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+              e.currentTarget.style.color = 'rgba(141,152,165,0.6)';
+            }}
           >
             <X className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Exit</span>
@@ -543,7 +586,7 @@ function ScenarioFlow() {
         tabIndex={0}
         aria-label="Scenario content viewport"
       >
-        <div className="max-w-3xl mx-auto px-6 pt-6 pb-16">
+        <div className="max-w-3xl mx-auto px-6 pt-6 pb-20">
           <AnimatePresence mode="wait">
             
             {/* 1. INTRO STATE */}
@@ -553,11 +596,14 @@ function ScenarioFlow() {
                 variants={pageVariants} initial="initial" animate="animate" exit="exit"
                 className="flex flex-col items-center justify-center min-h-[60vh] text-center py-8"
               >
-                <p className="text-xs font-mono font-semibold tracking-widest uppercase text-cyan mb-6">
+                <p 
+                  className="text-xs font-mono uppercase tracking-[0.16em] px-3 py-1 rounded-full mb-6"
+                  style={{ background: 'rgba(79,124,255,0.08)', border: '1px solid rgba(79,124,255,0.18)', color: 'rgba(165,184,255,0.85)' }}
+                >
                   ◉ SITUATION CHALLENGE · {sectorConfig.label.toUpperCase()}
                 </p>
 
-                <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-primary leading-tight mb-8">
+                <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-primary leading-tight mb-8">
                   {scenario.situation_tagline || "Not everything urgent deserves an immediate response."}
                 </h1>
 
@@ -567,10 +613,28 @@ function ScenarioFlow() {
 
                 <button
                   onClick={() => setCurrentState('OBSERVE')}
-                  className="bg-blue hover:bg-blue/90 text-white font-medium text-base px-8 py-3.5 rounded-full transition-transform hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 shadow-[0_0_20px_rgba(79,124,255,0.3)]"
+                  className="font-mono uppercase tracking-[0.12em] text-xs px-8 py-3.5 rounded-xl transition-all duration-200 inline-flex items-center gap-2 group"
+                  style={{
+                    background: 'rgba(79,124,255,0.1)',
+                    border: '1px solid rgba(79,124,255,0.22)',
+                    color: 'rgba(165,184,255,0.85)',
+                    boxShadow: '0 0 20px rgba(79,124,255,0.08)'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(79,124,255,0.18)';
+                    e.currentTarget.style.borderColor = 'rgba(79,124,255,0.38)';
+                    e.currentTarget.style.color = '#FFFFFF';
+                    e.currentTarget.style.boxShadow = '0 0 24px rgba(79,124,255,0.2)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(79,124,255,0.1)';
+                    e.currentTarget.style.borderColor = 'rgba(79,124,255,0.22)';
+                    e.currentTarget.style.color = 'rgba(165,184,255,0.85)';
+                    e.currentTarget.style.boxShadow = '0 0 20px rgba(79,124,255,0.08)'
+                  }}
                 >
                   <span>Begin Observation</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: 'rgba(165,184,255,0.85)' }} />
                 </button>
               </motion.div>
             )}
@@ -584,7 +648,10 @@ function ScenarioFlow() {
               >
                 {/* Header Subtitle */}
                 <div className="text-center space-y-2 pb-2">
-                  <span className="text-[11px] font-mono font-bold tracking-widest uppercase text-cyan">
+                  <span 
+                    className="text-[10px] font-mono uppercase tracking-[0.16em] px-2.5 py-0.5 rounded-md inline-block"
+                    style={{ background: 'rgba(79,124,255,0.08)', border: '1px solid rgba(79,124,255,0.18)', color: 'rgba(165,184,255,0.85)' }}
+                  >
                     {channelMeta.label}
                   </span>
                   <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-primary">
@@ -594,22 +661,29 @@ function ScenarioFlow() {
 
                 {/* Inline Notice if API latency fallback */}
                 {scenarioError && (
-                  <div className="p-3 rounded-xl bg-amber/10 border border-amber/20 text-xs font-mono text-amber flex items-center justify-between">
+                  <div 
+                    className="p-3.5 rounded-xl text-xs font-mono flex items-center justify-between"
+                    style={{ background: 'rgba(214,167,86,0.1)', border: '1px solid rgba(214,167,86,0.25)', color: 'rgba(214,167,86,0.9)' }}
+                  >
                     <span>{scenarioError}</span>
                     <button 
                       onClick={() => fetchScenario(activeChannel)}
-                      className="text-cyan underline hover:text-primary flex items-center gap-1"
+                      className="underline hover:text-primary flex items-center gap-1"
+                      style={{ color: 'rgba(165,184,255,0.85)' }}
                     >
                       <RotateCcw className="w-3 h-3" /> Retry
                     </button>
                   </div>
                 )}
 
-                {/* Simulation Canvas with guaranteed 48px clearance */}
+                {/* Simulation Canvas */}
                 <div className="w-full">
                   {isLoadingScenario ? (
-                    <div className="w-full p-16 rounded-2xl bg-[#0E141D] border border-[#1E293B] text-center space-y-4">
-                      <div className="w-8 h-8 rounded-full border-2 border-cyan/30 border-t-cyan animate-spin mx-auto"></div>
+                    <div 
+                      className="w-full p-16 rounded-2xl text-center space-y-4"
+                      style={{ background: 'rgba(17,24,33,0.7)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    >
+                      <div className="w-8 h-8 rounded-full border-2 border-t-cyan animate-spin mx-auto" style={{ borderColor: 'rgba(79,124,255,0.3)', borderTopColor: 'rgba(165,184,255,0.9)' }}></div>
                       <p className="text-xs font-mono text-muted uppercase tracking-wider">
                         Generating situational threat model for {sectorConfig.label}...
                       </p>
@@ -617,6 +691,51 @@ function ScenarioFlow() {
                   ) : (
                     <ChannelRenderer scenario={scenario} />
                   )}
+                </div>
+
+                {/* Inline Action Bar (Directly below simulation) */}
+                <div 
+                  className="mt-6 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4"
+                  style={{
+                    background: 'rgba(17,24,33,0.7)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    boxShadow: '0 12px 36px rgba(0,0,0,0.35)',
+                    backdropFilter: 'blur(16px)'
+                  }}
+                >
+                  <div className="flex items-center gap-2.5 text-xs font-mono text-muted text-center sm:text-left">
+                    <Sparkles className="w-4 h-4 shrink-0" style={{ color: 'rgba(165,184,255,0.9)' }} />
+                    <span>{channelMeta.dockPrompt}</span>
+                  </div>
+                  <button
+                    onClick={() => setCurrentState('DECIDE')}
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-mono text-xs uppercase tracking-[0.12em] transition-all flex items-center justify-center gap-2 shrink-0"
+                    style={{
+                      background: 'rgba(79,124,255,0.12)',
+                      border: '1px solid rgba(79,124,255,0.25)',
+                      color: 'rgba(165,184,255,0.9)',
+                      boxShadow: '0 0 20px rgba(79,124,255,0.15)'
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = 'rgba(79,124,255,0.22)';
+                      e.currentTarget.style.borderColor = 'rgba(79,124,255,0.4)';
+                      e.currentTarget.style.color = '#FFFFFF';
+                      e.currentTarget.style.boxShadow = '0 0 24px rgba(79,124,255,0.25)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'rgba(79,124,255,0.12)';
+                      e.currentTarget.style.borderColor = 'rgba(79,124,255,0.25)';
+                      e.currentTarget.style.color = 'rgba(165,184,255,0.9)';
+                      e.currentTarget.style.boxShadow = '0 0 20px rgba(79,124,255,0.15)';
+                    }}
+                  >
+                    <span>Continue to Decision</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-mono"
+                      style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(165,184,255,0.7)' }}>
+                      ↵ ENTER
+                    </span>
+                  </button>
                 </div>
               </motion.div>
             )}
@@ -629,7 +748,10 @@ function ScenarioFlow() {
                 className="space-y-8 py-4"
               >
                 <div className="text-center space-y-2">
-                  <span className="text-xs font-mono font-bold tracking-widest uppercase text-amber">
+                  <span 
+                    className="text-[10px] font-mono uppercase tracking-[0.16em] px-2.5 py-0.5 rounded-md inline-block"
+                    style={{ background: 'rgba(79,124,255,0.08)', border: '1px solid rgba(79,124,255,0.18)', color: 'rgba(165,184,255,0.85)' }}
+                  >
                     DECISION POINT
                   </span>
                   <h2 className="text-3xl font-bold tracking-tight text-primary">
@@ -647,23 +769,107 @@ function ScenarioFlow() {
                       <button
                         key={i}
                         onClick={() => handleChoice(choice)}
-                        className={`w-full p-4 rounded-xl text-left flex items-center gap-4 transition-all duration-200 border ${
-                          isSelected
-                            ? 'bg-[#121A24] border-cyan text-primary shadow-[0_0_15px_rgba(69,217,232,0.15)]'
-                            : 'bg-[#0E141D] border-[#1E293B] hover:border-primary/20 text-muted hover:text-primary hover:bg-[#111822]'
-                        }`}
+                        className="w-full p-4 rounded-xl text-left flex items-center gap-4 transition-all duration-200 group"
+                        style={isSelected
+                          ? {
+                              background: 'rgba(79,124,255,0.08)',
+                              border: '1px solid rgba(79,124,255,0.35)',
+                              boxShadow: '0 0 24px rgba(79,124,255,0.12)'
+                            }
+                          : {
+                              background: 'rgba(17,24,33,0.6)',
+                              border: '1px solid rgba(255,255,255,0.07)',
+                              backdropFilter: 'blur(12px)'
+                            }
+                        }
+                        onMouseEnter={e => {
+                          if (!isSelected) {
+                            e.currentTarget.style.borderColor = 'rgba(79,124,255,0.25)';
+                            e.currentTarget.style.background = 'rgba(17,24,33,0.85)';
+                          }
+                        }}
+                        onMouseLeave={e => {
+                          if (!isSelected) {
+                            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+                            e.currentTarget.style.background = 'rgba(17,24,33,0.6)';
+                          }
+                        }}
                       >
-                        <span className={`text-xl font-light shrink-0 transition-colors ${
-                          isSelected ? 'text-cyan' : 'text-primary/30'
-                        }`}>
-                          {isSelected ? '●' : '○'}
+                        <span 
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0 transition-all"
+                          style={isSelected
+                            ? { background: 'rgba(79,124,255,0.22)', border: '1px solid rgba(79,124,255,0.45)', color: '#FFFFFF', boxShadow: '0 0 12px rgba(79,124,255,0.3)' }
+                            : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(141,152,165,0.5)' }
+                          }
+                        >
+                          0{i + 1}
                         </span>
-                        <span className="text-base font-medium leading-snug">
+                        <span className={`text-sm md:text-base font-medium leading-snug flex-1 transition-colors ${
+                          isSelected ? 'text-primary font-semibold' : 'text-primary/80 group-hover:text-primary'
+                        }`}>
                           {choice}
                         </span>
+                        <div 
+                          className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all"
+                          style={isSelected
+                            ? { background: 'rgba(79,124,255,0.3)', border: '2px solid rgba(165,184,255,0.9)' }
+                            : { border: '1px solid rgba(255,255,255,0.15)' }
+                          }
+                        >
+                          {isSelected && <span className="w-2 h-2 rounded-full" style={{ background: '#FFFFFF' }} />}
+                        </div>
                       </button>
                     );
                   })}
+                </div>
+
+                {/* Inline Action Navigation Below Choices */}
+                <div 
+                  className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t"
+                  style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+                >
+                  <button
+                    onClick={() => setCurrentState('OBSERVE')}
+                    className="inline-flex items-center gap-1.5 text-xs font-mono transition-colors py-2 px-3 rounded-lg"
+                    style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(141,152,165,0.6)' }}
+                    onMouseEnter={e => e.currentTarget.style.color = '#E8EDF2'}
+                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(141,152,165,0.6)'}
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Review Simulation Observation</span>
+                  </button>
+
+                  {selectedChoice ? (
+                    <button
+                      onClick={() => setCurrentState('REASONING')}
+                      className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-mono text-xs uppercase tracking-[0.12em] transition-all duration-200 flex items-center justify-center gap-2 group"
+                      style={{
+                        background: 'rgba(79,124,255,0.12)',
+                        border: '1px solid rgba(79,124,255,0.25)',
+                        color: 'rgba(165,184,255,0.9)',
+                        boxShadow: '0 0 20px rgba(79,124,255,0.1)'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'rgba(79,124,255,0.22)';
+                        e.currentTarget.style.borderColor = 'rgba(79,124,255,0.4)';
+                        e.currentTarget.style.color = '#FFFFFF';
+                        e.currentTarget.style.boxShadow = '0 0 24px rgba(79,124,255,0.22)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'rgba(79,124,255,0.12)';
+                        e.currentTarget.style.borderColor = 'rgba(79,124,255,0.25)';
+                        e.currentTarget.style.color = 'rgba(165,184,255,0.9)';
+                        e.currentTarget.style.boxShadow = '0 0 20px rgba(79,124,255,0.1)';
+                      }}
+                    >
+                      <span>Explain Defensive Reasoning</span>
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: 'rgba(165,184,255,0.9)' }} />
+                    </button>
+                  ) : (
+                    <span className="text-xs font-mono text-muted/50 italic">
+                      Select an option above to proceed
+                    </span>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -676,15 +882,43 @@ function ScenarioFlow() {
                 className="space-y-8 py-4 text-center"
               >
                 <div className="space-y-2">
-                  <span className="text-xs font-mono font-bold tracking-widest uppercase text-muted">
-                    YOUR CHOSEN DEFENSE
+                  <span 
+                    className="text-[10px] font-mono uppercase tracking-[0.16em] px-2.5 py-0.5 rounded-md inline-block"
+                    style={{ background: 'rgba(79,124,255,0.08)', border: '1px solid rgba(79,124,255,0.18)', color: 'rgba(165,184,255,0.85)' }}
+                  >
+                    DEFENSIVE REASONING
                   </span>
-                  <div className="p-4 rounded-xl bg-cyan/10 border border-cyan/20 max-w-xl mx-auto">
-                    <p className="text-base font-semibold text-cyan">{selectedChoice}</p>
+                  
+                  {/* Selected Choice Reminder Box */}
+                  <div 
+                    className="p-4 rounded-2xl max-w-xl mx-auto text-left relative overflow-hidden"
+                    style={{
+                      background: 'rgba(17,24,33,0.7)',
+                      border: '1px solid rgba(79,124,255,0.2)',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                      backdropFilter: 'blur(16px)'
+                    }}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-0.5 rounded-md"
+                        style={{ background: 'rgba(79,124,255,0.1)', border: '1px solid rgba(79,124,255,0.2)', color: 'rgba(165,184,255,0.85)' }}>
+                        Selected Action
+                      </span>
+                      <button
+                        onClick={() => setCurrentState('DECIDE')}
+                        className="text-[10px] font-mono text-muted hover:text-primary transition-colors flex items-center gap-1"
+                      >
+                        <span>Change choice</span>
+                        <RotateCcw className="w-3 h-3" />
+                      </button>
+                    </div>
+                    <p className="text-[13px] font-medium text-primary leading-snug">
+                      {selectedChoice}
+                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <h2 className="text-3xl font-bold tracking-tight text-primary">
                     Why did you make this decision?
                   </h2>
@@ -693,25 +927,69 @@ function ScenarioFlow() {
                   </p>
                 </div>
 
-                <div className="max-w-xl mx-auto">
+                <div className="max-w-xl mx-auto text-left space-y-2">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-muted">
+                    <span>Defensive Analysis & Indicators</span>
+                    <span>{reasoning.length} characters</span>
+                  </div>
                   <textarea
                     value={reasoning}
                     onChange={(e) => setReasoning(e.target.value)}
-                    placeholder="I noticed the unverified developer domain and excessive mailbox delete permissions..."
-                    className="w-full p-4 rounded-xl bg-[#0E141D] border border-[#1E293B] text-primary placeholder:text-muted/40 focus:border-cyan/50 focus:outline-none focus:ring-1 focus:ring-cyan/50 text-sm leading-relaxed resize-none"
+                    placeholder="I noticed the anomalous sender domain, the artificial urgency attempting to bypass dual-control checks, and the broad OAuth consent scopes..."
                     rows={4}
+                    className="w-full p-4 rounded-2xl text-primary text-sm leading-relaxed resize-none transition-all outline-none"
+                    style={{
+                      background: 'rgba(11,15,20,0.8)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      backdropFilter: 'blur(12px)'
+                    }}
+                    onFocus={e => e.currentTarget.style.borderColor = 'rgba(79,124,255,0.45)'}
+                    onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
                     autoFocus
                   />
                 </div>
 
-                <div>
+                {/* Inline Action Buttons */}
+                <div 
+                  className="pt-4 max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 border-t"
+                  style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+                >
+                  <button
+                    onClick={() => setCurrentState('DECIDE')}
+                    className="inline-flex items-center gap-1.5 text-xs font-mono text-muted hover:text-primary transition-colors py-2 px-3 rounded-lg"
+                    style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Change Choice</span>
+                  </button>
+
                   <button
                     onClick={submitReasoning}
                     disabled={!reasoning.trim() || isSubmitting}
-                    className="bg-blue hover:bg-blue/90 disabled:opacity-30 disabled:cursor-not-allowed text-white font-medium text-base px-8 py-3.5 rounded-full transition-all inline-flex items-center gap-2 shadow-[0_0_20px_rgba(79,124,255,0.3)]"
+                    className="w-full sm:w-auto px-7 py-2.5 rounded-xl font-mono text-xs uppercase tracking-[0.12em] transition-all duration-200 inline-flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed group"
+                    style={{
+                      background: 'rgba(79,124,255,0.14)',
+                      border: '1px solid rgba(79,124,255,0.28)',
+                      color: 'rgba(165,184,255,0.95)',
+                      boxShadow: '0 0 20px rgba(79,124,255,0.12)'
+                    }}
+                    onMouseEnter={e => {
+                      if (reasoning.trim() && !isSubmitting) {
+                        e.currentTarget.style.background = 'rgba(79,124,255,0.24)';
+                        e.currentTarget.style.borderColor = 'rgba(79,124,255,0.45)';
+                        e.currentTarget.style.color = '#FFFFFF';
+                        e.currentTarget.style.boxShadow = '0 0 24px rgba(79,124,255,0.25)';
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'rgba(79,124,255,0.14)';
+                      e.currentTarget.style.borderColor = 'rgba(79,124,255,0.28)';
+                      e.currentTarget.style.color = 'rgba(165,184,255,0.95)';
+                      e.currentTarget.style.boxShadow = '0 0 20px rgba(79,124,255,0.12)';
+                    }}
                   >
-                    <span>{isSubmitting ? 'Submitting to Evaluation Agent...' : 'Submit Evaluation'}</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>{isSubmitting ? 'Evaluating with AI Agent...' : 'Submit Evaluation'}</span>
+                    <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: 'rgba(165,184,255,0.95)' }} />
                   </button>
                 </div>
               </motion.div>
@@ -720,61 +998,6 @@ function ScenarioFlow() {
           </AnimatePresence>
         </div>
       </div>
-
-
-      {/* ── REGION 3: FIXED-HEIGHT BOTTOM ACTION DOCK ─────────────────────── */}
-      <footer className="shrink-0 border-t border-[#1E293B] bg-[#080D12]/95 backdrop-blur-md px-6 md:px-8 py-3.5 z-10">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          
-          {/* Left Context Prompt */}
-          <div className="text-xs text-muted font-mono flex items-center gap-2 text-center sm:text-left">
-            <Sparkles className="w-3.5 h-3.5 text-cyan shrink-0 hidden sm:inline" />
-            <span>
-              {currentState === 'OBSERVE' && channelMeta.dockPrompt}
-              {currentState === 'DECIDE' && "Select your response choice to advance to decision reasoning."}
-              {currentState === 'REASONING' && "Your reasoning is analyzed by Member 2 Evaluation Agent."}
-              {currentState === 'INTRO' && "Readiness score and recommendation are loaded from Member 3 Coach Agent."}
-            </span>
-          </div>
-
-          {/* Right Action Trigger */}
-          <div className="flex items-center gap-3 shrink-0">
-            {currentState === 'OBSERVE' && (
-              <button
-                onClick={() => setCurrentState('DECIDE')}
-                className="bg-blue hover:bg-blue/90 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 shadow-[0_0_15px_rgba(79,124,255,0.3)]"
-              >
-                <span>CONTINUE TO DECISION</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-white/20 text-[10px] font-mono ml-1">
-                  ↵ ENTER
-                </span>
-              </button>
-            )}
-
-            {currentState === 'DECIDE' && selectedChoice && (
-              <button
-                onClick={() => setCurrentState('REASONING')}
-                className="bg-blue hover:bg-blue/90 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all flex items-center gap-2"
-              >
-                <span>EXPLAIN REASONING</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            )}
-
-            {currentState === 'REASONING' && (
-              <button
-                onClick={submitReasoning}
-                disabled={!reasoning.trim() || isSubmitting}
-                className="bg-blue hover:bg-blue/90 disabled:opacity-40 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all flex items-center gap-2"
-              >
-                <span>{isSubmitting ? 'EVALUATING...' : 'SUBMIT'}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
-      </footer>
 
 
       {/* ── SLIDE-OVER TRAINING CONTROL HUB DRAWER ────────────────────────── */}
@@ -815,21 +1038,34 @@ function ScenarioFlow() {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative w-full max-w-md p-6 rounded-2xl bg-[#0E141D] border border-[#1E293B] shadow-2xl space-y-4 font-sans z-10"
+              className="relative w-full max-w-md p-6 rounded-2xl space-y-4 font-sans z-10"
+              style={{
+                background: 'rgba(17, 24, 33, 0.96)',
+                border: '1px solid rgba(255, 255, 255, 0.09)',
+                boxShadow: '0 24px 80px rgba(0, 0, 0, 0.8)',
+                backdropFilter: 'blur(20px)'
+              }}
               role="alertdialog"
               aria-modal="true"
               aria-labelledby="confirm-title"
               aria-describedby="confirm-desc"
             >
-              <div className="flex items-center gap-3 text-amber">
-                <div className="w-10 h-10 rounded-xl bg-amber/10 border border-amber/25 flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-3" style={{ color: '#FBBF24' }}>
+                <div 
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                  style={{
+                    background: 'rgba(245, 158, 11, 0.12)',
+                    border: '1px solid rgba(245, 158, 11, 0.25)',
+                    color: '#FBBF24'
+                  }}
+                >
                   <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 id="confirm-title" className="text-sm font-bold text-primary">
                     Switch Sector Challenge?
                   </h3>
-                  <p className="text-xs text-muted">Unsaved Decision In Progress</p>
+                  <p className="text-xs font-mono" style={{ color: 'rgba(141, 152, 165, 0.7)' }}>Unsaved Decision In Progress</p>
                 </div>
               </div>
 
@@ -840,13 +1076,46 @@ function ScenarioFlow() {
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   onClick={handleCancelDiscard}
-                  className="px-4 py-2 rounded-xl bg-surface border border-primary/10 text-xs font-mono text-muted hover:text-primary transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs font-mono transition-all duration-200"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    color: 'rgba(141, 152, 165, 0.7)'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.color = '#FFFFFF';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.color = 'rgba(141, 152, 165, 0.7)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                  }}
                 >
                   Keep Editing
                 </button>
                 <button
                   onClick={handleConfirmDiscard}
-                  className="px-4 py-2 rounded-xl bg-coral hover:bg-coral/90 text-white text-xs font-mono font-semibold transition-colors shadow-[0_0_15px_rgba(217,104,104,0.3)]"
+                  className="px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.14)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    color: '#F87171',
+                    boxShadow: '0 0 16px rgba(239, 68, 68, 0.1)'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.24)';
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.45)';
+                    e.currentTarget.style.color = '#FFFFFF';
+                    e.currentTarget.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.2)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.14)';
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    e.currentTarget.style.color = '#F87171';
+                    e.currentTarget.style.boxShadow = '0 0 16px rgba(239, 68, 68, 0.1)';
+                  }}
                 >
                   Discard & Continue
                 </button>

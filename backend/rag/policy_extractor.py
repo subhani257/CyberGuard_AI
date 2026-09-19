@@ -221,7 +221,8 @@ def extract_policy_rules(
     raw_text: str,
     company_name: str = "Organization",
     department: str = "General",
-    use_llm: bool = True
+    use_llm: bool = True,
+    trace: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, Any]]:
     """
     Main entry point for intelligent policy extraction.
@@ -236,11 +237,15 @@ def extract_policy_rules(
         try:
             rules = extract_with_llm(raw_text, company_name=company_name, department=department)
             if rules and len(rules) > 0:
+                if trace is not None:
+                    trace.update({"execution_mode": "llm", "model_version": "gpt-4o-mini"})
                 return rules
         except Exception as e:
             print(f"Notice: Tier 1 LLM policy extraction failed or offline ({e}). Falling back to Tier 2 Heuristics.")
 
     # 2. Fallback to Tier 2 Heuristic Multi-Pattern Parser
+    if trace is not None:
+        trace.update({"execution_mode": "heuristic_fallback", "model_version": None})
     return extract_with_heuristics(raw_text, company_name=company_name, department=department)
 
 

@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Midnight Intelligence',
-  description: 'Multi-Agent Adaptive Cybersecurity Awareness Platform',
+  description: 'Practice real cybersecurity decisions and learn from every choice.',
 };
 
 export default function RootLayout({

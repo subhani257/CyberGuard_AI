@@ -96,8 +96,15 @@ CREATE TABLE IF NOT EXISTS public.decisions (
     evaluation JSONB,
     is_safe BOOLEAN,
     human_review_required BOOLEAN DEFAULT false, -- RAI: Flagged if Evaluation Agent has low confidence
+    admin_verdict TEXT CHECK (admin_verdict IN ('confirmed', 'overridden')), -- Set by Admin Console
+    admin_reason TEXT,                            -- Admin override justification (RAI audit trail)
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Idempotent column additions for admin oversight
+ALTER TABLE public.decisions ADD COLUMN IF NOT EXISTS admin_verdict TEXT CHECK (admin_verdict IN ('confirmed', 'overridden'));
+ALTER TABLE public.decisions ADD COLUMN IF NOT EXISTS admin_reason TEXT;
+
 
 -- ==========================================
 -- KNOWLEDGE BASE TABLES (RAG / pgvector)
@@ -172,6 +179,10 @@ CREATE TABLE IF NOT EXISTS public.agent_audit_logs (
     details JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS decisions_user_created_idx ON public.decisions (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS decisions_scenario_idx ON public.decisions (scenario_id);
+CREATE INDEX IF NOT EXISTS agent_audit_logs_user_created_idx ON public.agent_audit_logs (user_id, created_at DESC);
 
 -- ==========================================
 -- ROW LEVEL SECURITY (RLS) POLICIES

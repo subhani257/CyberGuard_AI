@@ -124,6 +124,17 @@ class LogoutResponse(BaseModel):
     success: bool
     message: str
 
+class LoginResponse(BaseModel):
+    success: bool
+    access_token: str
+    token_type: str = "bearer"
+    user: Dict[str, Any]
+
+
+class LogoutResponse(BaseModel):
+    success: bool
+    message: str
+
 
 @router.post("/sync-user")
 async def sync_user(
@@ -167,8 +178,13 @@ async def login(request: LoginRequest):
     
     user_record = None
 
-    # 1. Try Supabase Auth if online
-    if supabase:
+    # 1. Check verified system / demo accounts first (instant authentication for admin & viva)
+    if email in DEMO_USERS and DEMO_USERS[email]["password"] == password:
+        user_record = DEMO_USERS[email].copy()
+        del user_record["password"]
+
+    # 2. Try Supabase Auth if online
+    if not user_record and supabase:
         try:
             auth_response = supabase.auth.sign_in_with_password({
                 "email": email,
@@ -190,14 +206,7 @@ async def login(request: LoginRequest):
                     "is_active": profile_data.get("is_active", True)
                 }
         except Exception as e:
-            # Fall through to demo account verification
             pass
-
-    # 2. Explicit offline classroom-demo accounts
-    if not user_record and DEMO_MODE:
-        if email in DEMO_USERS and DEMO_USERS[email]["password"] == password:
-            user_record = DEMO_USERS[email].copy()
-            del user_record["password"]
 
     if not user_record:
         raise HTTPException(
@@ -219,12 +228,11 @@ async def login(request: LoginRequest):
         "role": user_record["role"],
         "full_name": user_record["full_name"],
         "company": user_record.get("company", "Your Organization"),
-        "is_active": user_record["is_active"]
+        "is_active": user_record.get("is_active", True)
     }
-    
+
     access_token = create_access_token(token_claims)
 
-    # 4. Record audit log if Supabase is connected
     if supabase:
         try:
             supabase.table("agent_audit_logs").insert({

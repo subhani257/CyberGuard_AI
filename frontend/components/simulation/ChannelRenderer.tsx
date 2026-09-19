@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { 
   Phone, Play, Pause, Volume2, MessageSquare, QrCode, 
   Shield, AlertTriangle, Lock, Key, HardDrive, Mail, 
-  Smartphone, ExternalLink, CheckCircle2, XCircle, ArrowRight,
-  Battery, Wifi, MapPin, Laptop, Clock, Info, FileText
+  Smartphone, ExternalLink, Battery, Wifi, MapPin, Laptop, Clock, FileText, CheckCircle2
 } from 'lucide-react';
 
 export interface ScenarioData {
@@ -38,48 +37,109 @@ export function VoiceSimulation({ scenario }: { scenario: ScenarioData }) {
   const urgencyCue = cd.urgency_cue || "Voice urgency pressuring dual-control bypass.";
 
   return (
-    <div className="w-full bg-[#0E141D] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.4)] border border-[#1E293B] overflow-hidden text-left font-sans">
+    <div 
+      className="w-full rounded-2xl overflow-hidden text-left font-sans transition-all duration-300"
+      style={{
+        background: 'rgba(17, 24, 33, 0.75)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+        backdropFilter: 'blur(16px)'
+      }}
+    >
       {/* Phone Call Status Bar */}
-      <div className="border-b border-[#1E293B] px-6 py-3.5 bg-[#080D12] flex items-center justify-between">
+      <div 
+        className="px-6 py-3.5 flex items-center justify-between"
+        style={{
+          background: 'rgba(11, 15, 20, 0.85)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.07)'
+        }}
+      >
         <div className="flex items-center gap-2.5">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-coral opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-coral"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: '#F87171' }}></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: '#EF4444' }}></span>
           </span>
-          <span className="text-[11px] font-mono font-semibold tracking-wider uppercase text-coral">
+          <span 
+            className="text-[11px] font-mono font-semibold tracking-wider uppercase"
+            style={{ color: '#F87171' }}
+          >
             VOICE INTERCEPT · SECURE TELEPHONY ARCHIVE
           </span>
         </div>
-        <div className="flex items-center gap-1.5 text-xs font-mono text-muted">
-          <Clock className="w-3.5 h-3.5 text-cyan" />
+        <div className="flex items-center gap-1.5 text-xs font-mono" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>
+          <Clock className="w-3.5 h-3.5" style={{ color: 'rgba(165, 184, 255, 0.9)' }} />
           <span>RECORDED CALL · {duration}</span>
         </div>
       </div>
 
       {/* Caller Details & Player Card */}
-      <div className="px-6 py-5 bg-surface/70 border-b border-[#1E293B]">
+      <div 
+        className="px-6 py-5"
+        style={{
+          background: 'rgba(17, 24, 33, 0.5)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
+        }}
+      >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-coral/10 border border-coral/30 flex items-center justify-center text-coral shrink-0">
+            <div 
+              className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+              style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                color: '#F87171',
+                boxShadow: '0 0 16px rgba(239, 68, 68, 0.1)'
+              }}
+            >
               <Phone className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <p className="text-base font-semibold text-primary">{callerName}</p>
-                <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber/15 text-amber border border-amber/30">
+                <span 
+                  className="px-2 py-0.5 rounded text-[9px] font-mono font-bold tracking-wider uppercase"
+                  style={{
+                    background: 'rgba(245, 158, 11, 0.12)',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    color: '#FBBF24'
+                  }}
+                >
                   UNVERIFIED CALLER ID
                 </span>
               </div>
-              <p className="text-xs font-mono text-cyan mt-0.5">{callerId}</p>
-              <p className="text-[11px] text-muted">Claimed: Executive Authorization / Urgent Operations</p>
+              <p className="text-xs font-mono mt-0.5" style={{ color: 'rgba(165, 184, 255, 0.9)' }}>{callerId}</p>
+              <p className="text-[11px]" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>Claimed: Executive Authorization / Urgent Operations</p>
             </div>
           </div>
 
           {/* Compact Voicemail Audio Player Bar */}
-          <div className="flex items-center gap-3 bg-[#080D12]/90 border border-[#1E293B] rounded-xl px-4 py-2.5 min-w-[260px]">
+          <div 
+            className="flex items-center gap-3 rounded-xl px-4 py-2.5 min-w-[260px]"
+            style={{
+              background: 'rgba(11, 15, 20, 0.85)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.3)'
+            }}
+          >
             <button 
               onClick={() => setIsPlaying(!isPlaying)}
-              className="w-8 h-8 rounded-full bg-blue hover:bg-blue/80 text-white flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shrink-0 shadow-[0_0_12px_rgba(79,124,255,0.4)]"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 shrink-0"
+              style={{
+                background: 'rgba(79, 124, 255, 0.18)',
+                border: '1px solid rgba(79, 124, 255, 0.35)',
+                color: '#FFFFFF',
+                boxShadow: '0 0 16px rgba(79, 124, 255, 0.18)'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(79, 124, 255, 0.28)';
+                e.currentTarget.style.borderColor = 'rgba(79, 124, 255, 0.5)';
+                e.currentTarget.style.boxShadow = '0 0 20px rgba(79, 124, 255, 0.28)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(79, 124, 255, 0.18)';
+                e.currentTarget.style.borderColor = 'rgba(79, 124, 255, 0.35)';
+                e.currentTarget.style.boxShadow = '0 0 16px rgba(79, 124, 255, 0.18)';
+              }}
               aria-label={isPlaying ? "Pause audio" : "Play audio"}
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5 fill-white" /> : <Play className="w-3.5 h-3.5 fill-white ml-0.5" />}
@@ -87,7 +147,7 @@ export function VoiceSimulation({ scenario }: { scenario: ScenarioData }) {
 
             {/* Visualizer bars */}
             <div className="flex-1">
-              <div className="flex items-center justify-between text-[10px] font-mono text-muted mb-1">
+              <div className="flex items-center justify-between text-[10px] font-mono mb-1" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>
                 <span>{isPlaying ? "0:24" : "0:00"}</span>
                 <span>{duration}</span>
               </div>
@@ -95,44 +155,72 @@ export function VoiceSimulation({ scenario }: { scenario: ScenarioData }) {
                 {[14, 28, 45, 75, 32, 60, 90, 50, 65, 35, 80, 55, 30, 70, 40, 20, 50, 75, 30, 15].map((h, i) => (
                   <span 
                     key={i} 
-                    className={`w-1 rounded-full transition-all duration-300 ${
-                      isPlaying ? 'bg-cyan animate-pulse' : 'bg-muted/30'
-                    }`}
+                    className="w-1 rounded-full transition-all duration-300"
                     style={{ 
-                      height: isPlaying ? `${Math.max(20, (h + (i % 3) * 15) % 100)}%` : `${Math.max(25, h * 0.5)}%` 
+                      height: isPlaying ? `${Math.max(20, (h + (i % 3) * 15) % 100)}%` : `${Math.max(25, h * 0.5)}%`,
+                      background: isPlaying ? 'rgba(79, 124, 255, 0.9)' : 'rgba(141, 152, 165, 0.25)',
+                      boxShadow: isPlaying ? '0 0 6px rgba(79, 124, 255, 0.4)' : 'none'
                     }}
                   />
                 ))}
               </div>
             </div>
 
-            <Volume2 className="w-3.5 h-3.5 text-muted shrink-0" />
+            <Volume2 className="w-3.5 h-3.5 shrink-0" style={{ color: 'rgba(141, 152, 165, 0.6)' }} />
           </div>
         </div>
       </div>
 
       {/* Speech-to-Text Transcript Section */}
-      <div className="px-6 py-5 bg-[#080D12]/50 space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-primary/5">
-          <div className="flex items-center gap-2 text-xs font-mono font-semibold tracking-wider text-muted uppercase">
-            <FileText className="w-3.5 h-3.5 text-blue" />
+      <div 
+        className="px-6 py-5 space-y-3"
+        style={{
+          background: 'rgba(11, 15, 20, 0.5)'
+        }}
+      >
+        <div 
+          className="flex items-center justify-between pb-2"
+          style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}
+        >
+          <div className="flex items-center gap-2 text-xs font-mono font-semibold tracking-wider uppercase" style={{ color: 'rgba(141, 152, 165, 0.85)' }}>
+            <FileText className="w-3.5 h-3.5" style={{ color: 'rgba(165, 184, 255, 0.9)' }} />
             <span>AI Voicemail Transcript (98.6% Confidence)</span>
           </div>
-          <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-blue/10 text-blue border border-blue/20">
+          <span 
+            className="text-[9px] font-mono px-2 py-0.5 rounded uppercase tracking-wider font-semibold"
+            style={{
+              background: 'rgba(79, 124, 255, 0.08)',
+              border: '1px solid rgba(79, 124, 255, 0.18)',
+              color: 'rgba(165, 184, 255, 0.85)'
+            }}
+          >
             AUTO-EXTRACTED
           </span>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#111821]/80 border border-primary/5 text-sm leading-relaxed text-primary/90 font-mono">
-          <p className="italic text-primary/80">&ldquo;{transcript.replace(/^\[.*?\]\s*/, '').replace(/^"|"$/g, '')}&rdquo;</p>
+        <div 
+          className="p-4 rounded-xl text-sm leading-relaxed font-mono"
+          style={{
+            background: 'rgba(11, 15, 20, 0.75)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            color: 'rgba(240, 244, 248, 0.9)'
+          }}
+        >
+          <p className="italic">&ldquo;{transcript.replace(/^\[.*?\]\s*/, '').replace(/^"|"$/g, '')}&rdquo;</p>
         </div>
 
         {/* Psychological / Pressure Telemetry */}
-        <div className="p-3 rounded-lg bg-amber/5 border border-amber/20 flex items-start gap-2.5">
-          <AlertTriangle className="w-4 h-4 text-amber shrink-0 mt-0.5" />
+        <div 
+          className="p-3.5 rounded-xl flex items-start gap-2.5"
+          style={{
+            background: 'rgba(245, 158, 11, 0.08)',
+            border: '1px solid rgba(245, 158, 11, 0.22)'
+          }}
+        >
+          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#FBBF24' }} />
           <div className="text-xs">
-            <span className="font-semibold text-amber font-mono uppercase tracking-wide">Urgency Vector: </span>
-            <span className="text-primary/80">{urgencyCue}</span>
+            <span className="font-semibold font-mono uppercase tracking-wide" style={{ color: '#FBBF24' }}>Urgency Vector: </span>
+            <span className="text-primary/90">{urgencyCue}</span>
           </div>
         </div>
       </div>
@@ -159,34 +247,72 @@ export function ChatSimulation({ scenario }: { scenario: ScenarioData }) {
   ];
 
   return (
-    <div className="w-full bg-[#121720] rounded-[1rem] shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-primary/10 overflow-hidden text-left font-sans">
+    <div 
+      className="w-full rounded-2xl overflow-hidden text-left font-sans transition-all duration-300"
+      style={{
+        background: 'rgba(17, 24, 33, 0.75)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+        backdropFilter: 'blur(16px)'
+      }}
+    >
       {/* Workspace Header Bar */}
-      <div className="border-b border-primary/10 px-6 py-4 bg-[#0B0F14] flex items-center justify-between">
+      <div 
+        className="px-6 py-4 flex items-center justify-between"
+        style={{
+          background: 'rgba(11, 15, 20, 0.85)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.07)'
+        }}
+      >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-blue/20 border border-blue/40 flex items-center justify-center text-blue">
+          <div 
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{
+              background: 'rgba(79, 124, 255, 0.12)',
+              border: '1px solid rgba(79, 124, 255, 0.25)',
+              color: 'rgba(165, 184, 255, 0.95)'
+            }}
+          >
             <MessageSquare className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-primary">{channelOrDm}</span>
-              <span className="h-2 w-2 rounded-full bg-teal"></span>
-              <span className="text-[11px] font-mono text-teal">Active Now</span>
+              <span className="h-2 w-2 rounded-full" style={{ background: '#34D399', boxShadow: '0 0 6px #34D399' }}></span>
+              <span className="text-[11px] font-mono" style={{ color: '#34D399' }}>Active Now</span>
             </div>
-            <p className="text-xs text-muted font-mono">{platform} Workspace · NovaTech Internal</p>
+            <p className="text-xs font-mono" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>{platform} Workspace · NovaTech Internal</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-mono text-muted bg-surface px-3 py-1.5 rounded-lg border border-primary/5">
+        <div 
+          className="flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-lg"
+          style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.07)',
+            color: 'rgba(141, 152, 165, 0.65)'
+          }}
+        >
           <span>Search messages & files</span>
         </div>
       </div>
 
       {/* Message Feed Container */}
-      <div className="px-6 py-8 bg-[#121720] space-y-6">
+      <div 
+        className="px-6 py-8 space-y-6"
+        style={{ background: 'rgba(17, 24, 33, 0.45)' }}
+      >
         {/* Date Divider */}
         <div className="relative flex items-center justify-center">
-          <div className="border-t border-primary/10 w-full"></div>
-          <span className="absolute bg-[#121720] px-4 text-[11px] font-mono uppercase text-muted tracking-wider">
+          <div className="w-full" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.07)' }}></div>
+          <span 
+            className="absolute px-4 text-[11px] font-mono uppercase tracking-wider rounded-full"
+            style={{
+              background: 'rgba(11, 15, 20, 0.9)',
+              border: '1px solid rgba(255, 255, 255, 0.06)',
+              color: 'rgba(141, 152, 165, 0.7)'
+            }}
+          >
             Today
           </span>
         </div>
@@ -194,31 +320,58 @@ export function ChatSimulation({ scenario }: { scenario: ScenarioData }) {
         {/* Message Thread */}
         {messages.map((m: any, idx: number) => (
           <div key={idx} className="flex items-start gap-4 group">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-coral/40 to-blue/40 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0 shadow-sm">
+            <div 
+              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 shadow-sm"
+              style={{
+                background: 'linear-gradient(135deg, rgba(79, 124, 255, 0.25), rgba(96, 165, 250, 0.15))',
+                border: '1px solid rgba(79, 124, 255, 0.3)',
+                color: 'rgba(165, 184, 255, 0.95)'
+              }}
+            >
               {m.sender.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-baseline gap-2 mb-1.5">
                 <span className="text-sm font-bold text-primary">{m.sender}</span>
-                <span className="text-xs font-mono text-cyan">{senderHandle}</span>
-                <span className="text-[11px] font-mono text-muted">{m.time || "2:14 PM"}</span>
+                <span className="text-xs font-mono" style={{ color: 'rgba(165, 184, 255, 0.85)' }}>{senderHandle}</span>
+                <span className="text-[11px] font-mono" style={{ color: 'rgba(141, 152, 165, 0.6)' }}>{m.time || "2:14 PM"}</span>
               </div>
 
               {/* Message Bubble */}
-              <div className="text-sm leading-relaxed text-primary/90 bg-surface/70 border border-primary/5 p-4 rounded-xl space-y-3">
+              <div 
+                className="text-sm leading-relaxed p-4 rounded-2xl space-y-3"
+                style={{
+                  background: 'rgba(11, 15, 20, 0.75)',
+                  border: '1px solid rgba(255, 255, 255, 0.07)',
+                  color: 'rgba(240, 244, 248, 0.92)'
+                }}
+              >
                 <p className="whitespace-pre-line">{m.text}</p>
 
                 {/* Embedded Link / File Share Preview Card */}
-                <div className="mt-3 p-3.5 rounded-lg bg-[#0B0F14] border border-coral/30 hover:border-coral transition-colors flex items-start gap-3">
-                  <div className="p-2 rounded bg-coral/10 text-coral shrink-0 mt-0.5">
+                <div 
+                  className="mt-3 p-3.5 rounded-xl flex items-start gap-3 transition-all duration-200"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.07)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.05)'
+                  }}
+                >
+                  <div 
+                    className="p-2 rounded-lg shrink-0 mt-0.5"
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.15)',
+                      color: '#F87171'
+                    }}
+                  >
                     <ExternalLink className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-mono font-semibold text-coral truncate">
+                    <p className="text-xs font-mono font-semibold truncate" style={{ color: '#F87171' }}>
                       https://novatech-auth-verify.internal-portal.net/login?token=x99a
                     </p>
-                    <p className="text-xs text-muted mt-0.5">
+                    <p className="text-xs mt-0.5" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>
                       Authentication Portal · Emergency System Re-verification
                     </p>
                   </div>
@@ -230,11 +383,32 @@ export function ChatSimulation({ scenario }: { scenario: ScenarioData }) {
       </div>
 
       {/* Realistic Disabled Reply Box */}
-      <div className="px-6 py-4 bg-[#0B0F14] border-t border-primary/10">
-        <div className="p-3 bg-surface rounded-xl border border-primary/10 flex items-center justify-between text-muted text-xs font-sans">
+      <div 
+        className="px-6 py-4"
+        style={{
+          background: 'rgba(11, 15, 20, 0.85)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.07)'
+        }}
+      >
+        <div 
+          className="p-3 rounded-xl flex items-center justify-between text-xs font-sans"
+          style={{
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            color: 'rgba(141, 152, 165, 0.6)'
+          }}
+        >
           <span>Reply to {senderHandle}...</span>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-primary/5">Markdown enabled</span>
+            <span 
+              className="text-[10px] font-mono px-2 py-0.5 rounded"
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: 'rgba(141, 152, 165, 0.6)'
+              }}
+            >
+              Markdown enabled
+            </span>
           </div>
         </div>
       </div>
@@ -253,32 +427,72 @@ export function QuishingSimulation({ scenario }: { scenario: ScenarioData }) {
   const targetUrl = cd.qr_target_url || "https://novatech-auth-portal.net/scan-verify";
 
   return (
-    <div className="w-full bg-[#14171d] rounded-[1rem] shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-primary/10 overflow-hidden text-left font-sans">
+    <div 
+      className="w-full rounded-2xl overflow-hidden text-left font-sans transition-all duration-300"
+      style={{
+        background: 'rgba(17, 24, 33, 0.75)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+        backdropFilter: 'blur(16px)'
+      }}
+    >
       {/* Physical Bulletin Header */}
-      <div className="border-b border-primary/10 px-8 py-5 bg-[#0e1218] flex items-center justify-between">
+      <div 
+        className="px-8 py-5 flex items-center justify-between"
+        style={{
+          background: 'rgba(11, 15, 20, 0.85)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.07)'
+        }}
+      >
         <div className="flex items-center gap-3">
-          <span className="p-1.5 rounded-md bg-amber/20 text-amber border border-amber/30">
+          <span 
+            className="p-1.5 rounded-lg"
+            style={{
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.25)',
+              color: '#FBBF24'
+            }}
+          >
             <QrCode className="w-4 h-4" />
           </span>
           <div>
-            <span className="text-xs font-mono font-semibold tracking-wider text-amber uppercase">
+            <span 
+              className="text-xs font-mono font-semibold tracking-wider uppercase"
+              style={{ color: '#FBBF24' }}
+            >
               PHYSICAL ENVIRONMENT DISCOVERY · QUISHING NOTICE
             </span>
-            <p className="text-xs text-muted flex items-center gap-1.5 mt-0.5">
-              <MapPin className="w-3 h-3 text-cyan" />
+            <p className="text-xs flex items-center gap-1.5 mt-0.5" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>
+              <MapPin className="w-3 h-3" style={{ color: 'rgba(165, 184, 255, 0.9)' }} />
               <span>{location}</span>
             </p>
           </div>
         </div>
-        <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-surface border border-primary/10 text-muted">
+        <span 
+          className="text-[11px] font-mono px-2.5 py-1 rounded"
+          style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.07)',
+            color: 'rgba(141, 152, 165, 0.75)'
+          }}
+        >
           PHYSICAL FLYER
         </span>
       </div>
 
       {/* Printed Notice Card */}
-      <div className="p-8 md:p-10 flex flex-col md:flex-row items-center gap-8 bg-surface/50">
+      <div 
+        className="p-8 md:p-10 flex flex-col md:flex-row items-center gap-8"
+        style={{ background: 'rgba(17, 24, 33, 0.45)' }}
+      >
         {/* Scannable SVG QR Code Graphic */}
-        <div className="w-56 h-56 bg-white p-4 rounded-2xl shadow-xl flex flex-col items-center justify-center shrink-0 border-4 border-[#1c2430]">
+        <div 
+          className="w-56 h-56 bg-white p-4 rounded-2xl flex flex-col items-center justify-center shrink-0"
+          style={{
+            border: '4px solid rgba(79, 124, 255, 0.25)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)'
+          }}
+        >
           <svg className="w-full h-full text-black" viewBox="0 0 100 100" fill="currentColor">
             {/* Top-Left Finder */}
             <rect x="5" y="5" width="26" height="26" fill="black" rx="4" />
@@ -330,29 +544,49 @@ export function QuishingSimulation({ scenario }: { scenario: ScenarioData }) {
         {/* Poster Content */}
         <div className="flex-1 space-y-4">
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-coral/20 text-coral border border-coral/30">
+            <span 
+              className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider"
+              style={{
+                background: 'rgba(239, 68, 68, 0.12)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                color: '#F87171'
+              }}
+            >
               URGENT COMPLIANCE
             </span>
-            <span className="text-xs font-mono text-muted">IT Security & Human Resources Notice</span>
+            <span className="text-xs font-mono" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>IT Security & Human Resources Notice</span>
           </div>
 
           <h3 className="text-xl font-bold text-primary leading-snug">
             {headline}
           </h3>
 
-          <p className="text-sm leading-relaxed text-primary/80">
+          <p className="text-sm leading-relaxed" style={{ color: 'rgba(240, 244, 248, 0.88)' }}>
             {instructions}
           </p>
 
           {/* Clue / Inspection Bar */}
-          <div className="p-4 rounded-xl bg-background/80 border border-primary/10 space-y-2">
+          <div 
+            className="p-4 rounded-xl space-y-2"
+            style={{
+              background: 'rgba(11, 15, 20, 0.8)',
+              border: '1px solid rgba(255, 255, 255, 0.08)'
+            }}
+          >
             <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-muted">Encoded QR Payload (Destination URL):</span>
-              <span className="text-amber flex items-center gap-1 font-semibold">
+              <span style={{ color: 'rgba(141, 152, 165, 0.75)' }}>Encoded QR Payload (Destination URL):</span>
+              <span className="flex items-center gap-1 font-semibold" style={{ color: '#FBBF24' }}>
                 <AlertTriangle className="w-3.5 h-3.5" /> External Domain
               </span>
             </div>
-            <p className="text-xs font-mono text-cyan bg-surface px-3 py-2 rounded-lg border border-primary/5 break-all">
+            <p 
+              className="text-xs font-mono px-3 py-2 rounded-lg break-all"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.06)',
+                color: 'rgba(165, 184, 255, 0.95)'
+              }}
+            >
               {targetUrl}
             </p>
           </div>
@@ -376,37 +610,80 @@ export function OAuthSimulation({ scenario }: { scenario: ScenarioData }) {
   ];
 
   return (
-    <div className="w-full bg-[#0E141D] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.4)] border border-[#1E293B] overflow-hidden text-left font-sans">
+    <div 
+      className="w-full rounded-2xl overflow-hidden text-left font-sans transition-all duration-300"
+      style={{
+        background: 'rgba(17, 24, 33, 0.75)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+        backdropFilter: 'blur(16px)'
+      }}
+    >
       {/* Provider Header Bar */}
-      <div className="border-b border-[#1E293B] px-6 py-3.5 bg-[#080D12] flex items-center justify-between">
+      <div 
+        className="px-6 py-3.5 flex items-center justify-between"
+        style={{
+          background: 'rgba(11, 15, 20, 0.85)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.07)'
+        }}
+      >
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-blue/15 border border-blue/30 flex items-center justify-center text-blue">
+          <div 
+            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            style={{
+              background: 'rgba(79, 124, 255, 0.12)',
+              border: '1px solid rgba(79, 124, 255, 0.25)',
+              color: 'rgba(165, 184, 255, 0.95)'
+            }}
+          >
             <Lock className="w-3.5 h-3.5" />
           </div>
           <div>
-            <span className="text-[11px] font-mono font-semibold tracking-wider text-cyan uppercase">
+            <span 
+              className="text-[11px] font-mono font-semibold tracking-wider uppercase"
+              style={{ color: 'rgba(165, 184, 255, 0.9)' }}
+            >
               NOVASYNC ENTERPRISE · SINGLE SIGN-ON DIRECTORY
             </span>
-            <p className="text-[11px] text-muted">Connected Account: user@novatech.com</p>
+            <p className="text-[11px]" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>Connected Account: user@novatech.com</p>
           </div>
         </div>
-        <span className="text-[10px] font-mono px-2.5 py-0.5 rounded bg-coral/15 text-coral border border-coral/30 font-semibold">
+        <span 
+          className="text-[10px] font-mono px-2.5 py-0.5 rounded font-semibold uppercase tracking-wider"
+          style={{
+            background: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.25)',
+            color: '#F87171'
+          }}
+        >
           UNTRUSTED OAUTH REQUEST
         </span>
       </div>
 
       {/* App Request Details */}
-      <div className="p-6 bg-surface/70 space-y-4">
+      <div 
+        className="p-6 space-y-4"
+        style={{ background: 'rgba(17, 24, 33, 0.5)' }}
+      >
         <div className="flex items-start gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber/20 to-coral/20 border border-amber/30 flex items-center justify-center text-amber text-lg font-bold shrink-0">
-            <Key className="w-6 h-6 text-amber" />
+          <div 
+            className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold shrink-0"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.15))',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              color: '#FBBF24'
+            }}
+          >
+            <Key className="w-6 h-6" style={{ color: '#FBBF24' }} />
           </div>
           <div>
             <h3 className="text-lg font-bold text-primary flex items-center gap-2">
               <span>{appName}</span>
             </h3>
-            <p className="text-xs text-muted mt-0.5">Requests authorization to access corporate cloud drive and mailbox data</p>
-            <div className="mt-1.5 flex items-center gap-1.5 text-xs font-mono text-coral">
+            <p className="text-xs mt-0.5" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>
+              Requests authorization to access corporate cloud drive and mailbox data
+            </p>
+            <div className="mt-1.5 flex items-center gap-1.5 text-xs font-mono" style={{ color: '#F87171' }}>
               <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
               <span>Publisher: {publisher}</span>
             </div>
@@ -414,11 +691,19 @@ export function OAuthSimulation({ scenario }: { scenario: ScenarioData }) {
         </div>
 
         {/* Warning Banner */}
-        <div className="p-3.5 rounded-xl bg-coral/10 border border-coral/30 flex items-start gap-2.5">
-          <AlertTriangle className="w-4 h-4 text-coral shrink-0 mt-0.5" />
-          <div className="text-xs text-primary/90 space-y-0.5">
-            <p className="font-bold text-coral uppercase font-mono text-[11px]">Unverified Application Warning</p>
-            <p className="text-[12px] text-primary/80">
+        <div 
+          className="p-3.5 rounded-xl flex items-start gap-2.5"
+          style={{
+            background: 'rgba(239, 68, 68, 0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.25)'
+          }}
+        >
+          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#F87171' }} />
+          <div className="text-xs space-y-0.5">
+            <p className="font-bold uppercase font-mono text-[11px]" style={{ color: '#F87171' }}>
+              Unverified Application Warning
+            </p>
+            <p style={{ color: 'rgba(240, 244, 248, 0.88)' }}>
               This application has not been certified by NovaTech IT Administrators. Authorizing it grants persistent offline access to corporate secrets.
             </p>
           </div>
@@ -426,17 +711,31 @@ export function OAuthSimulation({ scenario }: { scenario: ScenarioData }) {
 
         {/* Requested Scopes */}
         <div className="space-y-2">
-          <p className="text-[11px] font-mono uppercase tracking-wider text-muted font-semibold">
+          <p className="text-[11px] font-mono uppercase tracking-wider font-semibold" style={{ color: 'rgba(141, 152, 165, 0.85)' }}>
             Requested Access Scopes:
           </p>
           <div className="space-y-1.5">
             {scopes.map((scope: string, i: number) => (
-              <div key={i} className="px-3.5 py-2.5 rounded-lg bg-[#080D12]/90 border border-primary/5 flex items-center justify-between gap-3">
+              <div 
+                key={i} 
+                className="px-3.5 py-2.5 rounded-xl flex items-center justify-between gap-3"
+                style={{
+                  background: 'rgba(11, 15, 20, 0.75)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)'
+                }}
+              >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="h-1.5 w-1.5 rounded-full bg-coral shrink-0"></span>
-                  <span className="text-xs font-medium text-primary/90 truncate">{scope}</span>
+                  <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: '#F87171' }}></span>
+                  <span className="text-xs font-medium truncate" style={{ color: 'rgba(240, 244, 248, 0.92)' }}>{scope}</span>
                 </div>
-                <span className="shrink-0 text-[9px] font-mono px-2 py-0.5 rounded bg-coral/10 text-coral border border-coral/20">
+                <span 
+                  className="shrink-0 text-[9px] font-mono px-2 py-0.5 rounded font-semibold uppercase tracking-wider"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    color: '#F87171'
+                  }}
+                >
                   {i === 0 ? 'Mailbox Write' : i === 1 ? 'Offline Sync' : 'Token Access'}
                 </span>
               </div>
@@ -446,15 +745,35 @@ export function OAuthSimulation({ scenario }: { scenario: ScenarioData }) {
       </div>
 
       {/* Action Buttons Mock */}
-      <div className="px-6 py-3.5 bg-[#080D12] border-t border-[#1E293B] flex items-center justify-between">
-        <span className="text-[11px] text-muted font-mono hidden sm:inline">
+      <div 
+        className="px-6 py-3.5 flex items-center justify-between"
+        style={{
+          background: 'rgba(11, 15, 20, 0.85)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.07)'
+        }}
+      >
+        <span className="text-[11px] font-mono hidden sm:inline" style={{ color: 'rgba(141, 152, 165, 0.65)' }}>
           By granting consent, third-party servers receive persistent API access tokens.
         </span>
         <div className="flex items-center gap-2.5 ml-auto">
-          <span className="px-4 py-1.5 rounded-lg bg-surface border border-primary/10 text-xs font-mono text-muted">
+          <span 
+            className="px-4 py-1.5 rounded-lg text-xs font-mono"
+            style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              color: 'rgba(141, 152, 165, 0.7)'
+            }}
+          >
             Deny Access
           </span>
-          <span className="px-4 py-1.5 rounded-lg bg-blue/20 border border-blue/30 text-xs font-mono text-blue font-semibold">
+          <span 
+            className="px-4 py-1.5 rounded-lg text-xs font-mono font-semibold"
+            style={{
+              background: 'rgba(79, 124, 255, 0.15)',
+              border: '1px solid rgba(79, 124, 255, 0.3)',
+              color: 'rgba(165, 184, 255, 0.95)'
+            }}
+          >
             Grant Consent
           </span>
         </div>
@@ -475,9 +794,23 @@ export function PushSimulation({ scenario }: { scenario: ScenarioData }) {
   const smsPreview = cd.sms_preview || scenario.body || "14 repeated MFA push prompts received in 3 minutes.";
 
   return (
-    <div className="w-full max-w-md mx-auto bg-[#0d1117] rounded-[2rem] shadow-[0_12px_40px_rgba(0,0,0,0.7)] border-4 border-[#1e2633] overflow-hidden text-left font-sans">
+    <div 
+      className="w-full max-w-md mx-auto rounded-[2.25rem] overflow-hidden text-left font-sans transition-all duration-300"
+      style={{
+        background: 'rgba(11, 15, 20, 0.92)',
+        border: '2px solid rgba(79, 124, 255, 0.25)',
+        boxShadow: '0 16px 48px rgba(0, 0, 0, 0.7)',
+        backdropFilter: 'blur(20px)'
+      }}
+    >
       {/* Mobile Lock Screen Header */}
-      <div className="px-6 pt-5 pb-3 bg-[#0d1117] flex items-center justify-between text-xs font-mono text-muted border-b border-primary/5">
+      <div 
+        className="px-6 pt-5 pb-3 flex items-center justify-between text-xs font-mono"
+        style={{
+          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          color: 'rgba(141, 152, 165, 0.75)'
+        }}
+      >
         <span className="font-bold text-primary">14:32</span>
         <div className="flex items-center gap-2">
           <Wifi className="w-3.5 h-3.5" />
@@ -489,15 +822,22 @@ export function PushSimulation({ scenario }: { scenario: ScenarioData }) {
       <div className="p-6 space-y-4">
         <div className="text-center pb-2">
           <p className="text-3xl font-light text-primary tracking-tight">14:32</p>
-          <p className="text-xs text-muted mt-0.5">Thursday, October 24</p>
+          <p className="text-xs mt-0.5" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>Thursday, October 24</p>
         </div>
 
         {/* High Urgency Notification Bombing Badge */}
-        <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-coral/15 border border-coral/30 text-coral text-xs font-mono">
+        <div 
+          className="flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-mono"
+          style={{
+            background: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#F87171'
+          }}
+        >
           <span className="flex items-center gap-2 font-semibold">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-coral opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-coral"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: '#F87171' }}></span>
+              <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: '#EF4444' }}></span>
             </span>
             MFA FATIGUE ATTACK DETECTED
           </span>
@@ -505,28 +845,47 @@ export function PushSimulation({ scenario }: { scenario: ScenarioData }) {
         </div>
 
         {/* Top Active Push Prompt Notification Card */}
-        <div className="p-4 rounded-2xl bg-surface border border-coral/40 shadow-lg space-y-3">
+        <div 
+          className="p-4 rounded-2xl space-y-3 shadow-lg"
+          style={{
+            background: 'rgba(17, 24, 33, 0.85)',
+            border: '1px solid rgba(239, 68, 68, 0.35)',
+            boxShadow: '0 8px 24px rgba(239, 68, 68, 0.08)'
+          }}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-blue/20 flex items-center justify-center text-blue">
+              <div 
+                className="w-6 h-6 rounded-md flex items-center justify-center"
+                style={{
+                  background: 'rgba(79, 124, 255, 0.15)',
+                  color: 'rgba(165, 184, 255, 0.95)'
+                }}
+              >
                 <Shield className="w-3.5 h-3.5" />
               </div>
               <span className="text-xs font-bold text-primary">{serviceName}</span>
             </div>
-            <span className="text-[10px] font-mono text-muted">Just now</span>
+            <span className="text-[10px] font-mono" style={{ color: 'rgba(141, 152, 165, 0.65)' }}>Just now</span>
           </div>
 
           <div>
             <p className="text-sm font-semibold text-primary">Sign-in Approval Requested</p>
-            <p className="text-xs text-muted mt-0.5">Did you just attempt to sign into NovaTech Global SSO?</p>
+            <p className="text-xs mt-0.5" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>Did you just attempt to sign into NovaTech Global SSO?</p>
           </div>
 
-          <div className="p-3 rounded-xl bg-background/80 border border-primary/5 space-y-1 text-xs font-mono">
-            <div className="flex items-center gap-2 text-coral">
+          <div 
+            className="p-3 rounded-xl space-y-1 text-xs font-mono"
+            style={{
+              background: 'rgba(11, 15, 20, 0.85)',
+              border: '1px solid rgba(255, 255, 255, 0.06)'
+            }}
+          >
+            <div className="flex items-center gap-2" style={{ color: '#F87171' }}>
               <MapPin className="w-3.5 h-3.5 shrink-0" />
               <span className="font-medium truncate">{locationInfo}</span>
             </div>
-            <div className="flex items-center gap-2 text-muted">
+            <div className="flex items-center gap-2" style={{ color: 'rgba(141, 152, 165, 0.7)' }}>
               <Laptop className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">{deviceInfo}</span>
             </div>
@@ -534,25 +893,45 @@ export function PushSimulation({ scenario }: { scenario: ScenarioData }) {
 
           {/* Prompt Buttons */}
           <div className="grid grid-cols-2 gap-2 pt-1">
-            <div className="py-2.5 px-3 rounded-xl bg-coral/20 border border-coral/40 text-coral text-xs font-bold text-center">
+            <div 
+              className="py-2.5 px-3 rounded-xl text-xs font-bold text-center"
+              style={{
+                background: 'rgba(239, 68, 68, 0.15)',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                color: '#F87171'
+              }}
+            >
               Deny (Report Fraud)
             </div>
-            <div className="py-2.5 px-3 rounded-xl bg-blue/20 border border-blue/40 text-blue text-xs font-bold text-center">
+            <div 
+              className="py-2.5 px-3 rounded-xl text-xs font-bold text-center"
+              style={{
+                background: 'rgba(79, 124, 255, 0.15)',
+                border: '1px solid rgba(79, 124, 255, 0.35)',
+                color: 'rgba(165, 184, 255, 0.95)'
+              }}
+            >
               Approve (Number Match)
             </div>
           </div>
         </div>
 
         {/* Secondary Stacked SMS Warning */}
-        <div className="p-4 rounded-2xl bg-surface/70 border border-primary/10 space-y-1.5 opacity-80">
+        <div 
+          className="p-4 rounded-2xl space-y-1.5 opacity-80"
+          style={{
+            background: 'rgba(17, 24, 33, 0.6)',
+            border: '1px solid rgba(255, 255, 255, 0.07)'
+          }}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Smartphone className="w-4 h-4 text-cyan" />
+              <Smartphone className="w-4 h-4" style={{ color: 'rgba(165, 184, 255, 0.9)' }} />
               <span className="text-xs font-bold text-primary">Messages</span>
             </div>
-            <span className="text-[10px] font-mono text-muted">1m ago</span>
+            <span className="text-[10px] font-mono" style={{ color: 'rgba(141, 152, 165, 0.65)' }}>1m ago</span>
           </div>
-          <p className="text-xs text-primary/80 font-mono line-clamp-2">
+          <p className="text-xs font-mono line-clamp-2" style={{ color: 'rgba(240, 244, 248, 0.85)' }}>
             {smsPreview}
           </p>
         </div>
@@ -572,62 +951,132 @@ export function PhysicalSimulation({ scenario }: { scenario: ScenarioData }) {
   const autorunPrompt = cd.autorun_prompt || "Removable Drive (E:) — Run Executive_Review.exe";
 
   return (
-    <div className="w-full bg-[#121722] rounded-[1rem] shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-primary/10 overflow-hidden text-left font-sans">
+    <div 
+      className="w-full rounded-2xl overflow-hidden text-left font-sans transition-all duration-300"
+      style={{
+        background: 'rgba(17, 24, 33, 0.75)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+        backdropFilter: 'blur(16px)'
+      }}
+    >
       {/* Incident Header */}
-      <div className="border-b border-primary/10 px-8 py-5 bg-[#0a0f16] flex items-center justify-between">
+      <div 
+        className="px-8 py-5 flex items-center justify-between"
+        style={{
+          background: 'rgba(11, 15, 20, 0.85)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.07)'
+        }}
+      >
         <div className="flex items-center gap-3">
-          <div className="p-1.5 rounded-md bg-coral/20 text-coral border border-coral/30">
+          <div 
+            className="p-1.5 rounded-lg"
+            style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.25)',
+              color: '#F87171'
+            }}
+          >
             <HardDrive className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-xs font-mono font-semibold tracking-wider text-coral uppercase">
+            <span 
+              className="text-xs font-mono font-semibold tracking-wider uppercase"
+              style={{ color: '#F87171' }}
+            >
               PHYSICAL INCIDENT DISCOVERY · UNTRUSTED PERIPHERAL
             </span>
-            <p className="text-xs text-muted flex items-center gap-1.5 mt-0.5">
-              <MapPin className="w-3 h-3 text-cyan" />
+            <p className="text-xs flex items-center gap-1.5 mt-0.5" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>
+              <MapPin className="w-3 h-3" style={{ color: 'rgba(165, 184, 255, 0.9)' }} />
               <span>{discoveryLocation}</span>
             </p>
           </div>
         </div>
-        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-surface border border-primary/10 text-muted">
+        <span 
+          className="text-[11px] font-mono px-2.5 py-1 rounded uppercase tracking-wider"
+          style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.07)',
+            color: 'rgba(141, 152, 165, 0.75)'
+          }}
+        >
           INCIDENT #PS-2026-09
         </span>
       </div>
 
       {/* Discovery Visual Container */}
-      <div className="p-8 md:p-10 space-y-8 bg-surface/50">
+      <div 
+        className="p-8 md:p-10 space-y-8"
+        style={{ background: 'rgba(17, 24, 33, 0.45)' }}
+      >
         <div className="flex flex-col md:flex-row items-center gap-8">
           {/* Stylized USB Flash Drive Card */}
-          <div className="w-full md:w-72 p-6 rounded-2xl bg-[#090d13] border-2 border-primary/15 flex flex-col items-center justify-center relative shadow-inner">
-            <div className="w-16 h-10 border-2 border-primary/30 rounded-t-md bg-[#1a2332] flex items-center justify-center text-[10px] font-mono text-muted">
+          <div 
+            className="w-full md:w-72 p-6 rounded-2xl flex flex-col items-center justify-center relative"
+            style={{
+              background: 'rgba(11, 15, 20, 0.85)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.4)'
+            }}
+          >
+            <div 
+              className="w-16 h-10 rounded-t-md flex items-center justify-center text-[10px] font-mono"
+              style={{
+                background: 'rgba(79, 124, 255, 0.15)',
+                border: '1px solid rgba(79, 124, 255, 0.3)',
+                color: 'rgba(165, 184, 255, 0.8)'
+              }}
+            >
               USB 3.1
             </div>
-            <div className="w-28 h-40 bg-gradient-to-b from-[#161f2d] to-[#0c121a] rounded-b-xl border-x-2 border-b-2 border-primary/30 p-3 flex flex-col justify-between items-center relative shadow-2xl">
-              <span className="h-2 w-2 rounded-full bg-cyan animate-pulse"></span>
+            <div 
+              className="w-28 h-40 rounded-b-xl p-3 flex flex-col justify-between items-center relative shadow-2xl"
+              style={{
+                background: 'linear-gradient(180deg, #1A2332 0%, #0B1017 100%)',
+                border: '1px solid rgba(255, 255, 255, 0.12)'
+              }}
+            >
+              <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: '#60A5FA', boxShadow: '0 0 8px #60A5FA' }}></span>
               {/* Handwritten Tape Label */}
-              <div className="w-full bg-[#f6e05e]/90 text-black px-2 py-1.5 rounded transform -rotate-3 shadow text-center">
+              <div 
+                className="w-full text-black px-2 py-1.5 rounded transform -rotate-3 shadow text-center"
+                style={{
+                  background: 'rgba(253, 230, 138, 0.95)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
+                }}
+              >
                 <p className="text-[9px] font-bold font-mono tracking-tight leading-tight">
                   {physicalLabel.slice(0, 36)}
                 </p>
               </div>
-              <span className="text-[10px] font-mono text-muted tracking-widest uppercase">32 GB</span>
+              <span className="text-[10px] font-mono tracking-widest uppercase" style={{ color: 'rgba(141, 152, 165, 0.7)' }}>32 GB</span>
             </div>
-            <p className="text-xs font-mono text-cyan mt-4 text-center font-semibold">{mediaType}</p>
+            <p className="text-xs font-mono mt-4 text-center font-semibold" style={{ color: 'rgba(165, 184, 255, 0.9)' }}>{mediaType}</p>
           </div>
 
           {/* Incident Description & Workstation Auto-Run Modal */}
           <div className="flex-1 space-y-4">
             <div>
-              <span className="text-xs font-mono uppercase tracking-wider text-muted font-semibold">Incident Narrative:</span>
-              <p className="text-sm leading-relaxed text-primary/90 mt-1 font-medium">
+              <span className="text-xs font-mono uppercase tracking-wider font-semibold" style={{ color: 'rgba(141, 152, 165, 0.8)' }}>Incident Narrative:</span>
+              <p className="text-sm leading-relaxed mt-1 font-medium text-primary/90">
                 {scenario.body || "A branded high-capacity USB drive was discovered in an executive briefing room. The exterior features a handwritten label suggesting confidential compensation data."}
               </p>
             </div>
 
             {/* Auto-Run Workstation System Prompt */}
-            <div className="p-5 rounded-xl bg-background/90 border border-coral/30 space-y-3">
-              <div className="flex items-center justify-between text-xs font-mono text-muted pb-2 border-b border-primary/10">
-                <span className="text-coral font-bold flex items-center gap-1.5">
+            <div 
+              className="p-5 rounded-2xl space-y-3"
+              style={{
+                background: 'rgba(11, 15, 20, 0.85)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                boxShadow: '0 8px 24px rgba(239, 68, 68, 0.06)'
+              }}
+            >
+              <div 
+                className="flex items-center justify-between text-xs font-mono pb-2"
+                style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', color: 'rgba(141, 152, 165, 0.75)' }}
+              >
+                <span className="font-bold flex items-center gap-1.5" style={{ color: '#F87171' }}>
                   <AlertTriangle className="w-3.5 h-3.5" /> Workstation Auto-Run Dialogue
                 </span>
                 <span>Drive (E:)</span>
@@ -635,9 +1084,23 @@ export function PhysicalSimulation({ scenario }: { scenario: ScenarioData }) {
               <p className="text-sm font-semibold text-primary">
                 Choose what to do with this removable drive:
               </p>
-              <div className="p-3 rounded-lg bg-surface border border-coral/20 flex items-center justify-between text-xs font-mono">
-                <span className="text-coral font-semibold">{autorunPrompt}</span>
-                <span className="px-2 py-0.5 rounded bg-coral/20 text-coral text-[10px]">SUSPICIOUS EXECUTABLE</span>
+              <div 
+                className="p-3 rounded-xl flex items-center justify-between text-xs font-mono"
+                style={{
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)'
+                }}
+              >
+                <span className="font-semibold" style={{ color: '#F87171' }}>{autorunPrompt}</span>
+                <span 
+                  className="px-2 py-0.5 rounded text-[10px] font-bold"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    color: '#F87171'
+                  }}
+                >
+                  SUSPICIOUS EXECUTABLE
+                </span>
               </div>
             </div>
           </div>
@@ -657,41 +1120,81 @@ export function EmailSimulation({ scenario }: { scenario: ScenarioData }) {
   const bodyParagraphs = (scenario.body || "").split('\n').filter(p => p.trim().length > 0);
 
   return (
-    <div className="w-full bg-surface rounded-[1rem] shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-primary/5 overflow-hidden text-left font-sans">
+    <div 
+      className="w-full rounded-2xl overflow-hidden text-left font-sans transition-all duration-300"
+      style={{
+        background: 'rgba(17, 24, 33, 0.75)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+        backdropFilter: 'blur(16px)'
+      }}
+    >
       {/* Webmail Toolbar */}
-      <div className="border-b border-primary/10 px-8 py-4 bg-[#0e141c] flex items-center justify-between">
+      <div 
+        className="px-8 py-4 flex items-center justify-between"
+        style={{
+          background: 'rgba(11, 15, 20, 0.85)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.07)'
+        }}
+      >
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-lg bg-blue/20 border border-blue/40 flex items-center justify-center text-blue">
+          <div 
+            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            style={{
+              background: 'rgba(79, 124, 255, 0.12)',
+              border: '1px solid rgba(79, 124, 255, 0.25)',
+              color: 'rgba(165, 184, 255, 0.95)'
+            }}
+          >
             <Mail className="w-4 h-4" />
           </div>
-          <span className="text-xs font-mono font-semibold tracking-wider text-muted uppercase">
+          <span className="text-xs font-mono font-semibold tracking-wider uppercase" style={{ color: 'rgba(141, 152, 165, 0.85)' }}>
             ENTERPRISE DESKTOP WEBMAIL · INBOX
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 rounded text-[10px] font-mono bg-coral/15 text-coral border border-coral/30 font-semibold">
+          <span 
+            className="px-2.5 py-1 rounded text-[10px] font-mono font-semibold uppercase tracking-wider"
+            style={{
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              color: '#FBBF24'
+            }}
+          >
             EXTERNAL SENDER
           </span>
         </div>
       </div>
 
       {/* Email Header */}
-      <div className="border-b border-primary/5 px-8 py-6 bg-surface/50 space-y-4">
+      <div 
+        className="px-8 py-6 space-y-3"
+        style={{
+          background: 'rgba(17, 24, 33, 0.5)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
+        }}
+      >
         <div className="flex gap-4">
-          <span className="text-sm text-muted w-16 shrink-0 font-mono">From</span>
+          <span className="text-sm w-16 shrink-0 font-mono" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>From</span>
           <div>
             <p className="text-base font-semibold text-primary">{senderName}</p>
-            <p className="text-sm font-mono text-cyan">&lt;{senderEmail}&gt;</p>
+            <p className="text-sm font-mono mt-0.5" style={{ color: 'rgba(165, 184, 255, 0.9)' }}>&lt;{senderEmail}&gt;</p>
           </div>
         </div>
         <div className="flex gap-4">
-          <span className="text-sm text-muted w-16 shrink-0 font-mono">Subject</span>
+          <span className="text-sm w-16 shrink-0 font-mono" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>Subject</span>
           <p className="text-base font-medium text-primary">{subject}</p>
         </div>
       </div>
       
       {/* Email Body */}
-      <div className="px-8 py-10 text-base leading-relaxed text-primary/90 font-medium bg-background/50 space-y-4">
+      <div 
+        className="px-8 py-10 text-base leading-relaxed font-medium space-y-4"
+        style={{
+          background: 'rgba(11, 15, 20, 0.55)',
+          color: 'rgba(240, 244, 248, 0.92)'
+        }}
+      >
         {bodyParagraphs.map((p, idx) => (
           <p key={idx}>{p}</p>
         ))}

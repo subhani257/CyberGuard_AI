@@ -1,6 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from main import app
+from runtime_store import get_decision
 
 client = TestClient(app)
 
@@ -49,6 +50,12 @@ def test_full_multiturn_agent_pipeline(learner_headers):
     eval_data = eval_response.json()
     assert eval_data["success"] is True
     assert "evaluation" in eval_data
+    stored_evaluation = get_decision(scenario_id, "11111111-1111-1111-1111-111111111111")["evaluation"]
+    assert stored_evaluation["channel"] == scenario_content.get("channel", "email")
+    assert all(key in stored_evaluation for key in (
+        "threat_indicators", "safe_behavior", "threat_knowledge",
+        "reasoning_classification", "agent_trace", "final_score"
+    ))
 
     evaluation_details = eval_data["evaluation"]["evaluation"]
     final_score = evaluation_details.get("final_score", 85)
@@ -79,3 +86,6 @@ def test_full_multiturn_agent_pipeline(learner_headers):
     assert dash_data["success"] is True
     assert "readiness_score" in dash_data
     assert "decision_journey" in dash_data
+    assert dash_data["data_source"] == "memory"
+    assert dash_data["decision_count"] >= 1
+    assert dash_data["channel_scores"][scenario_content.get("channel", "email")] is not None
