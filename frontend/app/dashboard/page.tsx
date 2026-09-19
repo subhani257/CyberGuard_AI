@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
@@ -27,6 +27,18 @@ interface DashboardData {
   channel_scores: Record<string, number | null>;
 }
 
+interface CompletedScenario {
+  id: string;
+  scenario_id: string | null;
+  title: string;
+  channel: string;
+  score: number | null;
+  is_safe: boolean | null;
+  chosen_action: string;
+  reasoning: string;
+  completed_at: string | null;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Training sector config — unified glass palette, single blue accent
 // ─────────────────────────────────────────────────────────────────────────────
@@ -42,8 +54,8 @@ const TRAINING_SECTORS = [
 
 type SectorChannel = typeof TRAINING_SECTORS[number]['channel'];
 
-function getSectorScore(channel: SectorChannel, scores: Record<string, number | null>): number {
-  return scores[channel] ?? 0;
+function getSectorScore(channel: SectorChannel, scores: Record<string, number | null>): number | null {
+  return scores[channel] ?? null;
 }
 
 // ── Design tokens — no cartoon colors ────────────────────────────────────────
@@ -51,14 +63,14 @@ const glassCard  = { background: 'rgba(255,255,255,0.025)', border: '1px solid r
 const glassDim   = { background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.055)' };
 const priorityGlow = { background: 'rgba(79,124,255,0.04)', border: '1px solid rgba(79,124,255,0.18)', boxShadow: '0 0 30px rgba(79,124,255,0.07)' };
 
-function ScoreBadge({ score, isPriority }: { score: number; isPriority: boolean }) {
+function ScoreBadge({ score, isPriority }: { score: number | null; isPriority: boolean }) {
   if (isPriority) return (
     <span className="text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-0.5 rounded-md"
       style={{ background: 'rgba(79,124,255,0.1)', border: '1px solid rgba(79,124,255,0.2)', color: 'rgba(165,184,255,0.8)' }}>
       Priority
     </span>
   );
-  if (score === 0) return (
+  if (score === null) return (
     <span className="text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-0.5 rounded-md"
       style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(141,152,165,0.6)' }}>
       New
@@ -154,6 +166,11 @@ export default function Dashboard() {
   const [showTour, setShowTour]             = useState(false);
   const [isProfileOpen, setIsProfileOpen]   = useState(false);
   const [isJourneyModalOpen, setIsJourneyModalOpen] = useState(false);
+  const [completedScenarios, setCompletedScenarios] = useState<CompletedScenario[]>([]);
+  const [completedTotal, setCompletedTotal] = useState(0);
+  const [completedHasMore, setCompletedHasMore] = useState(false);
+  const [completedLoading, setCompletedLoading] = useState(false);
+  const [completedError, setCompletedError] = useState<string | null>(null);
   const [coachInput, setCoachInput]                 = useState('');
   const [coachTipModal, setCoachTipModal]           = useState<string | null>(null);
   const [priorityChannel, setPriority]      = useState('email');
@@ -178,12 +195,19 @@ export default function Dashboard() {
     label: string;
     description: string;
     isPriority: boolean;
-    score: number;
+    score: number | null;
     challengeTopic: string;
     url: string;
     Icon: React.ElementType;
   }
   const [selectedSector, setSelectedSector] = useState<SelectedSectorModalData | null>(null);
+  const [sectorHistory, setSectorHistory] = useState<CompletedScenario[]>([]);
+  const [sectorTotal, setSectorTotal] = useState(0);
+  const [sectorScore, setSectorScore] = useState<number | null>(null);
+  const [sectorHasMore, setSectorHasMore] = useState(false);
+  const [sectorLoading, setSectorLoading] = useState(false);
+  const [sectorError, setSectorError] = useState<string | null>(null);
+  const sectorRequestId = useRef(0);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -289,6 +313,71 @@ export default function Dashboard() {
 
   const handleLogout = () => { localStorage.removeItem('cyberguard_token'); localStorage.removeItem('cyberguard_user'); router.push('/login'); };
 
+  const loadCompletedScenarios = async (offset: number) => {
+    setCompletedLoading(true);
+    setCompletedError(null);
+    try {
+      const token = localStorage.getItem('cyberguard_token');
+      if (!token) throw new Error('Please sign in again.');
+      const response = await fetch(`http://localhost:8000/api/coach/completed-scenarios?limit=20&offset=${offset}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error('Completed scenarios could not be loaded.');
+      const result = await response.json();
+      if (!result.success || !Array.isArray(result.items)) throw new Error('Completed scenarios could not be loaded.');
+      setCompletedScenarios(previous => offset === 0 ? result.items : [...previous, ...result.items]);
+      setCompletedTotal(result.total);
+      setCompletedHasMore(result.has_more);
+    } catch (error) {
+      setCompletedError(error instanceof Error ? error.message : 'Completed scenarios could not be loaded.');
+    } finally {
+      setCompletedLoading(false);
+    }
+  };
+
+  const openCompletedScenarios = () => {
+    setIsJourneyModalOpen(true);
+    setCompletedScenarios([]);
+    setCompletedTotal(0);
+    void loadCompletedScenarios(0);
+  };
+
+  const loadSectorHistory = async (channel: string, offset: number, requestId: number) => {
+    setSectorLoading(true);
+    setSectorError(null);
+    try {
+      const token = localStorage.getItem('cyberguard_token');
+      if (!token) throw new Error('Please sign in again.');
+      const response = await fetch(`http://localhost:8000/api/coach/completed-scenarios?channel=${encodeURIComponent(channel)}&limit=20&offset=${offset}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error('Sector history could not be loaded.');
+      const result = await response.json();
+      if (!result.success || !Array.isArray(result.items)) throw new Error('Sector history could not be loaded.');
+      if (requestId !== sectorRequestId.current) return;
+      setSectorHistory(previous => offset === 0 ? result.items : [...previous, ...result.items]);
+      setSectorTotal(result.total);
+      setSectorScore(result.average_score);
+      setSectorHasMore(result.has_more);
+    } catch (error) {
+      if (requestId === sectorRequestId.current) {
+        setSectorError(error instanceof Error ? error.message : 'Sector history could not be loaded.');
+      }
+    } finally {
+      if (requestId === sectorRequestId.current) setSectorLoading(false);
+    }
+  };
+
+  const openSector = (sector: SelectedSectorModalData) => {
+    const requestId = ++sectorRequestId.current;
+    setSelectedSector(sector);
+    setSectorHistory([]);
+    setSectorTotal(0);
+    setSectorScore(data.channel_scores[sector.channel] ?? null);
+    setSectorHasMore(false);
+    void loadSectorHistory(sector.channel, 0, requestId);
+  };
+
   const scenarioUrl = (ch: string, topic: string) =>
     `/scenario?channel=${encodeURIComponent(ch)}&role=${encodeURIComponent(data.user.role)}&company=${encodeURIComponent(data.user.company || 'TechCorp Global')}&difficulty=${nextDifficulty}&topic=${encodeURIComponent(topic)}`;
 
@@ -387,6 +476,16 @@ export default function Dashboard() {
             >
               <ScrollText className="w-3.5 h-3.5" />
               <span>Policies</span>
+            </Link>
+
+            <Link
+              href="/history"
+              className="flex items-center gap-1.5 text-[11px] font-mono px-3 py-1.5 rounded-lg transition-all duration-200"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(141,152,165,0.7)' }}
+            >
+              <History className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Completed Scenarios</span>
+              <span className="sm:hidden">History</span>
             </Link>
 
             {/* Admin Console (Visible only to administrators) */}
@@ -638,7 +737,7 @@ export default function Dashboard() {
                     </Link>
 
                     <button 
-                      onClick={() => setIsJourneyModalOpen(true)}
+                      onClick={openCompletedScenarios}
                       className="p-2 sm:p-2.5 rounded-xl flex flex-col items-center text-center transition-all group cursor-pointer"
                       style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
                       onMouseEnter={e => {
@@ -657,7 +756,7 @@ export default function Dashboard() {
                         <CheckCircle2 className="w-3 h-3" />
                       </div>
                       <span className="text-[14px] font-bold text-primary leading-none">{data.decision_count}</span>
-                      <span className="text-[8px] font-mono mt-0.5 uppercase tracking-tight" style={{ color: 'rgba(141,152,165,0.5)' }}>Simulated</span>
+                      <span className="text-[8px] font-mono mt-0.5 uppercase tracking-tight" style={{ color: 'rgba(141,152,165,0.5)' }}>Completed</span>
                     </button>
                   </div>
                 </div>
@@ -1210,7 +1309,7 @@ export default function Dashboard() {
                       <motion.div
                         key={channel}
                         variants={up}
-                        onClick={() => setSelectedSector({ channel, label: sectorLabel, description: sectorDesc, isPriority, score, challengeTopic, url, Icon })}
+                        onClick={() => openSector({ channel, label: sectorLabel, description: sectorDesc, isPriority, score, challengeTopic, url, Icon })}
                         className="relative group rounded-xl p-4 flex flex-col cursor-pointer transition-all duration-200"
                         style={isPriority ? priorityGlow : glassDim}
                         onMouseEnter={e => {
@@ -1255,16 +1354,16 @@ export default function Dashboard() {
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-[8px] font-mono uppercase tracking-[0.15em]" style={{ color: 'rgba(141,152,165,0.35)' }}>Score</span>
                             <span className="text-[9px] font-mono tabular-nums"
-                              style={{ color: score === 0 ? 'rgba(141,152,165,0.3)' : 'rgba(165,184,255,0.7)' }}>
-                              {score === 0 ? '—' : `${score}/100`}
+                              style={{ color: score === null ? 'rgba(141,152,165,0.3)' : 'rgba(165,184,255,0.7)' }}>
+                              {score === null ? '—' : `${score}/100`}
                             </span>
                           </div>
                           <div className="w-full h-[2px] rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
                             <motion.div
                               className="h-full rounded-full"
-                              style={{ background: score === 0 ? 'rgba(255,255,255,0.05)' : 'linear-gradient(90deg, rgba(79,124,255,0.5), rgba(165,184,255,0.7))' }}
+                              style={{ background: score === null ? 'rgba(255,255,255,0.05)' : 'linear-gradient(90deg, rgba(79,124,255,0.5), rgba(165,184,255,0.7))' }}
                               initial={{ width: 0 }}
-                              animate={{ width: `${score}%` }}
+                              animate={{ width: `${score ?? 0}%` }}
                               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: i * 0.06 }}
                             />
                           </div>
@@ -1274,7 +1373,7 @@ export default function Dashboard() {
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedSector({ channel, label: sectorLabel, description: sectorDesc, isPriority, score, challengeTopic, url, Icon });
+                            openSector({ channel, label: sectorLabel, description: sectorDesc, isPriority, score, challengeTopic, url, Icon });
                           }}
                           className="inline-flex items-center gap-1 text-[9px] font-mono uppercase tracking-[0.12em] transition-all rounded-lg py-1.5 px-3 self-start"
                           style={isPriority
@@ -1324,10 +1423,6 @@ export default function Dashboard() {
       {/* ── Sector Defense Briefing Modal ─────────────────────────────────── */}
       <AnimatePresence>
         {selectedSector && (() => {
-          const historyItems = data.decision_journey.filter(
-            d => (d as any).channel === selectedSector.channel ||
-                 (selectedSector.channel === 'email' && !(d as any).channel)
-          );
           const IconComponent = selectedSector.Icon;
 
           return (
@@ -1372,7 +1467,7 @@ export default function Dashboard() {
                           style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(141,152,165,0.5)' }}>
                           {selectedSector.channel.replace('_', ' ').toUpperCase()}
                         </span>
-                        <ScoreBadge score={selectedSector.score} isPriority={selectedSector.isPriority} />
+                        <ScoreBadge score={sectorScore} isPriority={selectedSector.isPriority} />
                       </div>
                       <h2 className="text-[17px] font-semibold tracking-tight text-primary">{selectedSector.label}</h2>
                     </div>
@@ -1398,16 +1493,16 @@ export default function Dashboard() {
                       <span className="text-[9px] font-mono uppercase tracking-[0.18em]" style={{ color: 'rgba(141,152,165,0.45)' }}>
                         Sector Defense Score
                       </span>
-                      <span className="text-[11px] font-mono" style={{ color: selectedSector.score === 0 ? 'rgba(141,152,165,0.4)' : 'rgba(165,184,255,0.7)' }}>
-                        {selectedSector.score === 0 ? 'Not yet evaluated' : `${selectedSector.score} / 100`}
+                      <span className="text-[11px] font-mono" style={{ color: sectorScore === null ? 'rgba(141,152,165,0.4)' : 'rgba(165,184,255,0.7)' }}>
+                        {sectorLoading && sectorHistory.length === 0 ? 'Loading…' : sectorScore === null ? 'Not yet evaluated' : `${sectorScore} / 100`}
                       </span>
                     </div>
                     <div className="w-full h-1 rounded-full overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.05)' }}>
                       <div
                         className="h-full rounded-full transition-all duration-700"
                         style={{
-                          width: `${selectedSector.score}%`,
-                          background: selectedSector.score === 0
+                          width: `${sectorScore ?? 0}%`,
+                          background: sectorScore === null
                             ? 'rgba(255,255,255,0.05)'
                             : 'linear-gradient(90deg, rgba(79,124,255,0.5), rgba(165,184,255,0.7))'
                         }}
@@ -1424,14 +1519,16 @@ export default function Dashboard() {
                       <h4 className="text-[9px] font-mono uppercase tracking-[0.18em] flex items-center gap-1.5"
                         style={{ color: 'rgba(141,152,165,0.45)' }}>
                         <History className="w-3.5 h-3.5" />
-                        <span>Completed in this Sector ({historyItems.length})</span>
+                        <span>Completed in this Sector ({sectorTotal})</span>
                       </h4>
-                      {historyItems.length > 0 && (
+                      {sectorTotal > 0 && (
                         <span className="text-[9px] font-mono" style={{ color: 'rgba(141,152,165,0.4)' }}>Evaluated by Agent</span>
                       )}
                     </div>
 
-                    {historyItems.length === 0 ? (
+                    {sectorLoading && sectorHistory.length === 0 ? (
+                      <p className="text-[12px] text-center py-5 text-muted">Loading completed scenarios…</p>
+                    ) : sectorHistory.length === 0 && !sectorError ? (
                       <div className="p-5 rounded-xl text-center flex flex-col items-center justify-center"
                         style={{ background: 'rgba(255,255,255,0.015)', border: '1px dashed rgba(255,255,255,0.07)' }}>
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2"
@@ -1445,31 +1542,47 @@ export default function Dashboard() {
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        {historyItems.map((item, idx) => (
-                          <div key={item.id || idx} className="p-3.5 rounded-xl flex items-start justify-between gap-3"
+                        {sectorHistory.map(item => (
+                          <div key={item.id} className="p-3.5 rounded-xl flex items-start justify-between gap-3"
                             style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                            <div className="flex items-start gap-2.5">
-                              {item.is_safe
+                            <div className="flex items-start gap-2.5 min-w-0">
+                              {item.is_safe === true
                                 ? <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" style={{ color: 'rgba(165,184,255,0.6)' }} />
                                 : <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: 'rgba(141,152,165,0.5)' }} />
                               }
-                              <div>
+                              <div className="min-w-0">
                                 <p className="text-[12px] font-semibold text-primary">{item.title}</p>
                                 <p className="text-[10px] mt-0.5" style={{ color: 'rgba(141,152,165,0.5)' }}>
-                                  Vector: <strong className="text-primary/70">{item.threat}</strong>
+                                  {item.completed_at ? new Date(item.completed_at).toLocaleDateString() : 'Date unavailable'}
+                                  {' · '}{item.is_safe === null ? 'Evaluated' : item.is_safe ? 'Safe decision' : 'Needs practice'}
                                 </p>
+                                <Link href={`/history/${encodeURIComponent(item.id)}`} className="inline-block mt-1.5 text-[10px] text-[#A5B8FF] hover:underline">
+                                  View scenario details →
+                                </Link>
                               </div>
                             </div>
                             <div className="text-right shrink-0">
                               <span className="text-[11px] font-mono tabular-nums"
-                                style={{ color: item.is_safe ? 'rgba(165,184,255,0.7)' : 'rgba(141,152,165,0.5)' }}>
-                                {item.score}/100
+                                style={{ color: item.is_safe === true ? 'rgba(165,184,255,0.7)' : 'rgba(141,152,165,0.5)' }}>
+                                {item.score === null ? 'Not scored' : `${Math.round(item.score)}/100`}
                               </span>
-                              <p className="text-[9px] font-mono mt-0.5" style={{ color: 'rgba(141,152,165,0.4)' }}>{item.status}</p>
                             </div>
                           </div>
                         ))}
                       </div>
+                    )}
+                    {sectorError && (
+                      <div role="alert" className="text-center text-xs text-red-300 py-3">
+                        <p>{sectorError}</p>
+                        <button type="button" onClick={() => void loadSectorHistory(selectedSector.channel, sectorHistory.length, sectorRequestId.current)} className="mt-2 underline">Retry</button>
+                      </div>
+                    )}
+                    {sectorHasMore && !sectorError && (
+                      <button type="button" disabled={sectorLoading}
+                        onClick={() => void loadSectorHistory(selectedSector.channel, sectorHistory.length, sectorRequestId.current)}
+                        className="w-full mt-2 py-2.5 text-xs font-mono rounded-lg border border-white/10 text-primary/80 disabled:opacity-50">
+                        {sectorLoading ? 'Loading…' : 'Load more scenarios'}
+                      </button>
                     )}
                   </div>
 
@@ -1571,8 +1684,9 @@ export default function Dashboard() {
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5" style={{ color: 'rgba(165,184,255,0.85)' }} />
                   <h3 className="text-[16px] font-bold text-primary">
-                    Simulated Decision History ({data.decision_journey.length})
+                    Completed Scenarios ({completedLoading && completedTotal === 0 ? data.decision_count : completedTotal})
                   </h3>
+                  <Link href="/history" className="hidden sm:inline text-[10px] font-mono text-[#A5B8FF] hover:underline">Full history</Link>
                 </div>
                 <button 
                   onClick={() => setIsJourneyModalOpen(false)}
@@ -1586,35 +1700,47 @@ export default function Dashboard() {
               </div>
 
               <div className="flex-1 overflow-y-auto py-4 space-y-2.5 pr-1 scrollbar-hide">
-                {data.decision_journey.length === 0 ? (
-                  <div className="text-center py-12 text-muted text-xs font-mono">
-                    No simulations completed yet. Launch a directive to establish your record!
-                  </div>
-                ) : (
-                  data.decision_journey.map((step, idx) => (
-                    <div key={step.id || idx} className="p-3.5 rounded-xl flex items-center justify-between gap-3"
-                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded"
-                            style={{ background: 'rgba(79,124,255,0.08)', border: '1px solid rgba(79,124,255,0.18)', color: 'rgba(165,184,255,0.7)' }}>
-                            0{idx + 1} · {step.threat}
-                          </span>
-                          <span className="text-[10px] font-mono"
-                            style={{ color: step.is_safe ? 'rgba(165,184,255,0.85)' : 'rgba(141,152,165,0.55)' }}>
-                            {step.status}
-                          </span>
-                        </div>
-                        <p className="text-[12px] font-semibold text-primary">{step.title}</p>
+                {completedLoading && completedScenarios.length === 0 && (
+                  <p className="text-center py-12 text-muted text-xs font-mono">Loading completed scenarios…</p>
+                )}
+                {!completedLoading && completedScenarios.length === 0 && !completedError && (
+                  <p className="text-center py-12 text-muted text-xs font-mono">No completed scenarios yet. Complete a simulation to see its score here.</p>
+                )}
+                {completedScenarios.map(item => (
+                  <details key={item.id} className="group rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <summary className="list-none cursor-pointer p-3.5 flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="text-[12px] font-semibold text-primary truncate">{item.title}</p>
+                        <p className="text-[10px] font-mono text-muted mt-1">
+                          {item.channel.replace(/_/g, ' ')}
+                          {item.completed_at && ` · ${new Date(item.completed_at).toLocaleDateString()}`}
+                          {' · '}{item.is_safe === null ? 'Evaluated' : item.is_safe ? 'Safe decision' : 'Needs practice'}
+                        </p>
                       </div>
-                      <div className="text-right">
-                        <span className="text-[14px] font-bold font-mono"
-                          style={{ color: step.is_safe ? 'rgba(165,184,255,0.85)' : 'rgba(141,152,165,0.5)' }}>
-                          {step.score}/100
-                        </span>
-                      </div>
+                      <span className="text-[14px] font-bold font-mono shrink-0" style={{ color: 'rgba(165,184,255,0.85)' }}>
+                        {item.score === null ? 'Not scored' : `${Math.round(item.score)}/100`}
+                      </span>
+                    </summary>
+                    <div className="px-3.5 pb-3.5 text-[11px] leading-relaxed text-muted border-t border-white/[0.06]">
+                      <p className="mt-2"><span className="text-primary/80">Your action:</span> {item.chosen_action || 'Not recorded'}</p>
+                      <p className="mt-1"><span className="text-primary/80">Your reasoning:</span> {item.reasoning || 'Not recorded'}</p>
+                      <Link href={`/history/${encodeURIComponent(item.id)}`} className="inline-block mt-2 text-[#A5B8FF] hover:underline">View full scenario details →</Link>
                     </div>
-                  ))
+                  </details>
+                ))}
+                {completedError && (
+                  <div role="alert" className="text-center text-xs text-red-300 py-4">
+                    <p>{completedError}</p>
+                    <button type="button" onClick={() => void loadCompletedScenarios(completedScenarios.length)} className="mt-2 underline">Retry</button>
+                  </div>
+                )}
+                {completedHasMore && !completedError && (
+                  <button type="button" disabled={completedLoading}
+                    onClick={() => void loadCompletedScenarios(completedScenarios.length)}
+                    className="w-full py-2.5 text-xs font-mono rounded-lg border border-white/10 text-primary/80 disabled:opacity-50">
+                    {completedLoading ? 'Loading…' : 'Load more scenarios'}
+                  </button>
                 )}
               </div>
             </motion.div>
