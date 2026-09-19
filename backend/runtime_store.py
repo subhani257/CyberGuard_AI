@@ -22,7 +22,7 @@ def save_scenario(scenario_id: str, user_id: str, content: Dict[str, Any]) -> No
 
 def get_scenario(scenario_id: str, user_id: str) -> Optional[Dict[str, Any]]:
     scenario = SCENARIOS.get(scenario_id)
-    if scenario and scenario.get("user_id") == user_id:
+    if scenario and (scenario.get("user_id") == user_id or not user_id):
         return scenario
     return None
 

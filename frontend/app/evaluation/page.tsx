@@ -456,7 +456,7 @@ function EvaluationContent() {
               console.log('Notice: Coach update skipped:', coachErr);
             });
         } else {
-          throw new Error(resData.error || 'Evaluation processing error');
+          throw new Error(resData.detail || resData.error || 'Evaluation processing error');
         }
       })
       .catch(err => {
