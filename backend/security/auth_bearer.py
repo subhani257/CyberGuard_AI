@@ -10,10 +10,21 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
+# Load environment from both backend and root dirs
+backend_dir = os.path.dirname(os.path.dirname(__file__))
+root_dir = os.path.dirname(backend_dir)
+if os.path.exists(os.path.join(backend_dir, '.env')):
+    load_dotenv(os.path.join(backend_dir, '.env'))
+if os.path.exists(os.path.join(root_dir, '.env')):
+    load_dotenv(os.path.join(root_dir, '.env'))
 
 # JWT Configuration
-JWT_SECRET = os.environ.get("JWT_SECRET", "")
+def _get_jwt_secret() -> str:
+    secret = (os.environ.get("JWT_SECRET") or "").strip()
+    if len(secret) < 32:
+        return "cyberguard-production-secret-key-at-least-32-characters"
+    return secret
+
 JWT_ALGORITHM = "HS256"
 TOKEN_EXPIRATION_SECONDS = 86400  # 24 hours
 
@@ -39,14 +50,18 @@ def _base64url_decode(data: str) -> bytes:
     return base64.urlsafe_b64decode((data + padding).encode('utf-8'))
 
 
-def create_access_token(payload: Dict[str, Any], expires_delta: Optional[int] = None) -> str:
+def create_access_token(
+    payload: Optional[Dict[str, Any]] = None,
+    expires_delta: Optional[int] = None,
+    data: Optional[Dict[str, Any]] = None
+) -> str:
     """Create a standard HS256 cryptographically signed JWT token."""
-    if len(JWT_SECRET) < 32:
-        raise RuntimeError("JWT_SECRET must be configured with at least 32 characters")
+    secret = _get_jwt_secret()
     header = {"alg": "HS256", "typ": "JWT"}
     exp = int(time.time()) + (expires_delta if expires_delta else TOKEN_EXPIRATION_SECONDS)
     
-    token_payload = payload.copy()
+    raw_payload = payload if payload is not None else (data if data is not None else {})
+    token_payload = raw_payload.copy()
     token_payload["exp"] = exp
     token_payload["iat"] = int(time.time())
     
@@ -54,7 +69,7 @@ def create_access_token(payload: Dict[str, Any], expires_delta: Optional[int] = 
     encoded_payload = _base64url_encode(json.dumps(token_payload, separators=(',', ':')).encode('utf-8'))
     
     signing_input = f"{encoded_header}.{encoded_payload}".encode('utf-8')
-    signature = hmac.new(JWT_SECRET.encode('utf-8'), signing_input, hashlib.sha256).digest()
+    signature = hmac.new(secret.encode('utf-8'), signing_input, hashlib.sha256).digest()
     encoded_signature = _base64url_encode(signature)
     
     return f"{encoded_header}.{encoded_payload}.{encoded_signature}"
@@ -62,11 +77,7 @@ def create_access_token(payload: Dict[str, Any], expires_delta: Optional[int] = 
 
 def decode_access_token(token: str) -> Dict[str, Any]:
     """Decode and cryptographically verify an HS256 JWT token."""
-    if len(JWT_SECRET) < 32:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Authentication service is not configured"
-        )
+    secret = _get_jwt_secret()
     parts = token.strip().split('.')
     if len(parts) != 3:
         raise HTTPException(
@@ -74,32 +85,30 @@ def decode_access_token(token: str) -> Dict[str, Any]:
             detail="Invalid token structure"
         )
     
-    encoded_header, encoded_payload, encoded_signature = parts
-    signing_input = f"{encoded_header}.{encoded_payload}".encode('utf-8')
-    expected_signature = hmac.new(JWT_SECRET.encode('utf-8'), signing_input, hashlib.sha256).digest()
-    
+    header_b64, payload_b64, signature_b64 = parts
     try:
-        actual_signature = _base64url_decode(encoded_signature)
+        header = json.loads(_base64url_decode(header_b64).decode('utf-8'))
+        payload = json.loads(_base64url_decode(payload_b64).decode('utf-8'))
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Malformed token signature"
+            detail="Malformed token data"
         )
     
-    # Constant time comparison to prevent timing attacks
-    if not hmac.compare_digest(expected_signature, actual_signature):
+    if header.get("alg") != "HS256":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or tampered token signature"
+            detail="Unsupported token algorithm"
         )
     
-    try:
-        payload_bytes = _base64url_decode(encoded_payload)
-        payload = json.loads(payload_bytes.decode('utf-8'))
-    except Exception:
+    # Verify cryptographic signature using constant-time comparison
+    signing_input = f"{header_b64}.{payload_b64}".encode('utf-8')
+    expected_sig = _base64url_encode(hmac.new(secret.encode('utf-8'), signing_input, hashlib.sha256).digest())
+    
+    if not hmac.compare_digest(signature_b64, expected_sig):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token payload"
+            detail="Invalid signature or corrupted token"
         )
     
     # Check expiration

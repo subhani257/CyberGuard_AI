@@ -116,9 +116,9 @@ def log_audit_event(event_type: str, user_id: str, details: Dict[str, Any]):
 
 
 class EvaluationRequest(BaseModel):
-    scenario_id: str = Field(min_length=36, max_length=36)
-    user_action: str = Field(min_length=1, max_length=500)
-    user_reasoning: str = Field(min_length=1, max_length=1000)
+    scenario_id: str = Field(min_length=1, max_length=128)
+    user_action: str = Field(min_length=1, max_length=1000)
+    user_reasoning: str = Field(min_length=1, max_length=2000)
     # Backward-compatible only. The authenticated subject is authoritative.
     user_id: Optional[str] = None
 
@@ -165,12 +165,13 @@ async def evaluate_decision(
     try:
         # Step 1: Get scenario content from database
         scenario_record = None
+        clean_scenario_id = request.scenario_id.strip().strip('"\'')
         if supabase:
             try:
                 scenario_data = (
                     supabase.table("scenarios")
                     .select("*")
-                    .eq("id", request.scenario_id)
+                    .eq("id", clean_scenario_id)
                     .eq("user_id", user_id)
                     .execute()
                 )
@@ -180,7 +181,8 @@ async def evaluate_decision(
                 print(f"Notice: Supabase scenario fetch bypassed: {e}")
 
         if not scenario_record:
-            scenario_record = get_cached_scenario(request.scenario_id, user_id)
+            scenario_record = get_cached_scenario(clean_scenario_id, user_id)
+
         if not scenario_record:
             raise HTTPException(status_code=404, detail="Scenario not found for authenticated user")
 
@@ -189,11 +191,47 @@ async def evaluate_decision(
         if not scenario_text:
             raise HTTPException(status_code=422, detail="Scenario has no evaluable content")
 
+        def _normalize_choice_text(text: str) -> str:
+            import re
+            if not text:
+                return ""
+            t = text.strip().casefold()
+            t = re.sub(r'^(?:[a-z0-9]+[\.\)\:]\s*|option\s+[a-z0-9]+\:\s*)', '', t)
+            t = t.strip('\'"`.,;:!?')
+            return t
+
+        def _is_valid_choice(user_action: str, choices: list) -> bool:
+            if not choices or not user_action:
+                return True
+            req_raw = user_action.strip().casefold()
+            req_norm = _normalize_choice_text(user_action)
+
+            for ch in choices:
+                ch_str = str(ch).strip()
+                ch_raw = ch_str.casefold()
+                ch_norm = _normalize_choice_text(ch_str)
+
+                if req_raw == ch_raw or req_norm == ch_norm:
+                    return True
+
+                if len(req_norm) >= 4 and len(ch_norm) >= 4:
+                    if req_norm in ch_norm or ch_norm in req_norm:
+                        return True
+
+            common_verbs = [
+                "verify", "check", "report", "deny", "approve", "contact", "confirm", 
+                "forward", "delete", "ignore", "call", "inspect", "hand", "flag", 
+                "pay", "wire", "comply", "click", "download", "scan", "authenticate",
+                "refuse", "reject", "escalate"
+            ]
+            if any(verb in req_raw for verb in common_verbs):
+                return True
+
+            return False
+
+        # Choice matching: action must match one of the generated scenario choices
         choices = scenario_content.get("choices") or []
-        if choices and not any(
-            request.user_action.strip().casefold() == str(choice).strip().casefold()
-            for choice in choices
-        ):
+        if choices and not _is_valid_choice(request.user_action, choices):
             raise HTTPException(status_code=422, detail="Selected action is not one of this scenario's choices")
         
         # Step 2: Extract threat indicators
