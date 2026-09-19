@@ -7,6 +7,212 @@ body {
   color: #E8EDF2;
 }
 
+/* Match the dashboard's understated action and utility controls. */
+.landing-action,
+.midnight-action {
+  background: rgba(79, 124, 255, 0.1);
+  border: 1px solid rgba(79, 124, 255, 0.22);
+  color: rgba(165, 184, 255, 0.85);
+  box-shadow: 0 0 20px rgba(79, 124, 255, 0.08);
+}
+
+.landing-action:hover,
+.midnight-action:hover {
+  background: rgba(79, 124, 255, 0.18);
+  border-color: rgba(79, 124, 255, 0.38);
+  color: #E8EDF2;
+}
+
+.landing-quiet-action,
+.midnight-quiet-action {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(141, 152, 165, 0.8);
+}
+
+.landing-quiet-action:hover,
+.midnight-quiet-action:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.13);
+  color: #E8EDF2;
+}
+
+.auth-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(11, 15, 20, 0.72);
+  color: #E8EDF2;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.auth-input::placeholder {
+  color: rgba(141, 152, 165, 0.55);
+}
+
+.auth-input:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.auth-input:focus-visible {
+  border-color: rgba(79, 124, 255, 0.45);
+  box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.1);
+}
+
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover,
+.auth-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #E8EDF2;
+  -webkit-box-shadow: 0 0 0 1000px #0B0F14 inset;
+}
+
+.landing-grid {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.016) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.016) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, black, transparent 80%);
+}
+
+.landing-stage {
+  background: radial-gradient(ellipse at 58% 82%, rgba(79, 124, 255, 0.065), transparent 32%), #080D12;
+}
+
+.landing-stage-particles {
+  background-image:
+    radial-gradient(circle, rgba(165, 184, 255, 0.38) 0.6px, transparent 1px),
+    radial-gradient(circle, rgba(232, 237, 242, 0.22) 0.5px, transparent 1px);
+  background-size: 103px 127px, 157px 149px;
+  background-position: 17px 31px, 62px 92px;
+  mask-image: linear-gradient(to bottom, transparent 8%, black 38%, black 80%, transparent);
+  opacity: 0.28;
+  animation: landing-particle-drift 24s linear infinite;
+}
+
+.landing-stage-beam {
+  background: linear-gradient(90deg, transparent 0%, rgba(79, 124, 255, 0.03) 19%, rgba(79, 124, 255, 0.22) 49%, rgba(79, 124, 255, 0.03) 79%, transparent 100%);
+  filter: blur(24px);
+  opacity: 0.7;
+  transform: skewX(-4deg);
+  animation: landing-beam-breathe 7s ease-in-out infinite alternate;
+}
+
+.landing-stage-beam-core {
+  background: linear-gradient(to bottom, transparent, rgba(165, 184, 255, 0.18) 18%, rgba(79, 124, 255, 0.48) 56%, rgba(79, 124, 255, 0.08) 83%, transparent);
+  box-shadow: 0 0 22px 4px rgba(79, 124, 255, 0.18);
+  opacity: 0.55;
+  animation: landing-beam-core 7s ease-in-out infinite alternate;
+}
+
+.landing-stage-impact {
+  background: radial-gradient(ellipse at 50% 48%, rgba(79, 124, 255, 0.3), rgba(79, 124, 255, 0.075) 37%, transparent 69%);
+  filter: blur(34px);
+  opacity: 0.7;
+}
+
+.landing-hero-orbit {
+  border: 1px solid rgba(79, 124, 255, 0.075);
+  box-shadow: 0 0 100px rgba(79, 124, 255, 0.055), inset 0 0 100px rgba(79, 124, 255, 0.035);
+  transform: rotate(-20deg);
+}
+
+.landing-float-card {
+  will-change: transform;
+}
+
+.landing-float-card-one {
+  transform: perspective(850px) rotateY(-11deg) rotateX(4deg) rotateZ(-3deg);
+  animation: landing-float-one 7s ease-in-out infinite alternate;
+}
+
+.landing-float-card-two {
+  transform: perspective(850px) rotateY(10deg) rotateX(-3deg) rotateZ(3deg);
+  animation: landing-float-two 8s ease-in-out infinite alternate;
+}
+
+.landing-decision-card {
+  animation: landing-card-drift 6s ease-in-out infinite alternate;
+}
+
+.landing-decision-card-delayed {
+  animation: landing-card-drift 7s ease-in-out -2s infinite alternate-reverse;
+}
+
+.landing-score-card {
+  animation: landing-score-breathe 6s ease-in-out infinite alternate;
+}
+
+@keyframes landing-particle-drift {
+  to { background-position: 17px -96px, 62px -57px; }
+}
+
+@keyframes landing-beam-breathe {
+  from { opacity: 0.45; transform: skewX(-4deg) scaleX(0.9); }
+  to { opacity: 0.83; transform: skewX(-2deg) scaleX(1.15); }
+}
+
+@keyframes landing-beam-core {
+  from { opacity: 0.35; }
+  to { opacity: 0.65; }
+}
+
+@keyframes landing-float-one {
+  from { transform: perspective(850px) rotateY(-11deg) rotateX(4deg) rotateZ(-3deg) translateY(0); }
+  to { transform: perspective(850px) rotateY(-9deg) rotateX(4deg) rotateZ(-2deg) translateY(-13px); }
+}
+
+@keyframes landing-float-two {
+  from { transform: perspective(850px) rotateY(10deg) rotateX(-3deg) rotateZ(3deg) translateY(0); }
+  to { transform: perspective(850px) rotateY(8deg) rotateX(-3deg) rotateZ(2deg) translateY(12px); }
+}
+
+@keyframes landing-card-drift {
+  from { transform: translateY(0) rotate(-2deg); }
+  to { transform: translateY(-13px) rotate(0deg); }
+}
+
+@keyframes landing-score-breathe {
+  from { transform: translateY(5px); box-shadow: 0 26px 90px rgba(0, 0, 0, 0.5); }
+  to { transform: translateY(-7px); box-shadow: 0 30px 100px rgba(79, 124, 255, 0.12); }
+}
+
+.landing-orbit {
+  background: radial-gradient(ellipse at 50% 50%, rgba(79, 124, 255, 0.12), transparent 65%);
+  filter: blur(30px);
+  animation: landing-breathe 8s ease-in-out infinite alternate;
+}
+
+@keyframes landing-breathe {
+  from { opacity: 0.3; transform: scale(0.98); }
+  to { opacity: 0.6; transform: scale(1.03); }
+}
+
+.landing-scanline {
+  top: 0;
+  box-shadow: 0 0 16px rgba(79, 124, 255, 0.35);
+  animation: landing-scan 3s linear infinite;
+}
+
+@keyframes landing-scan {
+  from { top: 0; opacity: 0; }
+  20% { opacity: 0.5; }
+  80% { opacity: 0.5; }
+  to { top: 100%; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-orbit, .landing-scanline, .landing-stage-particles, .landing-stage-beam, .landing-stage-beam-core, .landing-float-card-one, .landing-float-card-two, .landing-decision-card, .landing-decision-card-delayed, .landing-score-card { animation: none; }
+}
+
+@media (max-height: 640px) {
+  .evaluation-summary-explanation {
+    display: none;
+  }
+}
+
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
@@ -61,4 +267,3 @@ body {
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-

@@ -46,6 +46,8 @@ class TrainingCoachAgent:
         org_clean = org_name.strip() if org_name else "Enterprise"
         
         profile_analysis = None
+        profiler_trace = {"node": "onboarding_profiler", "execution_mode": "deterministic_fallback",
+                          "model_version": None, "llm_input": None, "llm_output": None}
         
         # 1. LLM Cyber-Risk Decomposition
         if self.openai_client:
@@ -83,7 +85,13 @@ class TrainingCoachAgent:
                     response_format={"type": "json_object"},
                     temperature=0.2
                 )
-                profile_analysis = json.loads(response.choices[0].message.content)
+                raw_profile = response.choices[0].message.content
+                profile_analysis = json.loads(raw_profile)
+                profiler_trace.update({
+                    "execution_mode": "llm", "model_version": "gpt-4o-mini",
+                    "llm_input": {"system": system_prompt, "user": user_prompt},
+                    "llm_output": raw_profile,
+                })
             except Exception as e:
                 print(f"Notice: OpenAI dynamic role profiler fallback engaged: {e}")
 
@@ -163,6 +171,8 @@ class TrainingCoachAgent:
         
         retrieved_training = self.retriever.retrieve_guidance([search_query, target_channel], top_k=1)
         nist_source = retrieved_training[0].get("source", "NIST SP 800-50") if retrieved_training else "NIST SP 800-50"
+        profiler_trace["retrieval_input"] = [search_query, target_channel]
+        profiler_trace["retrieval_output"] = retrieved_training
 
         return {
             "next_difficulty": "beginner",
@@ -172,7 +182,8 @@ class TrainingCoachAgent:
             "primary_attack_surface": profile_analysis.get("primary_attack_surface", f"Role assets for {job_title_clean}"),
             "orientation_tip": profile_analysis.get("orientation_tip", f"Welcome to Midnight Intelligence. Security defense active for {job_title_clean}."),
             "nist_reference": nist_source,
-            "training_map": training_map
+            "training_map": training_map,
+            "agent_trace": [profiler_trace],
         }
 
     def _synthesize_training_map(

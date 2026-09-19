@@ -1,8 +1,10 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import AuthShell, { GoogleMark } from '@/components/auth/AuthShell';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -13,53 +15,44 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // If already logged in, redirect straight to dashboard
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('cyberguard_user');
-      if (stored) {
-        try {
-          const u = JSON.parse(stored);
-          if (u && (u.id || u.email)) {
-            router.replace('/dashboard');
-          }
-        } catch (_) {}
-      }
-    }
+    const stored = localStorage.getItem('cyberguard_user');
+    if (!stored) return;
+    try {
+      const user = JSON.parse(stored);
+      if (user && (user.id || user.email)) router.replace('/dashboard');
+    } catch (_) {}
   }, [router]);
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignup = async (event: React.FormEvent) => {
+    event.preventDefault();
     setLoading(true);
     setErrorMessage('');
 
     try {
-      const res = await fetch('http://localhost:8000/api/auth/signup', {
+      const response = await fetch('http://localhost:8000/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           full_name: fullName,
           email,
           password,
-          company: company || "Custom Organization",
-          role: "Employee",
-          access_role: "learner"
-        })
+          company: company || 'Custom Organization',
+          role: 'Employee',
+          access_role: 'learner',
+        }),
       });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.detail || 'Registration failed. Please try again.');
       }
 
-      const data = await res.json();
+      const data = await response.json();
       localStorage.setItem('cyberguard_token', data.access_token);
       localStorage.setItem('cyberguard_user', JSON.stringify(data.user));
-
-      // Redirect directly to organization policy onboarding
       router.push('/onboarding');
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Unable to connect to authentication service.');
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Unable to connect to authentication service.');
     } finally {
       setLoading(false);
     }
@@ -72,156 +65,35 @@ export default function SignupPage() {
     window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
   };
 
-  return (
-    <main className="min-h-screen bg-background text-primary font-sans overflow-hidden selection:bg-blue/20 relative flex flex-col justify-center items-center px-6 py-12">
-      {/* Ambient Lighting */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue/10 rounded-full blur-[140px] pointer-events-none -z-10"></div>
-      <div className="absolute bottom-1/4 left-1/3 w-[350px] h-[350px] bg-cyan/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+  return <AuthShell mode="signup">
+    {errorMessage && <div role="alert" className="mb-5 rounded-lg border border-[#D96868]/25 bg-[#D96868]/[0.08] px-3 py-2.5 text-xs leading-relaxed text-[#F2A1A1]">{errorMessage}</div>}
 
-      {/* Navigation Header */}
-      <nav className="w-full max-w-[1200px] absolute top-0 pt-8 pb-4 px-6 flex items-center justify-between z-50">
-        <Link href="/" className="flex items-center gap-3 group">
-          <span className="text-xl leading-none font-light text-cyan opacity-80 group-hover:opacity-100 transition-opacity">◉</span>
-          <span className="font-semibold text-lg tracking-tight">Midnight Intelligence</span>
-        </Link>
-        <Link href="/login" className="text-xs uppercase tracking-widest text-muted hover:text-primary transition-colors font-medium">
-          Sign In →
-        </Link>
-      </nav>
+    <form onSubmit={handleSignup} className="space-y-4">
+      <div>
+        <label htmlFor="signup-name" className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-[0.13em] text-muted">Full name</label>
+        <input id="signup-name" name="name" type="text" autoComplete="name" required value={fullName} onChange={event => setFullName(event.target.value)} placeholder="Alex Turner" className="auth-input" />
+      </div>
+      <div>
+        <label htmlFor="signup-company" className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-[0.13em] text-muted">Company / organization</label>
+        <input id="signup-company" name="organization" type="text" autoComplete="organization" required value={company} onChange={event => setCompany(event.target.value)} placeholder="Your organization" className="auth-input" />
+      </div>
+      <div>
+        <label htmlFor="signup-email" className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-[0.13em] text-muted">Work email</label>
+        <input id="signup-email" name="email" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} placeholder="you@company.com" className="auth-input" />
+      </div>
+      <div>
+        <label htmlFor="signup-password" className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-[0.13em] text-muted">Password</label>
+        <input id="signup-password" name="password" type="password" autoComplete="new-password" required value={password} onChange={event => setPassword(event.target.value)} placeholder="Create a password" className="auth-input" />
+      </div>
+      <button type="submit" disabled={loading} className="midnight-action mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-4 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.1em] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue disabled:cursor-wait disabled:opacity-50">
+        {loading ? 'Setting up account...' : <>Create account <ArrowRight className="h-3.5 w-3.5" /></>}
+      </button>
+    </form>
 
-      {/* Signup Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as const }}
-        className="w-full max-w-md bg-surface rounded-[2rem] p-8 md:p-10 border border-primary/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)] relative z-10"
-      >
-        <div className="mb-6 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue/10 border border-blue/20 text-cyan mb-4 shadow-inner">
-            <svg className="w-5 h-5 text-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m1.5-1.5h-3m-1.5 5.25a6 6 0 00-9-5.197M13.5 6.75a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-primary mb-1">
-            Create your account
-          </h1>
-          <p className="text-xs text-muted">
-            Personalize training simulations for your team & company
-          </p>
-        </div>
-
-        {errorMessage && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center"
-          >
-            {errorMessage}
-          </motion.div>
-        )}
-
-        {/* Google Signup Button */}
-        <button
-          type="button"
-          onClick={handleGoogleSignup}
-          className="w-full py-3 px-4 mb-5 rounded-xl bg-background border border-primary/15 text-primary text-sm font-medium hover:bg-primary/5 transition-all flex items-center justify-center gap-3 shadow-sm group"
-        >
-          <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-          </svg>
-          <span className="group-hover:text-cyan transition-colors">Sign up with Google</span>
-        </button>
-
-        <div className="relative mb-5 text-center">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-primary/10"></div>
-          </div>
-          <span className="relative px-3 bg-surface text-[11px] uppercase tracking-widest text-muted">Or with email</span>
-        </div>
-
-        <form onSubmit={handleSignup} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold tracking-wider uppercase text-muted mb-1.5">
-              Full Name
-            </label>
-            <input 
-              type="text"
-              required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Alex Turner"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-primary/10 text-primary text-sm focus:outline-none focus:border-cyan/60 transition-colors"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold tracking-wider uppercase text-muted mb-1.5">
-              Company / Organization
-            </label>
-            <input 
-              type="text"
-              required
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              placeholder="Apex Financial Group"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-primary/10 text-primary text-sm focus:outline-none focus:border-cyan/60 transition-colors"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold tracking-wider uppercase text-muted mb-1.5">
-              Work Email
-            </label>
-            <input 
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="alex@apexfinancial.com"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-primary/10 text-primary text-sm focus:outline-none focus:border-cyan/60 transition-colors"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold tracking-wider uppercase text-muted mb-1.5">
-              Password
-            </label>
-            <input 
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••••••"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-primary/10 text-primary text-sm focus:outline-none focus:border-cyan/60 transition-colors"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 px-6 rounded-xl bg-blue text-white font-medium text-sm tracking-wide hover:bg-cyan hover:text-black transition-all duration-200 shadow-lg shadow-blue/20 flex items-center justify-center gap-2 mt-4 disabled:opacity-50"
-          >
-            {loading ? (
-              <span>Setting up account...</span>
-            ) : (
-              <>
-                <span>Continue to Onboarding</span>
-                <span className="text-lg leading-none">→</span>
-              </>
-            )}
-          </button>
-        </form>
-
-        <p className="text-center text-xs text-muted mt-5">
-          Already registered?{' '}
-          <Link href="/login" className="text-cyan font-semibold hover:underline">
-            Sign In
-          </Link>
-        </p>
-      </motion.div>
-    </main>
-  );
+    <div className="my-6 flex items-center gap-3 font-mono text-[9px] uppercase tracking-[0.15em] text-muted/70"><span className="h-px flex-1 bg-white/[0.07]" />Or continue with<span className="h-px flex-1 bg-white/[0.07]" /></div>
+    <button type="button" onClick={handleGoogleSignup} disabled={loading} className="midnight-quiet-action flex min-h-11 w-full items-center justify-center gap-2.5 rounded-lg px-4 py-3 font-mono text-[11px] uppercase tracking-[0.08em] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue disabled:cursor-wait disabled:opacity-50">
+      <GoogleMark /> Continue with Google
+    </button>
+    <p className="mt-7 text-center text-xs text-muted">Already have an account? <Link href="/login" className="font-medium text-[#A5B8FF] hover:text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue">Sign in</Link></p>
+  </AuthShell>;
 }

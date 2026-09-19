@@ -159,6 +159,7 @@ function EvaluationContent() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (shouldIgnoreKeyboardEvent(e)) return;
+      if (document.querySelector('[data-evaluation-detail-dialog], [data-evaluation-score-popup]')) return;
 
       if (e.key === 'Escape') {
         if (isHubOpen) {
@@ -472,12 +473,39 @@ function EvaluationContent() {
 
   if (!loading && error && !evaluation) {
     return (
-      <main className="min-h-screen bg-[#080D12] text-primary flex items-center justify-center p-8">
-        <div className="max-w-lg rounded-2xl border border-red-500/30 bg-red-500/5 p-8 text-center">
-          <h1 className="text-xl font-semibold">Evaluation unavailable</h1>
-          <p className="mt-3 text-sm text-muted">{error}</p>
-          <button onClick={() => router.push('/scenario')} className="mt-6 rounded-lg bg-blue px-5 py-3 text-sm font-semibold text-white">
-            Return to training
+      <main className="min-h-screen bg-[#080D12] text-primary flex items-center justify-center p-8 font-sans">
+        <div 
+          className="max-w-lg rounded-2xl p-8 text-center space-y-4 shadow-2xl"
+          style={{
+            background: 'rgba(17, 24, 33, 0.9)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
+            backdropFilter: 'blur(20px)'
+          }}
+        >
+          <h1 className="text-xl font-bold text-primary">Evaluation Unavailable</h1>
+          <p className="text-sm leading-relaxed" style={{ color: 'rgba(141, 152, 165, 0.85)' }}>{error}</p>
+          <button 
+            onClick={() => router.push('/scenario')} 
+            className="mt-4 px-6 py-2.5 rounded-xl font-mono text-xs uppercase tracking-[0.12em] transition-all duration-200 inline-flex items-center gap-2"
+            style={{
+              background: 'rgba(79, 124, 255, 0.12)',
+              border: '1px solid rgba(79, 124, 255, 0.25)',
+              color: 'rgba(165, 184, 255, 0.95)',
+              boxShadow: '0 0 20px rgba(79, 124, 255, 0.1)'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(79, 124, 255, 0.22)';
+              e.currentTarget.style.borderColor = 'rgba(79, 124, 255, 0.4)';
+              e.currentTarget.style.color = '#FFFFFF';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(79, 124, 255, 0.12)';
+              e.currentTarget.style.borderColor = 'rgba(79, 124, 255, 0.25)';
+              e.currentTarget.style.color = 'rgba(165, 184, 255, 0.95)';
+            }}
+          >
+            <span>Return to Training</span>
           </button>
         </div>
       </main>
@@ -488,28 +516,58 @@ function EvaluationContent() {
     <div className="flex h-dvh flex-col overflow-hidden bg-[#080D12] text-primary font-sans selection:bg-blue/20 relative">
       
       {/* ── REGION 1: STICKY TOP NAVIGATION BAR (Fixed height flex item) ───── */}
-      <header className="shrink-0 border-b border-[#1E293B] bg-[#080D12]/95 backdrop-blur-md z-30 px-6 md:px-8 py-3 flex items-center justify-between gap-4">
-        
-        {/* Left: Brand + Evaluated Sector Badge */}
-        <div className="flex items-center gap-3.5 min-w-0">
+      <header 
+        className="shrink-0 z-30 px-6 md:px-8 py-3.5 flex items-center justify-between gap-4"
+        style={{
+          background: 'rgba(11, 15, 20, 0.85)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
+          backdropFilter: 'blur(20px)'
+        }}
+      >
+        {/* Left: Back to Dashboard + Evaluated Sector Badge */}
+        <div className="flex items-center gap-3 min-w-0">
           <Link 
             href="/dashboard"
-            className="flex items-center gap-2 group text-left focus:outline-none"
-            aria-label="Return to Dashboard"
+            className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.12em] px-3 py-1.5 rounded-xl transition-all duration-200 group shrink-0"
+            style={{
+              background: 'rgba(79,124,255,0.08)',
+              border: '1px solid rgba(79,124,255,0.18)',
+              color: 'rgba(165,184,255,0.85)',
+              boxShadow: '0 0 16px rgba(79,124,255,0.05)'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(79,124,255,0.14)';
+              e.currentTarget.style.borderColor = 'rgba(79,124,255,0.32)';
+              e.currentTarget.style.color = '#FFFFFF';
+              e.currentTarget.style.boxShadow = '0 0 20px rgba(79,124,255,0.14)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(79,124,255,0.08)';
+              e.currentTarget.style.borderColor = 'rgba(79,124,255,0.18)';
+              e.currentTarget.style.color = 'rgba(165,184,255,0.85)';
+              e.currentTarget.style.boxShadow = '0 0 16px rgba(79,124,255,0.05)'
+            }}
+            aria-label="Back to Dashboard"
           >
-            <span className="text-xl leading-none font-light text-cyan opacity-85 group-hover:opacity-100 transition-opacity">◉</span>
-            <span className="font-semibold text-sm tracking-tight text-primary group-hover:text-cyan transition-colors hidden sm:inline">
-              Midnight Intelligence
-            </span>
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" style={{ color: 'rgba(165,184,255,0.9)' }} />
+            <span className="hidden sm:inline">Back to Dashboard</span>
+            <span className="sm:hidden">Back</span>
           </Link>
 
-          <span className="h-4 w-px bg-[#1E293B] hidden sm:inline-block"></span>
+          <span className="h-4 w-px bg-white/10 hidden sm:inline-block"></span>
 
           {/* Evaluated Threat Sector Indicator */}
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-surface border border-[#1E293B] text-xs font-mono">
-            <SectorIcon className="w-3.5 h-3.5 text-cyan shrink-0" />
-            <span className="font-semibold text-primary truncate">{sectorConfig.label.toUpperCase()}</span>
-            <span className="text-[10px] text-muted uppercase hidden md:inline">· EVALUATION</span>
+          <div 
+            className="flex items-center gap-2 px-2.5 py-1 rounded-lg text-xs font-mono"
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.07)',
+              color: 'rgba(141,152,165,0.85)'
+            }}
+          >
+            <SectorIcon className="w-3.5 h-3.5 shrink-0" style={{ color: 'rgba(165,184,255,0.85)' }} />
+            <span className="font-semibold text-primary truncate">{sectorConfig.label}</span>
+            <span className="text-[10px] uppercase hidden md:inline" style={{ color: 'rgba(141,152,165,0.5)' }}>· DEBRIEF</span>
           </div>
         </div>
 
@@ -521,63 +579,104 @@ function EvaluationContent() {
             aria-label="Toggle Training Control Hub"
             aria-expanded={isHubOpen}
             aria-controls="hub-drawer"
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono transition-all duration-200 shadow-sm border ${
-              isHubOpen
-                ? 'bg-cyan/20 text-cyan border-cyan/40 shadow-[0_0_15px_rgba(69,217,232,0.2)]'
-                : 'bg-[#111821] text-primary/90 border-[#1E293B] hover:border-cyan/30 hover:bg-[#141C27]'
-            }`}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono transition-all duration-200 shadow-sm"
+            style={isHubOpen
+              ? { background: 'rgba(79,124,255,0.16)', border: '1px solid rgba(79,124,255,0.35)', color: '#FFFFFF', boxShadow: '0 0 20px rgba(79,124,255,0.2)' }
+              : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(141,152,165,0.7)' }
+            }
           >
-            <span className="w-2 h-2 rounded-full bg-cyan animate-pulse shrink-0"></span>
-            <span className="font-bold tracking-wider uppercase text-cyan">TRAINING HUB</span>
-            <span className="text-muted hidden md:inline">|</span>
-            <span className="text-muted hidden md:inline">READINESS: {readinessScore}%</span>
-            <span className="text-muted hidden lg:inline">|</span>
-            <span className="text-muted hidden lg:inline">NEXT: {priorityChannel.toUpperCase().replace(/[_-]+/g, ' ')}</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-primary/10 text-muted ml-1 hidden sm:inline">
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'rgba(79,124,255,0.9)' }}></span>
+            <span className="font-semibold tracking-wider uppercase" style={{ color: 'rgba(165,184,255,0.9)' }}>TRAINING HUB</span>
+            <span className="text-muted/40 hidden md:inline">|</span>
+            <span className="hidden md:inline" style={{ color: 'rgba(141,152,165,0.6)' }}>READINESS: {readinessScore}%</span>
+            <span className="hidden lg:inline text-muted/40">|</span>
+            <span className="hidden lg:inline" style={{ color: 'rgba(141,152,165,0.6)' }}>NEXT: {priorityChannel.toUpperCase().replace(/[_-]+/g, ' ')}</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded hidden sm:inline"
+              style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(141,152,165,0.5)' }}>
               H
             </span>
           </button>
         </div>
 
-        {/* Right: Quick Dashboard Action */}
+        {/* Right: Verified Evaluation Pill */}
         <div className="flex items-center gap-3 shrink-0">
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface border border-[#1E293B] hover:border-cyan/40 text-muted hover:text-primary transition-colors text-xs font-mono"
+          <span 
+            className="text-[10px] font-mono uppercase tracking-[0.15em] px-2.5 py-1 rounded-lg hidden sm:inline-block"
+            style={{ background: 'rgba(79,124,255,0.07)', border: '1px solid rgba(79,124,255,0.15)', color: 'rgba(165,184,255,0.7)' }}
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Dashboard</span>
-          </Link>
+            Verified Debrief
+          </span>
         </div>
       </header>
 
-      {/* ── REGION 2: INDEPENDENTLY SCROLLABLE DEBRIEF CONTENT VIEWPORT ────── */}
+      {/* ── REGION 2: COMPACT DEBRIEF SUMMARY ────── */}
       <main 
-        className="flex-1 min-h-0 overflow-y-auto px-6 md:px-8 py-6"
+        className="flex-1 min-h-0 overflow-hidden px-3 sm:px-6 md:px-8 py-2 sm:py-4"
         tabIndex={0}
         aria-label="Decision Debrief Content"
       >
-        <div className="max-w-[1440px] mx-auto">
+        <div className="max-w-[1440px] h-full min-h-0 mx-auto">
           {loading ? (
             <div className="flex items-center justify-center min-h-[60vh]">
               <div className="text-center space-y-4">
-                <div className="w-9 h-9 rounded-full border border-cyan/30 border-t-cyan animate-spin mx-auto"></div>
-                <p className="text-xs font-mono font-bold tracking-widest uppercase text-muted">
+                <div 
+                  className="w-10 h-10 rounded-full animate-spin mx-auto"
+                  style={{
+                    border: '2.5px solid rgba(79,124,255,0.15)',
+                    borderTopColor: 'rgba(79,124,255,0.95)',
+                    filter: 'drop-shadow(0 0 10px rgba(79,124,255,0.4))'
+                  }}
+                />
+                <p className="text-xs font-mono font-semibold tracking-widest uppercase" style={{ color: 'rgba(165,184,255,0.85)' }}>
                   Generating Decision Debrief...
                 </p>
               </div>
             </div>
           ) : error ? (
             <div className="flex items-center justify-center min-h-[60vh]">
-              <div className="text-center space-y-4 bg-surface p-8 rounded-2xl border border-coral/30">
-                <p className="text-coral font-medium text-sm">Error processing decision evaluation</p>
-                <Link href="/dashboard" className="inline-block text-cyan hover:underline font-mono text-xs uppercase tracking-wider">
+              <div 
+                className="text-center space-y-4 p-8 rounded-2xl max-w-md w-full"
+                style={{
+                  background: 'rgba(17,24,33,0.75)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(248,113,113,0.3)',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
+                }}
+              >
+                <div className="w-10 h-10 rounded-xl mx-auto flex items-center justify-center" style={{ background: 'rgba(248,113,113,0.12)', border: '1px solid rgba(248,113,113,0.25)' }}>
+                  <span className="text-red-400 text-lg font-bold">!</span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-white mb-1">Debrief Generation Failed</h4>
+                  <p className="text-xs" style={{ color: 'rgba(248,113,113,0.85)' }}>{error}</p>
+                </div>
+                <Link 
+                  href="/dashboard" 
+                  className="inline-flex items-center justify-center px-4 py-2 rounded-xl font-mono text-xs uppercase tracking-wider transition-all duration-200"
+                  style={{
+                    background: 'rgba(79,124,255,0.12)',
+                    border: '1px solid rgba(79,124,255,0.25)',
+                    color: 'rgba(165,184,255,0.95)',
+                    boxShadow: '0 0 15px rgba(79,124,255,0.15)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(79,124,255,0.2)';
+                    e.currentTarget.style.borderColor = 'rgba(79,124,255,0.45)';
+                    e.currentTarget.style.color = '#FFFFFF';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(79,124,255,0.12)';
+                    e.currentTarget.style.borderColor = 'rgba(79,124,255,0.25)';
+                    e.currentTarget.style.color = 'rgba(165,184,255,0.95)';
+                  }}
+                >
                   Return to Dashboard
                 </Link>
               </div>
             </div>
           ) : evaluation ? (
             <EvaluationResults 
+              key={scenarioId}
               evaluation={evaluation}
               userAction={userAction}
               userReasoning={userReasoning}
@@ -628,8 +727,16 @@ function EvaluationContent() {
 export default function EvaluationPage() {
   return (
     <Suspense fallback={
-      <div className="h-dvh bg-[#080D12] flex items-center justify-center text-muted font-mono text-xs">
-        Initializing Decision Debrief Viewport...
+      <div className="h-dvh bg-[#080D12] flex flex-col items-center justify-center gap-3 font-mono text-xs" style={{ color: 'rgba(165,184,255,0.7)' }}>
+        <div 
+          className="w-8 h-8 rounded-full animate-spin"
+          style={{
+            border: '2px solid rgba(79,124,255,0.15)',
+            borderTopColor: 'rgba(79,124,255,0.9)',
+            filter: 'drop-shadow(0 0 8px rgba(79,124,255,0.4))'
+          }}
+        />
+        <span className="tracking-wider uppercase">Initializing Decision Debrief Viewport...</span>
       </div>
     }>
       <EvaluationContent />

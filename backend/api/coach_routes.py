@@ -13,6 +13,7 @@ from runtime_store import (
     get_decision,
     get_scenario as get_cached_scenario,
 )
+from graph.cyberguard_graph import coach_graph  # ← LangGraph
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
@@ -33,6 +34,7 @@ except Exception as e:
 
 # In-memory store for fallback / rapid local testing
 MOCK_LEARNING_PROFILES = LEARNING_PROFILES
+
 
 
 class ProcessDecisionRequest(BaseModel):
@@ -59,12 +61,15 @@ class OnboardUserRequest(BaseModel):
 
 class DashboardSummaryResponse(BaseModel):
     success: bool
+    data_source: str
+    decision_count: int
     user: Dict[str, Any]
     readiness_score: int
     feedback_headline: str
     next_situation: Dict[str, Any]
     decision_journey: List[Dict[str, Any]]
     weakness_breakdown: Dict[str, int]
+    channel_scores: Dict[str, Optional[int]]
     training_map: Optional[List[Dict[str, Any]]] = None
     learning_profile: Optional[Dict[str, Any]] = None
 
@@ -102,10 +107,10 @@ async def onboard_user(
                 "full_name": effective_name,
                 "role": request.job_title,
                 "company": request.org_name,
-                "readiness_score": 50
+                "readiness_score": 0
             }).execute()
         except Exception as e:
-            print(f"Notice: Supabase public.users upsert in onboard_user: {e}")
+            raise HTTPException(status_code=503, detail="User profile persistence failed") from e
 
         try:
             upsert_payload = {
@@ -116,28 +121,23 @@ async def onboard_user(
                 "target_channel": baseline_profile["target_channel"],
                 "primary_attack_surface": baseline_profile["primary_attack_surface"]
             }
-            # Attempt to persist training_map if column exists in schema
-            try:
-                supabase.table("user_learning_profile").upsert({
-                    **upsert_payload,
-                    "training_map": baseline_profile.get("training_map")
-                }).execute()
-            except Exception:
-                supabase.table("user_learning_profile").upsert(upsert_payload).execute()
+            supabase.table("user_learning_profile").upsert({
+                **upsert_payload,
+                "training_map": baseline_profile.get("training_map"),
+            }).execute()
 
             supabase.table("agent_audit_logs").insert({
                 "agent_name": "CoachAgent (Member 3)",
                 "user_id": effective_user_id,
                 "action": "DYNAMIC_ONBOARDING_INITIALIZATION",
                 "details": {
-                    "job_title": request.job_title,
-                    "department": request.department,
-                    "org_name": request.org_name,
-                    "baseline_profile": baseline_profile
+                    "input": request.model_dump(exclude={"user_id"}),
+                    "output": baseline_profile,
+                    "agent_trace": baseline_profile.get("agent_trace", []),
                 }
             }).execute()
         except Exception as e:
-            print(f"Notice: Supabase onboarding upsert bypassed: {e}")
+            raise HTTPException(status_code=503, detail="Onboarding persistence failed") from e
 
     # Update in-memory cache
     MOCK_LEARNING_PROFILES[effective_user_id] = {
@@ -188,8 +188,8 @@ async def process_decision(
             if decision_res.data:
                 stored_decision = decision_res.data[0]
         except Exception as e:
-            print(f"Notice: Supabase decision fetch in process-decision: {e}")
-    if not stored_decision:
+            raise HTTPException(status_code=503, detail="Decision retrieval failed") from e
+    if not stored_decision and not supabase:
         stored_decision = get_decision(request.scenario_id, user_id)
     if not stored_decision:
         raise HTTPException(status_code=404, detail="No evaluated decision exists for this scenario and user")
@@ -199,8 +199,8 @@ async def process_decision(
     authoritative_safe = bool(stored_decision.get("is_safe", False))
     authoritative_weaknesses = stored_evaluation.get("weaknesses") or []
 
-    scenario_record = get_cached_scenario(request.scenario_id, user_id)
-    if not scenario_record and supabase:
+    scenario_record = None
+    if supabase:
         try:
             scenario_res = (
                 supabase.table("scenarios")
@@ -213,7 +213,9 @@ async def process_decision(
             if scenario_res.data:
                 scenario_record = scenario_res.data[0]
         except Exception as e:
-            print(f"Notice: Supabase scenario fetch in process-decision: {e}")
+            raise HTTPException(status_code=503, detail="Scenario retrieval failed") from e
+    else:
+        scenario_record = get_cached_scenario(request.scenario_id, user_id)
     scenario_content = scenario_record.get("content", {}) if scenario_record else {}
     threat_type = str(scenario_content.get("threat_type") or "cybersecurity awareness")
     target_channel = str(scenario_content.get("channel") or "email")
@@ -232,11 +234,11 @@ async def process_decision(
             if prof_resp.data and len(prof_resp.data) > 0:
                 current_difficulty = prof_resp.data[0].get("next_difficulty", "beginner")
         except Exception as e:
-            print(f"Notice: Supabase read in process-decision: {e}")
+            raise HTTPException(status_code=503, detail="Learning history retrieval failed") from e
 
-    if not past_decisions:
+    if not past_decisions and not supabase:
         past_decisions = [d for d in RUNTIME_DECISIONS.values() if d.get("user_id") == user_id]
-    if current_difficulty == "beginner":
+    if current_difficulty == "beginner" and not supabase:
         current_difficulty = MOCK_LEARNING_PROFILES.get(user_id, {}).get("next_difficulty", "beginner")
 
     # Evaluation saved this decision already; Coach appends its score separately.
@@ -254,13 +256,24 @@ async def process_decision(
         "channel": target_channel
     }
 
-    # 2. Execute Coach Agent
-    coaching_result = coach_agent.generate_coaching(
-        user_id=user_id,
-        evaluation_data=eval_payload,
-        past_decisions=past_decisions,
-        current_difficulty=current_difficulty
+    # ── Run the LangGraph coach_node (LangSmith traces automatically) ──
+    graph_state = coach_graph.invoke(
+        {
+            "user_id": user_id,
+            "evaluation_result": eval_payload,
+            "past_decisions": past_decisions,
+            "current_difficulty": current_difficulty,
+            "agent_trace": [],
+        },
+        config={
+            "configurable": {"thread_id": f"coach-{request.scenario_id}"},
+            "tags": ["coaching", f"user:{user_id}"],
+            "metadata": {"scenario_id": request.scenario_id, "user_id": user_id},
+        },
     )
+    coaching_result = graph_state.get("coaching_result") or {}
+
+
 
     # 3. Update user learning profile & user score in Supabase
     next_diff = coaching_result["next_difficulty"]
@@ -274,27 +287,41 @@ async def process_decision(
                 "next_difficulty": next_diff,
                 "next_focus": next_topic,
                 "tactic_to_target": weakness_target,
-                "target_channel": target_channel
+                "target_channel": target_channel,
             }).execute()
 
             # Calculate and update new average readiness score in public.users
-            all_scores = [
-                d.get("evaluation", {}).get("final_score", authoritative_score)
-                for d in past_decisions
-                if isinstance(d.get("evaluation"), dict)
-            ]
-            all_scores.append(authoritative_score)
-            avg_score = round(sum(all_scores) / len(all_scores))
+            all_scores = []
+            offset = 0
+            while True:
+                score_page = (supabase.table("decisions").select("evaluation")
+                              .eq("user_id", user_id).range(offset, offset + 999).execute().data or [])
+                all_scores.extend(
+                    float(row["evaluation"]["final_score"])
+                    for row in score_page
+                    if isinstance(row.get("evaluation"), dict)
+                    and isinstance(row["evaluation"].get("final_score"), (int, float))
+                )
+                if len(score_page) < 1000:
+                    break
+                offset += 1000
+            avg_score = round(sum(all_scores) / len(all_scores)) if all_scores else 0
             supabase.table("users").update({"readiness_score": avg_score}).eq("id", user_id).execute()
             
             supabase.table("agent_audit_logs").insert({
                 "agent_name": "CoachAgent (Member 3)",
                 "user_id": user_id,
                 "action": "UPDATE_LEARNING_PROFILE",
-                "details": coaching_result
+                "details": {
+                    "scenario_id": request.scenario_id,
+                    "input": {"evaluation": eval_payload, "past_decisions": past_decisions,
+                              "current_difficulty": current_difficulty},
+                    "output": coaching_result,
+                    "agent_trace": graph_state.get("agent_trace", []),
+                }
             }).execute()
         except Exception as e:
-            print(f"Notice: Supabase profile update bypassed: {e}")
+            raise HTTPException(status_code=503, detail="Coaching persistence failed") from e
 
     # Update in-memory fallback store
     previous_profile = MOCK_LEARNING_PROFILES.get(user_id, {})
@@ -330,7 +357,8 @@ async def get_dashboard_summary(
 
     profile_data = {}
     user_decisions = []
-    db_readiness_score = None
+    scenario_channels: Dict[str, str] = {}
+    effective_company = current_user.company
 
     # 1. Query live Supabase database
     if supabase:
@@ -341,25 +369,59 @@ async def get_dashboard_summary(
                 profile_data = prof_res.data[0]
 
             # Fetch user decisions history
-            dec_res = supabase.table("decisions").select("*").eq("user_id", effective_user_id).order("created_at", desc=True).limit(10).execute()
-            if dec_res.data:
-                user_decisions = dec_res.data
+            offset = 0
+            while True:
+                dec_res = (supabase.table("decisions").select("*")
+                           .eq("user_id", effective_user_id)
+                           .order("created_at", desc=True)
+                           .range(offset, offset + 999).execute())
+                page = dec_res.data or []
+                user_decisions.extend(page)
+                if len(page) < 1000:
+                    break
+                offset += 1000
+
+            scenario_ids = list({str(d["scenario_id"]) for d in user_decisions if d.get("scenario_id")})
+            for start in range(0, len(scenario_ids), 100):
+                scenario_res = (supabase.table("scenarios").select("id,content")
+                                .in_("id", scenario_ids[start:start + 100]).execute())
+                scenario_channels.update({
+                    str(row["id"]): str((row.get("content") or {}).get("channel") or "unknown")
+                    for row in (scenario_res.data or [])
+                })
+
+            audit_res = (supabase.table("agent_audit_logs").select("details")
+                         .eq("user_id", effective_user_id)
+                         .eq("action", "UPDATE_LEARNING_PROFILE")
+                         .order("created_at", desc=True).limit(1).execute())
+            if audit_res.data:
+                details = audit_res.data[0].get("details") or {}
+                profile_data["coaching"] = details.get("output", details)
 
             # Fetch user record for readiness score & name if not in JWT
             u_res = supabase.table("users").select("*").eq("id", effective_user_id).execute()
             if u_res.data and len(u_res.data) > 0:
                 user_row = u_res.data[0]
-                db_readiness_score = user_row.get("readiness_score")
                 effective_user_name = user_row.get("full_name") or effective_user_name
                 effective_user_role = user_row.get("role") or effective_user_role
+                effective_company = user_row.get("company") or effective_company
         except Exception as e:
-            print(f"Notice: Supabase fetch in dashboard-summary: {e}")
+            raise HTTPException(status_code=503, detail="Dashboard database retrieval failed") from e
 
     # Fallback to in-memory store if DB had no rows
-    if not user_decisions:
+    if not user_decisions and not supabase:
         user_decisions = [d for d in RUNTIME_DECISIONS.values() if d.get("user_id") == effective_user_id]
-    if not profile_data:
+    if not profile_data and not supabase:
         profile_data = MOCK_LEARNING_PROFILES.get(effective_user_id, {})
+
+    for decision in user_decisions:
+        evaluation = decision.get("evaluation") or {}
+        decision["channel"] = (
+            evaluation.get("channel") if isinstance(evaluation, dict) else None
+        ) or scenario_channels.get(str(decision.get("scenario_id"))) or (
+            (get_cached_scenario(str(decision.get("scenario_id")), effective_user_id) or {})
+            .get("content", {}).get("channel") if not supabase else None
+        )
 
     next_difficulty = profile_data.get("next_difficulty", "beginner")
     next_focus = profile_data.get("next_focus", "Payment & Invoice Verification")
@@ -396,24 +458,7 @@ async def get_dashboard_summary(
             weaknesses = ["Social Engineering"]
         threat = weaknesses[0] if weaknesses else "Threat Vector"
 
-        threat_str = str(threat).lower()
-        action_str = str(d.get("chosen_action", "")).lower()
-        reason_str = str(d.get("reasoning", "")).lower()
-        full_text = f"{threat_str} {action_str} {reason_str}"
-
-        dec_channel = "email"
-        if any(w in full_text for w in ["voice", "vishing", "phone", "call", "caller"]):
-            dec_channel = "voice_phone"
-        elif any(w in full_text for w in ["slack", "teams", "chat", "dm"]):
-            dec_channel = "slack_teams"
-        elif any(w in full_text for w in ["qr", "quish", "scan"]):
-            dec_channel = "qr_code"
-        elif any(w in full_text for w in ["oauth", "consent", "token", "cloud"]):
-            dec_channel = "cloud_oauth"
-        elif any(w in full_text for w in ["mfa", "push", "bombing", "sms", "fatigue"]):
-            dec_channel = "sms_push"
-        elif any(w in full_text for w in ["usb", "physical", "hardware", "drive"]):
-            dec_channel = "physical_media"
+        dec_channel = d.get("channel") or eval_data.get("channel") or "unknown"
 
         journey.append({
             "id": idx,
@@ -427,55 +472,38 @@ async def get_dashboard_summary(
         })
 
     # 3. Calculate dynamic Readiness Score
-    if db_readiness_score is not None and db_readiness_score > 0:
-        readiness_score = db_readiness_score
-    elif user_decisions:
+    if user_decisions:
         scores = []
         for d in user_decisions:
             eval_data = d.get("evaluation")
             if isinstance(eval_data, dict) and "final_score" in eval_data:
-                scores.append(eval_data["final_score"])
+                scores.append(float(eval_data["final_score"]))
         readiness_score = round(sum(scores) / len(scores)) if scores else 0
     else:
         readiness_score = 0
 
-    # 4. Calculate dynamic weakness breakdown
-    weakness_breakdown = {
-        "Phishing & Spoofing": 0,
-        "Urgency & BEC Defense": 0,
-        "Data Protection": 0,
-        "Identity Verification": 0
+    # 4. Calculate measured channel scores. A missing channel has no measured score.
+    channel_samples: Dict[str, List[float]] = {}
+    for d in user_decisions:
+        evaluation = d.get("evaluation") or {}
+        channel = d.get("channel") or evaluation.get("channel")
+        score = evaluation.get("final_score")
+        if channel and isinstance(score, (int, float)):
+            channel_samples.setdefault(channel, []).append(float(score))
+    channel_scores = {
+        channel: round(sum(channel_samples[channel]) / len(channel_samples[channel]))
+        if channel_samples.get(channel) else None
+        for channel in ("email", "voice_phone", "slack_teams", "qr_code",
+                        "cloud_oauth", "sms_push", "physical_media")
     }
 
-    if user_decisions:
-        # Tally scores per category
-        phishing_scores = []
-        urgency_scores = []
-        data_scores = []
-        id_scores = []
-        for d in user_decisions:
-            eval_data = d.get("evaluation") or {}
-            score = eval_data.get("final_score", 50) if isinstance(eval_data, dict) else 50
-            action = str(d.get("chosen_action", "")).lower()
-            reasoning = str(d.get("reasoning", "")).lower()
-
-            if "phish" in action or "email" in action or "link" in action:
-                phishing_scores.append(score)
-            if "urgent" in reasoning or "wire" in action or "transfer" in action:
-                urgency_scores.append(score)
-            if "data" in reasoning or "privacy" in reasoning or "credential" in reasoning:
-                data_scores.append(score)
-            if "verify" in reasoning or "call" in action or "identity" in reasoning:
-                id_scores.append(score)
-
-        if phishing_scores:
-            weakness_breakdown["Phishing & Spoofing"] = round(sum(phishing_scores) / len(phishing_scores))
-        if urgency_scores:
-            weakness_breakdown["Urgency & BEC Defense"] = round(sum(urgency_scores) / len(urgency_scores))
-        if data_scores:
-            weakness_breakdown["Data Protection"] = round(sum(data_scores) / len(data_scores))
-        if id_scores:
-            weakness_breakdown["Identity Verification"] = round(sum(id_scores) / len(id_scores))
+    # Legacy category labels are derived only from measured channels.
+    weakness_breakdown = {
+        "Phishing & Spoofing": channel_scores["email"] or 0,
+        "Urgency & BEC Defense": channel_scores["voice_phone"] or 0,
+        "Data Protection & Privacy": channel_scores["physical_media"] or 0,
+        "Policy Compliance & Verification": channel_scores["cloud_oauth"] or 0,
+    }
 
     target_channel = profile_data.get("target_channel", "email")
     attack_surface = profile_data.get("primary_attack_surface", f"Assets associated with {effective_user_role}")
@@ -496,24 +524,28 @@ async def get_dashboard_summary(
     if not training_map or not isinstance(training_map, list):
         training_map = coach_agent._synthesize_training_map(
             job_title=effective_user_role,
-            org_name="Your Organization",
+            org_name=effective_company,
             target_channel=target_channel,
             target_topic=next_focus
         )
 
     return DashboardSummaryResponse(
         success=True,
+        data_source="supabase" if supabase else "memory",
+        decision_count=len(user_decisions),
         user={
             "id": effective_user_id,
             "name": effective_user_name,
             "role": effective_user_role,
-            "access_role": effective_access_role
+            "access_role": effective_access_role,
+            "company": effective_company,
         },
         readiness_score=readiness_score,
         feedback_headline=headline,
         next_situation=next_situation,
         decision_journey=journey,
         weakness_breakdown=weakness_breakdown,
+        channel_scores=channel_scores,
         training_map=training_map,
         learning_profile=profile_data
     )

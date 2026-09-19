@@ -139,6 +139,8 @@ async def onboard_organization_policy(
     Supports PDF document upload or raw text submission.
     Embeds with local Hugging Face all-MiniLM-L6-v2 and stores in public.org_knowledge.
     """
+    if supabase and not current_user:
+        raise HTTPException(status_code=401, detail="Authentication required for policy persistence")
     user_id = current_user.id if current_user else (user_id or "default-user")
     if current_user and current_user.company not in ("", "Your Organization"):
         company_name = current_user.company
@@ -194,7 +196,8 @@ async def onboard_organization_policy(
 
     # 4. Mask personal data before external LLM extraction or database storage.
     sanitized_policy = sanitize_input(raw_text)
-    extracted_rules = extract_policy_rules(sanitized_policy, company_name=company_name, department=department)
+    extraction_trace = {}
+    extracted_rules = extract_policy_rules(sanitized_policy, company_name=company_name, department=department, trace=extraction_trace)
     if not extracted_rules:
         fallback_chunks = chunk_text(sanitized_policy)
         extracted_rules = [
@@ -212,6 +215,7 @@ async def onboard_organization_policy(
 
     # 5. Embed each structured rule locally with Hugging Face and store in Supabase
     ingested_records = []
+    persisted_rule_ids = []
     for rule in extracted_rules:
         formatted_content = format_rule_for_embedding(rule, company_name=company_name)
         vector = get_local_embedding(formatted_content)
@@ -240,9 +244,28 @@ async def onboard_organization_policy(
 
         if supabase:
             try:
-                supabase.table("org_knowledge").insert(record).execute()
+                insert_res = supabase.table("org_knowledge").insert(record).execute()
+                if not insert_res.data:
+                    raise RuntimeError("Policy insert returned no record")
+                persisted_rule_ids.append(str(insert_res.data[0]["id"]))
             except Exception as e:
-                print(f"Notice: Supabase insert skipped for chunk in org_routes: {e}")
+                raise HTTPException(status_code=503, detail="Policy persistence failed") from e
+
+    if supabase:
+        try:
+            supabase.table("agent_audit_logs").insert({
+                "agent_name": "PolicyExtractor",
+                "user_id": user_id,
+                "action": "EXTRACT_ORG_POLICIES",
+                "details": {
+                    "input": {"company": company_name, "department": department,
+                              "source": source_label, "sanitized_document": sanitized_policy},
+                    "output": {"rules": extracted_rules, "org_knowledge_ids": persisted_rule_ids},
+                    "agent_trace": [{"node": "policy_extractor", **extraction_trace}],
+                },
+            }).execute()
+        except Exception as e:
+            raise HTTPException(status_code=503, detail="Policy extraction audit failed") from e
 
     # Store in local memory cache
     CUSTOM_ORG_POLICIES_CACHE.setdefault(company_name.lower(), []).extend(ingested_records)
@@ -255,7 +278,7 @@ async def onboard_organization_policy(
                 "role": role_title
             }).eq("id", user_id).execute()
         except Exception:
-            pass
+            raise HTTPException(status_code=503, detail="Policy owner update failed")
 
     return {
         "success": True,
@@ -296,14 +319,17 @@ def get_custom_policies(
 
     # 1. Look up custom cached policies by user id, company name, or parameter
     policies = []
+    policy_source = "baseline"
     lookup_keys = [k for k in [user_id, org_name.lower(), company_or_user_id.lower()] if k]
-    for k in lookup_keys:
-        if k in CUSTOM_ORG_POLICIES_CACHE and CUSTOM_ORG_POLICIES_CACHE[k]:
-            policies = CUSTOM_ORG_POLICIES_CACHE[k]
-            break
+    if not supabase:
+        for k in lookup_keys:
+            if k in CUSTOM_ORG_POLICIES_CACHE and CUSTOM_ORG_POLICIES_CACHE[k]:
+                policies = CUSTOM_ORG_POLICIES_CACHE[k]
+                policy_source = "memory"
+                break
 
     # 2. Check Supabase if connected and not found in memory
-    if supabase and not policies:
+    if supabase:
         try:
             if user_id:
                 res = supabase.table("org_knowledge").select("content, metadata, category").contains("metadata", {"user_id": user_id}).execute()
@@ -314,7 +340,9 @@ def get_custom_policies(
                 if res.data:
                     policies = res.data
         except Exception as e:
-            print(f"Notice: Supabase fetch error in org_routes: {e}")
+            raise HTTPException(status_code=503, detail="Policy database retrieval failed") from e
+        if policies:
+            policy_source = "database"
 
     # 3. Format structured rules
     structured_rules = []
@@ -367,6 +395,7 @@ def get_custom_policies(
 
     return {
         "success": True,
+        "source": policy_source,
         "count": len(structured_rules),
         "organization": org_name,
         "rules": structured_rules,

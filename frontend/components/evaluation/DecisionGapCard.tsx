@@ -12,23 +12,52 @@ export const DecisionGapCard: React.FC<DecisionGapCardProps> = ({ data }) => {
   const [showPolicy, setShowPolicy] = useState(false);
 
   return (
-    <div className="bg-[#111A24] border border-[#1E293B] rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col h-full justify-between">
+    <div 
+      className="rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col h-full justify-between transition-all duration-300"
+      style={{
+        background: 'rgba(17, 24, 33, 0.75)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+        backdropFilter: 'blur(16px)'
+      }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-[#1E293B]/70">
+      <div 
+        className="flex items-center justify-between gap-3 mb-4 pb-3"
+        style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.07)' }}
+      >
         <div>
           <h2 className="text-xs font-mono font-bold tracking-wider uppercase text-primary flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${isUserActionSafe ? 'bg-teal' : 'bg-amber'}`}></span>
+            <span 
+              className="w-2 h-2 rounded-full shrink-0"
+              style={{ background: isUserActionSafe ? '#34D399' : '#FBBF24' }}
+            ></span>
             DECISION GAP
           </h2>
-          <p className="text-xs text-muted mt-0.5">
-            Comparison between your choice and the recommended defense
+          <p className="text-xs mt-0.5" style={{ color: 'rgba(141, 152, 165, 0.75)' }}>
+            Comparison between your choice and recommended defense
           </p>
         </div>
 
         {policyRuleText && (
           <button
             onClick={() => setShowPolicy(!showPolicy)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface border border-cyan/30 text-cyan hover:bg-cyan/10 text-xs font-mono transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono transition-all duration-200"
+            style={{
+              background: 'rgba(79, 124, 255, 0.08)',
+              border: '1px solid rgba(79, 124, 255, 0.2)',
+              color: 'rgba(165, 184, 255, 0.85)'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(79, 124, 255, 0.16)';
+              e.currentTarget.style.borderColor = 'rgba(79, 124, 255, 0.35)';
+              e.currentTarget.style.color = '#FFFFFF';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(79, 124, 255, 0.08)';
+              e.currentTarget.style.borderColor = 'rgba(79, 124, 255, 0.2)';
+              e.currentTarget.style.color = 'rgba(165, 184, 255, 0.85)';
+            }}
             aria-expanded={showPolicy}
             aria-controls="policy-rule-content"
           >
@@ -42,20 +71,30 @@ export const DecisionGapCard: React.FC<DecisionGapCardProps> = ({ data }) => {
       {/* Two Blocks with Vertical Connector */}
       <div className="space-y-3 flex-1 flex flex-col justify-center">
         {/* Upper Block: YOUR ACTION */}
-        <div className={`p-4 rounded-xl border transition-colors ${
-          isUserActionSafe
-            ? 'bg-teal/10 border-teal/30'
-            : 'bg-coral/10 border-coral/30'
-        }`}>
+        <div 
+          className="p-4 rounded-xl transition-colors"
+          style={isUserActionSafe
+            ? {
+                background: 'rgba(16, 185, 129, 0.08)',
+                border: '1px solid rgba(16, 185, 129, 0.25)'
+              }
+            : {
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.25)'
+              }
+          }
+        >
           <div className="flex items-center justify-between gap-2 mb-1.5">
-            <span className={`text-[10px] font-mono font-bold tracking-wider uppercase ${
-              isUserActionSafe ? 'text-teal' : 'text-coral'
-            }`}>
+            <span 
+              className="text-[10px] font-mono font-bold tracking-wider uppercase"
+              style={{ color: isUserActionSafe ? '#34D399' : '#F87171' }}
+            >
               YOUR ACTION
             </span>
-            <span className={`text-[10px] font-mono uppercase ${
-              isUserActionSafe ? 'text-teal/80' : 'text-coral/80'
-            }`}>
+            <span 
+              className="text-[10px] font-mono uppercase font-semibold"
+              style={{ color: isUserActionSafe ? '#34D399' : '#F87171' }}
+            >
               {isUserActionSafe ? 'Secured' : 'Exposed'}
             </span>
           </div>
@@ -65,31 +104,49 @@ export const DecisionGapCard: React.FC<DecisionGapCardProps> = ({ data }) => {
         </div>
 
         {/* Vertical Transition Connector */}
-        <div className="flex items-center justify-center gap-2 text-muted">
-          <span className="h-3 w-px bg-[#1E293B]"></span>
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface border border-[#1E293B] text-[10px] font-mono">
+        <div className="flex items-center justify-center gap-2" style={{ color: 'rgba(141, 152, 165, 0.6)' }}>
+          <span className="h-3 w-px bg-white/10"></span>
+          <div 
+            className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono"
+            style={{
+              background: 'rgba(11, 15, 20, 0.85)',
+              border: '1px solid rgba(255, 255, 255, 0.08)'
+            }}
+          >
             {isUserActionSafe ? (
               <>
-                <Check className="w-3 h-3 text-teal" />
-                <span className="text-teal">Aligned Action</span>
+                <Check className="w-3 h-3" style={{ color: '#34D399' }} />
+                <span style={{ color: '#34D399' }}>Aligned Action</span>
               </>
             ) : (
               <>
-                <ArrowDown className="w-3 h-3 text-amber" />
-                <span className="text-muted">Safer Response</span>
+                <ArrowDown className="w-3 h-3" style={{ color: '#FBBF24' }} />
+                <span style={{ color: 'rgba(141, 152, 165, 0.8)' }}>Safer Response</span>
               </>
             )}
           </div>
-          <span className="h-3 w-px bg-[#1E293B]"></span>
+          <span className="h-3 w-px bg-white/10"></span>
         </div>
 
         {/* Lower Block: RECOMMENDED ACTION */}
-        <div className="p-4 rounded-xl bg-teal/10 border border-teal/30">
+        <div 
+          className="p-4 rounded-xl"
+          style={{
+            background: 'rgba(79, 124, 255, 0.08)',
+            border: '1px solid rgba(79, 124, 255, 0.22)'
+          }}
+        >
           <div className="flex items-center justify-between gap-2 mb-1.5">
-            <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-teal">
+            <span 
+              className="text-[10px] font-mono font-bold tracking-wider uppercase"
+              style={{ color: 'rgba(165, 184, 255, 0.95)' }}
+            >
               RECOMMENDED ACTION
             </span>
-            <span className="text-[10px] font-mono text-teal/80 uppercase">
+            <span 
+              className="text-[10px] font-mono uppercase font-semibold"
+              style={{ color: 'rgba(165, 184, 255, 0.8)' }}
+            >
               Corporate SOP
             </span>
           </div>
@@ -99,13 +156,17 @@ export const DecisionGapCard: React.FC<DecisionGapCardProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Expandable Organizational Policy Rule (Only rendered when genuine policy exists) */}
+      {/* Expandable Organizational Policy Rule */}
       {showPolicy && policyRuleText && (
         <div 
           id="policy-rule-content"
-          className="mt-3 p-3.5 rounded-xl bg-cyan/5 border border-cyan/20 text-xs space-y-1.5"
+          className="mt-3 p-3.5 rounded-xl text-xs space-y-1.5"
+          style={{
+            background: 'rgba(11, 15, 20, 0.85)',
+            border: '1px solid rgba(79, 124, 255, 0.25)'
+          }}
         >
-          <div className="flex items-center justify-between font-mono text-[10px] text-cyan uppercase font-bold">
+          <div className="flex items-center justify-between font-mono text-[10px] uppercase font-bold" style={{ color: 'rgba(165, 184, 255, 0.95)' }}>
             <span>ORGANIZATIONAL SECURITY RULE</span>
             {policyCode && <span>{policyCode}</span>}
           </div>

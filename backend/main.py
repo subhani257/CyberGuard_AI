@@ -6,6 +6,7 @@ from api.evaluation_routes import router as evaluation_router
 from api.auth_routes import router as auth_router
 from api.coach_routes import router as coach_router
 from api.org_routes import router as org_router
+from api.admin_routes import router as admin_router
 
 app = FastAPI(
     title="Midnight Intelligence API",
@@ -33,6 +34,10 @@ app.include_router(evaluation_router, prefix="/api/agents")
 # Member 3: Authentication, RBAC & Adaptive Training Coach
 app.include_router(auth_router, prefix="/api/auth")
 app.include_router(coach_router, prefix="/api/coach")
+
+# Admin: Governance Console & Agent Monitoring (LangGraph)
+app.include_router(admin_router, prefix="/api/admin")
+
 
 @app.get("/")
 def root():

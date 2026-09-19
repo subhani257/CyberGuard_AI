@@ -16,12 +16,15 @@ import {
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 interface DashboardData {
+  data_source: 'supabase' | 'memory';
+  decision_count: number;
   user: { id: string; name: string; role: string; company?: string; department?: string; access_role: string; avatar_url?: string };
   readiness_score: number;
   feedback_headline: string;
   next_situation: { title: string; role: string; category: string; difficulty: string; estimated_minutes: number; tactic_target: string };
   decision_journey: Array<{ id: number; title: string; threat: string; score: number; status: string; is_safe: boolean; channel?: string; reasoning?: string }>;
   weakness_breakdown: Record<string, number>;
+  channel_scores: Record<string, number | null>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -39,21 +42,8 @@ const TRAINING_SECTORS = [
 
 type SectorChannel = typeof TRAINING_SECTORS[number]['channel'];
 
-const CHANNEL_SCORE_MAP: Record<SectorChannel, string[]> = {
-  voice_phone:    ['Phishing & Spoofing', 'Vishing & Phone Fraud'],
-  email:          ['Urgency & BEC Defense', 'Phishing & Spoofing'],
-  slack_teams:    ['Data Protection & Privacy', 'Collaboration Security'],
-  qr_code:        ['Phishing & Spoofing'],
-  cloud_oauth:    ['Policy Compliance & Verification', 'Cloud & OAuth Security'],
-  sms_push:       ['Policy Compliance & Verification', 'MFA & Access Security'],
-  physical_media: ['Data Protection & Privacy'],
-};
-
-function getSectorScore(channel: SectorChannel, breakdown: Record<string, number>): number {
-  const keys = CHANNEL_SCORE_MAP[channel] || [];
-  const values = keys.map(k => breakdown[k] ?? 0).filter(v => v > 0);
-  if (!values.length) return 0;
-  return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+function getSectorScore(channel: SectorChannel, scores: Record<string, number | null>): number {
+  return scores[channel] ?? 0;
 }
 
 // ── Design tokens — no cartoon colors ────────────────────────────────────────
@@ -147,21 +137,26 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
 
   const [data, setData] = useState<DashboardData>({
+    data_source: 'memory',
+    decision_count: 0,
     user: { id: '', name: '', role: 'Employee', company: '', department: '', access_role: 'learner', avatar_url: '' },
     readiness_score: 0,
     feedback_headline: "Welcome — your first adaptive simulation is ready. Let's establish your baseline.",
     next_situation: { title: 'A payment request that cannot wait.', role: 'Employee', category: 'Payment & Invoice Verification', difficulty: 'beginner', estimated_minutes: 3, tactic_target: 'urgency_bias' },
     decision_journey: [],
     weakness_breakdown: { 'Phishing & Spoofing': 0, 'Urgency & BEC Defense': 0, 'Data Protection & Privacy': 0, 'Policy Compliance & Verification': 0 },
+    channel_scores: {},
   });
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
 
-  const [policiesCount, setPoliciesCount]   = useState<number>(3);
+  const [policiesCount, setPoliciesCount]   = useState<number>(0);
   const [showTour, setShowTour]             = useState(false);
   const [isProfileOpen, setIsProfileOpen]   = useState(false);
   const [isJourneyModalOpen, setIsJourneyModalOpen] = useState(false);
   const [coachInput, setCoachInput]                 = useState('');
   const [coachTipModal, setCoachTipModal]           = useState<string | null>(null);
-  const [priorityChannel, setPriority]      = useState('voice_phone');
+  const [priorityChannel, setPriority]      = useState('email');
   const [nextDifficulty, setDifficulty]     = useState('beginner');
   const [personalizedMap, setPersonalizedMap] = useState<any[]>([]);
 
@@ -170,11 +165,11 @@ export default function Dashboard() {
     if (q.includes('urgency') || q.includes('checklist')) {
       setCoachTipModal("⚡ Urgency Bias Protocol: Attackers manufacture artificial time pressure to bypass dual-control checks. Verify any rush payment or credential request over an out-of-band confirmed phone number.");
     } else if (q.includes('sop') || q.includes('protocol') || q.includes('policy')) {
-      setCoachTipModal(`📋 SOP Policy Verification: ${policiesCount} corporate rules are active for ${data.user.company || 'your organization'}. All external wire transfers above threshold require secondary signatory approval.`);
+      setCoachTipModal(`📋 Policy check: ${policiesCount} policy records are available for ${data.user.company || 'your organization'}. Open Policies to review the actual rules before acting.`);
     } else if (q.includes('quish') || q.includes('qr')) {
       setCoachTipModal("📱 Quishing Defense: Never scan unknown QR codes in emails or physical areas to authorize login sessions. QR codes obscure destination URLs and bypass email scanner filters.");
     } else {
-      setCoachTipModal(`💡 AI Coach Guidance for ${data.user.role}: When presented with unexpected requests, pause and inspect the sender header and cryptographic consent scopes before taking action.`);
+      setCoachTipModal(`💡 General guidance for ${data.user.role}: Pause on unexpected requests and verify through a trusted channel before acting.`);
     }
   };
 
@@ -267,29 +262,27 @@ export default function Dashboard() {
             avatar_url: u.avatar_url || u.picture || ''
           } 
         }));
-        if (u.learning_profile?.target_channel) setPriority(u.learning_profile.target_channel);
-        if (u.learning_profile?.next_difficulty) setDifficulty(u.learning_profile.next_difficulty);
-        if (u.learning_profile?.training_map && Array.isArray(u.learning_profile.training_map)) setPersonalizedMap(u.learning_profile.training_map);
-        if (u.policies_count) setPoliciesCount(Number(u.policies_count));
+        // Training metrics are loaded from the authenticated dashboard endpoint.
       } catch (_) {}
     }
-    const sc = localStorage.getItem('cyberguard_policies_count');
-    if (sc) setPoliciesCount(Number(sc));
 
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
-    fetch(`http://localhost:8000/api/org/policies/${encodeURIComponent(company)}`, { headers }).then(r => r.json()).then(d => { if (d?.success && typeof d.count === 'number') setPoliciesCount(d.count); }).catch(() => {});
+    fetch(`http://localhost:8000/api/org/policies/${encodeURIComponent(company)}`, { headers }).then(r => { if (!r.ok) throw new Error(); return r.json(); }).then(d => { if (d?.success && typeof d.count === 'number') setPoliciesCount(d.source === 'database' || d.source === 'memory' ? d.count : 0); }).catch(() => setPoliciesCount(0));
     fetch('http://localhost:8000/api/coach/dashboard-summary', { headers })
       .then(r => { if (!r.ok) throw new Error('unauth'); return r.json(); })
       .then(d => {
+        if (!d?.success) throw new Error('Dashboard summary unavailable');
         if (d?.success) {
-          setData(prev => { const { user: au, ...rest } = d; return { ...prev, ...rest, user: { ...au, ...prev.user } }; });
+          setDashboardError(null);
+          setData(prev => { const { user: au, ...rest } = d; return { ...prev, ...rest, user: { ...prev.user, ...au } }; });
           if (d.learning_profile?.target_channel) setPriority(d.learning_profile.target_channel);
           if (d.learning_profile?.next_difficulty) setDifficulty(d.learning_profile.next_difficulty);
           if (d.training_map && Array.isArray(d.training_map)) setPersonalizedMap(d.training_map);
           else if (d.learning_profile?.training_map && Array.isArray(d.learning_profile.training_map)) setPersonalizedMap(d.learning_profile.training_map);
+          setDashboardLoading(false);
         }
-      }).catch(() => {});
+      }).catch(() => { setDashboardError('Dashboard data could not be loaded from the database. Please try again.'); setDashboardLoading(false); });
 
     if (!localStorage.getItem('cyberguard_tour_completed')) setShowTour(true);
   }, []);
@@ -317,6 +310,9 @@ export default function Dashboard() {
 
   const userInitial = data.user.name ? data.user.name.charAt(0).toUpperCase() : 'U';
 
+  if (dashboardLoading) return <main className="min-h-screen bg-background text-primary flex items-center justify-center">Loading dashboard data…</main>;
+  if (dashboardError) return <main role="alert" className="min-h-screen bg-background text-primary flex flex-col gap-4 items-center justify-center"><p>{dashboardError}</p><button onClick={() => window.location.reload()} className="px-4 py-2 rounded-lg border border-white/20">Retry</button></main>;
+
   return (
     <main className="h-screen overflow-hidden bg-background text-primary font-sans selection:bg-white/10 flex flex-col relative">
 
@@ -340,7 +336,7 @@ export default function Dashboard() {
           avatar_url: data.user.avatar_url
         }}
         readinessScore={data.readiness_score}
-        completedDecisions={data.decision_journey.length}
+        completedDecisions={data.decision_count}
         priorityChannel={priorityChannel}
         onUpdateUser={(updated) => {
           setData(prev => ({
@@ -393,6 +389,19 @@ export default function Dashboard() {
               <span>Policies</span>
             </Link>
 
+            {/* Admin Console (Visible only to administrators) */}
+            {data?.user?.access_role === 'admin' && (
+              <Link
+                href="/admin"
+                className="hidden sm:flex items-center gap-1.5 text-[11px] font-mono px-3 py-1.5 rounded-lg transition-all duration-200"
+                style={{ background: 'rgba(79,124,255,0.08)', border: '1px solid rgba(79,124,255,0.25)', color: 'rgba(165,184,255,0.9)' }}
+              >
+                <Shield className="w-3.5 h-3.5 text-blue" />
+                <span>Admin Console</span>
+              </Link>
+            )}
+
+
             {/* Profile */}
             <button
               onClick={() => setIsProfileOpen(true)}
@@ -430,6 +439,7 @@ export default function Dashboard() {
           </div>
         </div>
       </nav>
+      <div className="px-6 py-1 text-[10px] font-mono text-muted">Metrics source: {data.data_source === 'supabase' ? 'database' : 'local demo memory'} · {data.decision_count} evaluated decisions</div>
 
       {/* ── Main Content ─────────────────────────────────────────────────── */}
       <div className="flex-1 min-h-0 max-w-[1600px] w-full mx-auto px-6 md:px-10 pt-2.5 pb-3 flex flex-col overflow-hidden">
@@ -463,7 +473,22 @@ export default function Dashboard() {
                     </span>
                     <button
                       onClick={() => setIsProfileOpen(true)}
-                      className="text-[10px] font-mono text-muted hover:text-primary transition-colors flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:border-white/15"
+                      className="text-[10px] font-mono transition-all flex items-center gap-1 px-2.5 py-1 rounded-lg"
+                      style={{
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.07)',
+                        color: 'rgba(141,152,165,0.6)'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.borderColor = 'rgba(79,124,255,0.25)';
+                        e.currentTarget.style.background = 'rgba(79,124,255,0.08)';
+                        e.currentTarget.style.color = '#E8EDF2';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                        e.currentTarget.style.color = 'rgba(141,152,165,0.6)';
+                      }}
                     >
                       <span>Edit</span>
                       <ChevronRight className="w-3 h-3" />
@@ -474,7 +499,12 @@ export default function Dashboard() {
                   <div className="flex flex-col items-center text-center my-1 relative z-10">
                     {/* Avatar Container with Ring */}
                     <div className="relative group cursor-pointer" onClick={() => setIsProfileOpen(true)}>
-                      <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full p-1 border-2 border-dashed border-blue/40 group-hover:border-blue transition-colors flex items-center justify-center">
+                      <div 
+                        className="w-20 h-20 sm:w-22 sm:h-22 rounded-full p-1 border-2 border-dashed transition-colors flex items-center justify-center"
+                        style={{ borderColor: 'rgba(79,124,255,0.35)' }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(79,124,255,0.7)'}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(79,124,255,0.35)'}
+                      >
                         <div className="w-full h-full rounded-full overflow-hidden bg-surface/90 flex items-center justify-center shadow-lg">
                           <img
                             src={data.user.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
@@ -488,14 +518,12 @@ export default function Dashboard() {
                       </div>
                       {/* Overlaid Tier / Level Badge */}
                       <div 
-                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-semibold uppercase tracking-wider text-white shadow-md shrink-0 whitespace-nowrap"
+                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[9px] font-mono uppercase tracking-wider shrink-0 whitespace-nowrap transition-all"
                         style={{
-                          background: nextDifficulty === 'advanced' 
-                            ? 'linear-gradient(90deg, #D96868, #E2847A)' 
-                            : nextDifficulty === 'intermediate'
-                            ? 'linear-gradient(90deg, #4F7CFF, #5CC8D7)'
-                            : 'linear-gradient(90deg, #D96868, #E08560)',
-                          boxShadow: '0 2px 8px rgba(217,104,104,0.35)'
+                          background: 'rgba(79,124,255,0.12)',
+                          border: '1px solid rgba(79,124,255,0.25)',
+                          color: 'rgba(165,184,255,0.85)',
+                          boxShadow: '0 0 16px rgba(79,124,255,0.15)'
                         }}
                       >
                         {nextDifficulty === 'advanced' ? 'Tier 3 · Advanced' : nextDifficulty === 'intermediate' ? 'Tier 2 · Specialist' : 'Tier 1 · Baseline'}
@@ -510,10 +538,16 @@ export default function Dashboard() {
                       {data.user.role} · {data.user.company || 'NovaTech Solutions'}
                     </p>
                     <div className="mt-1.5 flex items-center gap-1.5 flex-wrap justify-center">
-                      <span className="text-[8px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/70">
+                      <span 
+                        className="text-[8px] font-mono uppercase tracking-wider px-2 py-0.5 rounded"
+                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(141,152,165,0.6)' }}
+                      >
                         {data.user.department || 'Corporate Operations'}
                       </span>
-                      <span className="text-[8px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-blue/10 border border-blue/20 text-cyan">
+                      <span 
+                        className="text-[8px] font-mono uppercase tracking-wider px-2 py-0.5 rounded"
+                        style={{ background: 'rgba(79,124,255,0.08)', border: '1px solid rgba(79,124,255,0.18)', color: 'rgba(165,184,255,0.8)' }}
+                      >
                         {data.user.access_role || 'Learner'}
                       </span>
                     </div>
@@ -530,7 +564,10 @@ export default function Dashboard() {
                           Defense<br />Readiness
                         </span>
                       </div>
-                      <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan/10 border border-cyan/20 text-cyan">
+                      <span 
+                        className="text-[9px] font-mono uppercase tracking-[0.15em] px-2 py-0.5 rounded-md"
+                        style={{ background: 'rgba(79,124,255,0.08)', border: '1px solid rgba(79,124,255,0.18)', color: 'rgba(165,184,255,0.8)' }}
+                      >
                         Active Index
                       </span>
                     </div>
@@ -538,56 +575,89 @@ export default function Dashboard() {
                     {/* Multi-color segment breakdown bar */}
                     <div className="w-full h-1.5 rounded-full overflow-hidden flex gap-1 bg-white/[0.04] mb-1.5 p-0.5">
                       <div 
-                        style={{ width: `${Math.max(15, (data.weakness_breakdown['Phishing & Spoofing'] || 50) * 0.4)}%`, background: '#5CC8D7' }} 
+                        style={{ width: `${(data.channel_scores.email ?? 0) / 3}%`, background: 'rgba(79,124,255,0.85)' }} 
                         className="h-full rounded-full transition-all duration-500" 
                         title="Phishing & Spoofing"
                       />
                       <div 
-                        style={{ width: `${Math.max(15, (data.weakness_breakdown['Urgency & BEC Defense'] || 40) * 0.35)}%`, background: '#D6A756' }} 
+                        style={{ width: `${(data.channel_scores.voice_phone ?? 0) / 3}%`, background: 'rgba(165,184,255,0.6)' }} 
                         className="h-full rounded-full transition-all duration-500" 
                         title="Urgency & BEC Defense"
                       />
                       <div 
-                        style={{ width: `${Math.max(15, (data.weakness_breakdown['Policy Compliance & Verification'] || 60) * 0.35)}%`, background: '#4F7CFF' }} 
+                        style={{ width: `${(data.channel_scores.cloud_oauth ?? 0) / 3}%`, background: 'rgba(92,200,215,0.65)' }} 
                         className="h-full rounded-full transition-all duration-500" 
                         title="Policy Compliance"
                       />
                     </div>
 
-                    <div className="flex items-center justify-between text-[8px] font-mono text-muted/60">
-                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-cyan inline-block" /> Phish</span>
-                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber inline-block" /> BEC</span>
-                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue inline-block" /> Policy</span>
+                    <div className="flex items-center justify-between text-[8px] font-mono" style={{ color: 'rgba(141,152,165,0.55)' }}>
+                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: 'rgba(79,124,255,0.85)' }} /> Phish</span>
+                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: 'rgba(165,184,255,0.6)' }} /> BEC</span>
+                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: 'rgba(92,200,215,0.65)' }} /> Policy</span>
                     </div>
                   </div>
 
                   {/* 3 Metric Pills */}
                   <div className="grid grid-cols-3 gap-2 mt-1 relative z-10">
-                    <div className="p-2 sm:p-2.5 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12">
-                      <div className="w-6 h-6 rounded-lg flex items-center justify-center mb-1 bg-blue/10 text-cyan">
+                    <div 
+                      className="p-2 sm:p-2.5 rounded-xl flex flex-col items-center text-center transition-all"
+                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    >
+                      <div 
+                        className="w-6 h-6 rounded-lg flex items-center justify-center mb-1"
+                        style={{ background: 'rgba(79,124,255,0.1)', border: '1px solid rgba(79,124,255,0.18)', color: 'rgba(165,184,255,0.75)' }}
+                      >
                         <Clock className="w-3 h-3" />
                       </div>
                       <span className="text-[14px] font-bold text-primary leading-none">07</span>
-                      <span className="text-[8px] font-mono text-muted mt-0.5 uppercase tracking-tight">Vectors</span>
+                      <span className="text-[8px] font-mono mt-0.5 uppercase tracking-tight" style={{ color: 'rgba(141,152,165,0.5)' }}>Vectors</span>
                     </div>
 
-                    <Link href="/policies" className="p-2 sm:p-2.5 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12 group">
-                      <div className="w-6 h-6 rounded-lg flex items-center justify-center mb-1 bg-amber/10 text-amber group-hover:scale-105 transition-transform">
+                    <Link 
+                      href="/policies" 
+                      className="p-2 sm:p-2.5 rounded-xl flex flex-col items-center text-center transition-all group"
+                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.borderColor = 'rgba(79,124,255,0.22)';
+                        e.currentTarget.style.background = 'rgba(79,124,255,0.04)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                      }}
+                    >
+                      <div 
+                        className="w-6 h-6 rounded-lg flex items-center justify-center mb-1 group-hover:scale-105 transition-transform"
+                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(141,152,165,0.65)' }}
+                      >
                         <ScrollText className="w-3 h-3" />
                       </div>
-                      <span className="text-[14px] font-bold text-primary leading-none">0{policiesCount}</span>
-                      <span className="text-[8px] font-mono text-muted mt-0.5 uppercase tracking-tight">Policies</span>
+                      <span className="text-[14px] font-bold text-primary leading-none">{policiesCount}</span>
+                      <span className="text-[8px] font-mono mt-0.5 uppercase tracking-tight" style={{ color: 'rgba(141,152,165,0.5)' }}>Stored Policies</span>
                     </Link>
 
                     <button 
                       onClick={() => setIsJourneyModalOpen(true)}
-                      className="p-2 sm:p-2.5 rounded-xl flex flex-col items-center text-center transition-all bg-white/[0.02] border border-white/[0.06] hover:border-white/12 group cursor-pointer"
+                      className="p-2 sm:p-2.5 rounded-xl flex flex-col items-center text-center transition-all group cursor-pointer"
+                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.borderColor = 'rgba(79,124,255,0.22)';
+                        e.currentTarget.style.background = 'rgba(79,124,255,0.04)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                      }}
                     >
-                      <div className="w-6 h-6 rounded-lg flex items-center justify-center mb-1 bg-coral/10 text-coral group-hover:scale-105 transition-transform">
+                      <div 
+                        className="w-6 h-6 rounded-lg flex items-center justify-center mb-1 group-hover:scale-105 transition-transform"
+                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(141,152,165,0.65)' }}
+                      >
                         <CheckCircle2 className="w-3 h-3" />
                       </div>
-                      <span className="text-[14px] font-bold text-primary leading-none">{data.decision_journey.length}</span>
-                      <span className="text-[8px] font-mono text-muted mt-0.5 uppercase tracking-tight">Simulated</span>
+                      <span className="text-[14px] font-bold text-primary leading-none">{data.decision_count}</span>
+                      <span className="text-[8px] font-mono mt-0.5 uppercase tracking-tight" style={{ color: 'rgba(141,152,165,0.5)' }}>Simulated</span>
                     </button>
                   </div>
                 </div>
@@ -608,7 +678,7 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue animate-pulse" />
+                          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'rgba(79,124,255,0.85)' }} />
                           <h2 className="text-[15px] font-bold text-primary tracking-tight">
                             Active Training Directives
                           </h2>
@@ -620,21 +690,43 @@ export default function Dashboard() {
 
                       <button
                         onClick={() => setActiveTab('arena')}
-                        className="text-[10px] font-mono px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-primary transition-colors flex items-center gap-1"
+                        className="text-[10px] font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5"
+                        style={{
+                          background: 'rgba(79,124,255,0.08)',
+                          border: '1px solid rgba(79,124,255,0.18)',
+                          color: 'rgba(165,184,255,0.8)'
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.background = 'rgba(79,124,255,0.14)';
+                          e.currentTarget.style.borderColor = 'rgba(79,124,255,0.3)';
+                          e.currentTarget.style.color = '#E8EDF2';
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.background = 'rgba(79,124,255,0.08)';
+                          e.currentTarget.style.borderColor = 'rgba(79,124,255,0.18)';
+                          e.currentTarget.style.color = 'rgba(165,184,255,0.8)';
+                        }}
                       >
                         <span>View All (7)</span>
-                        <ArrowRight className="w-3 h-3 text-cyan" />
+                        <ArrowRight className="w-3 h-3" style={{ color: 'rgba(165,184,255,0.8)' }} />
                       </button>
                     </div>
 
                     {/* 3 Directive Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 flex-1 min-h-0">
                       {/* Card 1: Top Priority Coach Directive */}
-                      <div className="p-3 rounded-xl flex flex-col justify-between bg-surface/90 border border-blue/30 shadow-md relative overflow-hidden group">
-                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue to-cyan" />
+                      <div 
+                        className="p-3 rounded-xl flex flex-col justify-between relative overflow-hidden group transition-all"
+                        style={priorityGlow}
+                      >
+                        <div className="absolute top-0 left-0 right-0 h-px"
+                          style={{ background: 'linear-gradient(90deg, transparent, rgba(79,124,255,0.45), transparent)' }} />
                         <div>
                           <div className="flex items-center justify-between gap-1 mb-1.5">
-                            <span className="text-[8px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue/20 text-cyan border border-blue/30">
+                            <span 
+                              className="text-[8px] font-mono uppercase tracking-[0.15em] px-2 py-0.5 rounded-md"
+                              style={{ background: 'rgba(79,124,255,0.1)', border: '1px solid rgba(79,124,255,0.2)', color: 'rgba(165,184,255,0.8)' }}
+                            >
                               Coach Priority
                             </span>
                             <span className="text-[8px] font-mono text-muted">
@@ -652,30 +744,63 @@ export default function Dashboard() {
                         <div>
                           <div className="flex items-center justify-between text-[9px] font-mono text-muted mb-1">
                             <span>Readiness Target</span>
-                            <span className="text-cyan font-bold">{data.readiness_score || 50}%</span>
+                            <span className="font-bold" style={{ color: 'rgba(165,184,255,0.85)' }}>{data.readiness_score}%</span>
                           </div>
-                          <div className="w-full h-1 rounded-full bg-white/[0.05] overflow-hidden mb-2">
+                          <div className="w-full h-1 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.05)' }}>
                             <div 
-                              className="h-full rounded-full bg-gradient-to-r from-blue to-cyan"
-                              style={{ width: `${Math.min(100, Math.max(15, data.readiness_score || 50))}%` }}
+                              className="h-full rounded-full transition-all duration-700"
+                              style={{ 
+                                width: `${Math.min(100, Math.max(0, data.readiness_score))}%`,
+                                background: 'linear-gradient(90deg, rgba(79,124,255,0.5), rgba(165,184,255,0.7))'
+                              }}
                             />
                           </div>
 
                           <Link
                             href={scenarioUrl(priorityChannel, data.next_situation.category)}
-                            className="w-full py-1.5 px-2 rounded-lg bg-blue hover:bg-blue/90 text-white text-[11px] font-medium transition-all flex items-center justify-center gap-1 shadow-[0_0_12px_rgba(79,124,255,0.2)]"
+                            className="w-full py-1.5 px-2 rounded-lg text-[11px] font-mono uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-1.5"
+                            style={{
+                              background: 'rgba(79,124,255,0.1)',
+                              border: '1px solid rgba(79,124,255,0.22)',
+                              color: 'rgba(165,184,255,0.85)',
+                              boxShadow: '0 0 20px rgba(79,124,255,0.08)'
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = 'rgba(79,124,255,0.18)';
+                              e.currentTarget.style.borderColor = 'rgba(79,124,255,0.38)';
+                              e.currentTarget.style.color = '#FFFFFF';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = 'rgba(79,124,255,0.1)';
+                              e.currentTarget.style.borderColor = 'rgba(79,124,255,0.22)';
+                              e.currentTarget.style.color = 'rgba(165,184,255,0.85)';
+                            }}
                           >
                             <span>Launch Scenario</span>
-                            <ArrowRight className="w-3 h-3" />
+                            <ArrowRight className="w-3 h-3" style={{ color: 'rgba(165,184,255,0.75)' }} />
                           </Link>
                         </div>
                       </div>
 
                       {/* Card 2: Cloud & OAuth Directive */}
-                      <div className="p-3 rounded-xl flex flex-col justify-between bg-surface/70 border border-white/[0.08] hover:border-white/15 transition-all group">
+                      <div 
+                        className="p-3 rounded-xl flex flex-col justify-between transition-all group"
+                        style={glassDim}
+                        onMouseEnter={e => {
+                          (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.1)';
+                          (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.03)';
+                        }}
+                        onMouseLeave={e => {
+                          (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.055)';
+                          (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.015)';
+                        }}
+                      >
                         <div>
                           <div className="flex items-center justify-between gap-1 mb-1.5">
-                            <span className="text-[8px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/[0.04] text-muted border border-white/[0.08]">
+                            <span 
+                              className="text-[8px] font-mono uppercase tracking-[0.15em] px-2 py-0.5 rounded-md"
+                              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(141,152,165,0.6)' }}
+                            >
                               Cloud & OAuth
                             </span>
                             <span className="text-[8px] font-mono text-muted">
@@ -693,30 +818,62 @@ export default function Dashboard() {
                         <div>
                           <div className="flex items-center justify-between text-[9px] font-mono text-muted mb-1">
                             <span>Sector Score</span>
-                            <span className="text-primary font-bold">{getSectorScore('cloud_oauth', data.weakness_breakdown) || 68}%</span>
+                            <span className="text-primary font-bold">{data.channel_scores.cloud_oauth == null ? '—' : `${data.channel_scores.cloud_oauth}%`}</span>
                           </div>
-                          <div className="w-full h-1 rounded-full bg-white/[0.05] overflow-hidden mb-2">
+                          <div className="w-full h-1 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.05)' }}>
                             <div 
-                              className="h-full rounded-full bg-cyan/70"
-                              style={{ width: `${getSectorScore('cloud_oauth', data.weakness_breakdown) || 68}%` }}
+                              className="h-full rounded-full transition-all duration-700"
+                              style={{ 
+                                width: `${getSectorScore('cloud_oauth', data.channel_scores)}%`,
+                                background: 'linear-gradient(90deg, rgba(79,124,255,0.5), rgba(165,184,255,0.7))'
+                              }}
                             />
                           </div>
 
                           <Link
                             href={scenarioUrl('cloud_oauth', 'Cloud & OAuth Consent Verification')}
-                            className="w-full py-1.5 px-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-primary text-[11px] font-medium border border-white/[0.08] hover:border-white/20 transition-all flex items-center justify-center gap-1"
+                            className="w-full py-1.5 px-2 rounded-lg text-[11px] font-mono uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-1.5"
+                            style={{
+                              background: 'rgba(255,255,255,0.03)',
+                              border: '1px solid rgba(255,255,255,0.07)',
+                              color: 'rgba(141,152,165,0.55)'
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = 'rgba(79,124,255,0.08)';
+                              e.currentTarget.style.borderColor = 'rgba(79,124,255,0.22)';
+                              e.currentTarget.style.color = '#E8EDF2';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+                              e.currentTarget.style.color = 'rgba(141,152,165,0.55)';
+                            }}
                           >
                             <span>Launch Scenario</span>
-                            <ArrowRight className="w-3 h-3 text-muted" />
+                            <ArrowRight className="w-3 h-3" style={{ color: 'rgba(141,152,165,0.45)' }} />
                           </Link>
                         </div>
                       </div>
 
                       {/* Card 3: Voice & BEC Directive */}
-                      <div className="p-3 rounded-xl flex flex-col justify-between bg-surface/70 border border-white/[0.08] hover:border-white/15 transition-all group">
+                      <div 
+                        className="p-3 rounded-xl flex flex-col justify-between transition-all group"
+                        style={glassDim}
+                        onMouseEnter={e => {
+                          (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.1)';
+                          (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.03)';
+                        }}
+                        onMouseLeave={e => {
+                          (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.055)';
+                          (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.015)';
+                        }}
+                      >
                         <div>
                           <div className="flex items-center justify-between gap-1 mb-1.5">
-                            <span className="text-[8px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/[0.04] text-muted border border-white/[0.08]">
+                            <span 
+                              className="text-[8px] font-mono uppercase tracking-[0.15em] px-2 py-0.5 rounded-md"
+                              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(141,152,165,0.6)' }}
+                            >
                               Voice & BEC
                             </span>
                             <span className="text-[8px] font-mono text-muted">
@@ -734,21 +891,39 @@ export default function Dashboard() {
                         <div>
                           <div className="flex items-center justify-between text-[9px] font-mono text-muted mb-1">
                             <span>Sector Score</span>
-                            <span className="text-primary font-bold">{getSectorScore('voice_phone', data.weakness_breakdown) || 54}%</span>
+                            <span className="text-primary font-bold">{data.channel_scores.voice_phone == null ? '—' : `${data.channel_scores.voice_phone}%`}</span>
                           </div>
-                          <div className="w-full h-1 rounded-full bg-white/[0.05] overflow-hidden mb-2">
+                          <div className="w-full h-1 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.05)' }}>
                             <div 
-                              className="h-full rounded-full bg-amber/70"
-                              style={{ width: `${getSectorScore('voice_phone', data.weakness_breakdown) || 54}%` }}
+                              className="h-full rounded-full transition-all duration-700"
+                              style={{ 
+                                width: `${getSectorScore('voice_phone', data.channel_scores)}%`,
+                                background: 'linear-gradient(90deg, rgba(79,124,255,0.5), rgba(165,184,255,0.7))'
+                              }}
                             />
                           </div>
 
                           <Link
                             href={scenarioUrl('voice_phone', 'Executive Wire Authorization Phone Call')}
-                            className="w-full py-1.5 px-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-primary text-[11px] font-medium border border-white/[0.08] hover:border-white/20 transition-all flex items-center justify-center gap-1"
+                            className="w-full py-1.5 px-2 rounded-lg text-[11px] font-mono uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-1.5"
+                            style={{
+                              background: 'rgba(255,255,255,0.03)',
+                              border: '1px solid rgba(255,255,255,0.07)',
+                              color: 'rgba(141,152,165,0.55)'
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = 'rgba(79,124,255,0.08)';
+                              e.currentTarget.style.borderColor = 'rgba(79,124,255,0.22)';
+                              e.currentTarget.style.color = '#E8EDF2';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+                              e.currentTarget.style.color = 'rgba(141,152,165,0.55)';
+                            }}
                           >
                             <span>Launch Scenario</span>
-                            <ArrowRight className="w-3 h-3 text-muted" />
+                            <ArrowRight className="w-3 h-3" style={{ color: 'rgba(141,152,165,0.45)' }} />
                           </Link>
                         </div>
                       </div>
@@ -776,7 +951,10 @@ export default function Dashboard() {
                             Dynamic Defense Proficiency
                           </p>
                         </div>
-                        <span className="text-[9px] font-mono px-2 py-0.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-muted">
+                        <span 
+                          className="text-[9px] font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-md"
+                          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(141,152,165,0.55)' }}
+                        >
                           Live Metrics ▾
                         </span>
                       </div>
@@ -784,31 +962,37 @@ export default function Dashboard() {
                       {/* 4 Vertical Bars like Study process */}
                       <div className="flex-1 min-h-0 grid grid-cols-4 gap-2.5 items-end pt-1 pb-1">
                         {[
-                          { label: 'Phishing', score: data.weakness_breakdown['Phishing & Spoofing'] || 66, highlight: false },
-                          { label: 'BEC', score: data.weakness_breakdown['Urgency & BEC Defense'] || 40, highlight: false },
-                          { label: 'Cloud OAuth', score: data.weakness_breakdown['Policy Compliance & Verification'] || 87, highlight: true },
-                          { label: 'Data Privacy', score: data.weakness_breakdown['Data Protection & Privacy'] || 56, highlight: false },
+                          { label: 'Email', score: data.channel_scores.email, highlight: false },
+                          { label: 'Voice', score: data.channel_scores.voice_phone, highlight: false },
+                          { label: 'Cloud OAuth', score: data.channel_scores.cloud_oauth, highlight: true },
+                          { label: 'Physical', score: data.channel_scores.physical_media, highlight: false },
                         ].map((bar, i) => (
                           <div key={i} className="flex flex-col items-center h-full justify-end group">
                             {/* Score pill */}
                             <span 
-                              className={`text-[8px] font-mono font-semibold px-1 py-0.5 rounded mb-1 transition-all ${
-                                bar.highlight 
-                                  ? 'bg-blue text-white shadow-sm' 
-                                  : 'bg-white/[0.05] text-muted group-hover:text-primary'
-                              }`}
+                              className="text-[8px] font-mono font-semibold px-1.5 py-0.5 rounded mb-1 transition-all"
+                              style={bar.highlight 
+                                ? { background: 'rgba(79,124,255,0.1)', border: '1px solid rgba(79,124,255,0.2)', color: 'rgba(165,184,255,0.85)' }
+                                : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(141,152,165,0.5)' }
+                              }
                             >
-                              {bar.score}%
+                              {bar.score == null ? '—' : `${bar.score}%`}
                             </span>
                             {/* Bar container */}
                             <div className="w-full max-w-[42px] h-20 sm:h-24 bg-white/[0.03] rounded-xl p-1 flex items-end">
                               <div 
-                                className={`w-full rounded-lg transition-all duration-700 ${
-                                  bar.highlight 
-                                    ? 'bg-gradient-to-t from-blue to-cyan shadow-[0_0_12px_rgba(79,124,255,0.3)]' 
-                                    : 'bg-white/[0.12] group-hover:bg-white/[0.2]'
-                                }`}
-                                style={{ height: `${Math.max(15, bar.score)}%` }}
+                                className="w-full rounded-lg transition-all duration-700"
+                                style={bar.highlight 
+                                  ? {
+                                      height: `${bar.score ?? 0}%`,
+                                      background: 'linear-gradient(to top, rgba(79,124,255,0.5), rgba(165,184,255,0.85))',
+                                      boxShadow: '0 0 16px rgba(79,124,255,0.25)'
+                                    }
+                                  : {
+                                      height: `${bar.score ?? 0}%`,
+                                      background: 'rgba(255,255,255,0.08)'
+                                    }
+                                }
                               />
                             </div>
                             {/* Label */}
@@ -824,29 +1008,38 @@ export default function Dashboard() {
                     <div 
                       className="md:col-span-5 rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between relative overflow-hidden h-full"
                       style={{
-                        background: 'radial-gradient(ellipse at top right, rgba(79,124,255,0.18) 0%, rgba(17,24,33,0.85) 75%)',
-                        border: '1px solid rgba(79,124,255,0.25)',
+                        background: 'radial-gradient(ellipse at top right, rgba(79,124,255,0.14) 0%, rgba(17,24,33,0.85) 75%)',
+                        border: '1px solid rgba(79,124,255,0.22)',
                         backdropFilter: 'blur(14px)'
                       }}
                     >
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
                           <div className="flex items-center gap-1.5">
-                            <div className="w-5 h-5 rounded-lg bg-blue/20 text-cyan flex items-center justify-center border border-blue/30">
-                              <Sparkles className="w-3 h-3" />
+                            <div 
+                              className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
+                              style={{ background: 'rgba(79,124,255,0.1)', border: '1px solid rgba(79,124,255,0.18)', color: 'rgba(165,184,255,0.8)' }}
+                            >
+                              <Sparkles className="w-3.5 h-3.5" />
                             </div>
                             <h3 className="text-[12px] font-bold text-primary tracking-tight">
                               AI Defense Coach
                             </h3>
                           </div>
-                          <span className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-cyan/10 text-cyan border border-cyan/20">
+                          <span 
+                            className="text-[8px] font-mono uppercase tracking-[0.15em] px-2 py-0.5 rounded-md"
+                            style={{ background: 'rgba(79,124,255,0.08)', border: '1px solid rgba(79,124,255,0.18)', color: 'rgba(165,184,255,0.75)' }}
+                          >
                             Live
                           </span>
                         </div>
 
                         {/* Live Headline Bubble */}
-                        <div className="p-2 sm:p-2.5 rounded-xl bg-black/30 border border-white/[0.06] mb-2">
-                          <p className="text-[10px] text-primary/90 leading-snug font-sans line-clamp-2">
+                        <div 
+                          className="p-2 sm:p-2.5 rounded-xl mb-2"
+                          style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+                        >
+                          <p className="text-[10px] leading-snug font-sans line-clamp-2" style={{ color: 'rgba(232,237,242,0.9)' }}>
                             "{data.feedback_headline}"
                           </p>
                         </div>
@@ -869,11 +1062,32 @@ export default function Dashboard() {
                             value={coachInput}
                             onChange={(e) => setCoachInput(e.target.value)}
                             placeholder="Ask Coach something..."
-                            className="w-full pl-2.5 pr-8 py-1.5 rounded-xl bg-black/40 border border-white/[0.1] focus:border-blue/70 text-[10px] text-primary placeholder:text-muted/50 transition-colors"
+                            className="w-full pl-2.5 pr-8 py-1.5 rounded-xl text-[10px] text-primary placeholder:text-muted/50 transition-all outline-none"
+                            style={{
+                              background: 'rgba(0,0,0,0.35)',
+                              border: '1px solid rgba(255,255,255,0.08)'
+                            }}
+                            onFocus={e => e.currentTarget.style.borderColor = 'rgba(79,124,255,0.45)'}
+                            onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
                           />
                           <button
                             type="submit"
-                            className="absolute right-1 w-5 h-5 rounded-lg bg-blue hover:bg-blue/90 text-white flex items-center justify-center transition-colors shadow-sm"
+                            className="absolute right-1 w-5 h-5 rounded-lg flex items-center justify-center transition-all"
+                            style={{
+                              background: 'rgba(79,124,255,0.12)',
+                              border: '1px solid rgba(79,124,255,0.22)',
+                              color: 'rgba(165,184,255,0.85)'
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = 'rgba(79,124,255,0.24)';
+                              e.currentTarget.style.borderColor = 'rgba(79,124,255,0.4)';
+                              e.currentTarget.style.color = '#FFFFFF';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = 'rgba(79,124,255,0.12)';
+                              e.currentTarget.style.borderColor = 'rgba(79,124,255,0.22)';
+                              e.currentTarget.style.color = 'rgba(165,184,255,0.85)';
+                            }}
                           >
                             <ArrowRight className="w-3 h-3" />
                           </button>
@@ -886,7 +1100,22 @@ export default function Dashboard() {
                               key={idx}
                               type="button"
                               onClick={() => handleAskCoach(tip)}
-                              className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-white/[0.03] hover:bg-white/[0.08] text-muted hover:text-primary border border-white/[0.06] transition-colors"
+                              className="text-[8px] font-mono px-2 py-0.5 rounded transition-all"
+                              style={{
+                                background: 'rgba(255,255,255,0.03)',
+                                border: '1px solid rgba(255,255,255,0.07)',
+                                color: 'rgba(141,152,165,0.55)'
+                              }}
+                              onMouseEnter={e => {
+                                e.currentTarget.style.background = 'rgba(79,124,255,0.08)';
+                                e.currentTarget.style.borderColor = 'rgba(79,124,255,0.22)';
+                                e.currentTarget.style.color = '#E8EDF2';
+                              }}
+                              onMouseLeave={e => {
+                                e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+                                e.currentTarget.style.color = 'rgba(141,152,165,0.55)';
+                              }}
                             >
                               {tip}
                             </button>
@@ -914,10 +1143,28 @@ export default function Dashboard() {
                 <div>
                   <button
                     onClick={() => setActiveTab('overview')}
-                    className="inline-flex items-center gap-1.5 text-[11px] font-mono px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] hover:border-white/20 text-muted hover:text-primary transition-all mb-3"
+                    className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.12em] px-3 py-1.5 rounded-xl transition-all duration-200 mb-3 group"
+                    style={{
+                      background: 'rgba(79,124,255,0.08)',
+                      border: '1px solid rgba(79,124,255,0.18)',
+                      color: 'rgba(165,184,255,0.85)',
+                      boxShadow: '0 0 16px rgba(79,124,255,0.05)'
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = 'rgba(79,124,255,0.14)';
+                      e.currentTarget.style.borderColor = 'rgba(79,124,255,0.32)';
+                      e.currentTarget.style.color = '#FFFFFF';
+                      e.currentTarget.style.boxShadow = '0 0 20px rgba(79,124,255,0.14)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'rgba(79,124,255,0.08)';
+                      e.currentTarget.style.borderColor = 'rgba(79,124,255,0.18)';
+                      e.currentTarget.style.color = 'rgba(165,184,255,0.85)';
+                      e.currentTarget.style.boxShadow = '0 0 16px rgba(79,124,255,0.05)';
+                    }}
                   >
-                    <ArrowLeft className="w-3.5 h-3.5 text-cyan" />
-                    <span>← Return to Personnel Dashboard</span>
+                    <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" style={{ color: 'rgba(165,184,255,0.9)' }} />
+                    <span>Back to Dashboard</span>
                   </button>
                   <p className="text-[9px] font-mono tracking-[0.2em] uppercase flex items-center gap-2 mb-1"
                     style={{ color: 'rgba(141,152,165,0.4)' }}>
@@ -955,7 +1202,7 @@ export default function Dashboard() {
                     const isPriority  = custom
                       ? (custom.is_priority || custom.priority_level === 'Priority' || channel === priorityChannel)
                       : (channel === priorityChannel);
-                    const score = getSectorScore(channel as SectorChannel, data.weakness_breakdown);
+                    const score = getSectorScore(channel as SectorChannel, data.channel_scores);
                     const challengeTopic = custom?.recommended_challenge || sectorLabel;
                     const url = scenarioUrl(channel, challengeTopic);
 
@@ -1062,7 +1309,7 @@ export default function Dashboard() {
                       onMouseEnter={e => (e.currentTarget.style.color = 'rgba(165,184,255,0.7)')}
                       onMouseLeave={e => (e.currentTarget.style.color = 'rgba(141,152,165,0.4)')}
                     >
-                      ← Back to Overview
+                      ← Back to Dashboard
                     </button>
                   </motion.div>
                 </motion.div>
@@ -1305,25 +1552,34 @@ export default function Dashboard() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsJourneyModalOpen(false)}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)' }}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+              exit={{ scale: 0.96, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-xl rounded-2xl p-6 bg-[#0E141D] border border-white/10 shadow-2xl flex flex-col max-h-[80vh] overflow-hidden"
+              className="relative w-full max-w-xl rounded-2xl p-6 flex flex-col max-h-[80vh] overflow-hidden"
+              style={{
+                background: 'rgba(17,24,33,0.97)',
+                border: '1px solid rgba(255,255,255,0.09)',
+                boxShadow: '0 24px 80px rgba(0,0,0,0.8)'
+              }}
             >
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-coral" />
+                  <CheckCircle2 className="w-5 h-5" style={{ color: 'rgba(165,184,255,0.85)' }} />
                   <h3 className="text-[16px] font-bold text-primary">
                     Simulated Decision History ({data.decision_journey.length})
                   </h3>
                 </div>
                 <button 
                   onClick={() => setIsJourneyModalOpen(false)}
-                  className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-muted hover:text-primary transition-colors"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200"
+                  style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(141,152,165,0.5)' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#E8EDF2'; e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'rgba(141,152,165,0.5)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1336,20 +1592,24 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   data.decision_journey.map((step, idx) => (
-                    <div key={step.id || idx} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between gap-3">
+                    <div key={step.id || idx} className="p-3.5 rounded-xl flex items-center justify-between gap-3"
+                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white/5 text-muted">
+                          <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded"
+                            style={{ background: 'rgba(79,124,255,0.08)', border: '1px solid rgba(79,124,255,0.18)', color: 'rgba(165,184,255,0.7)' }}>
                             0{idx + 1} · {step.threat}
                           </span>
-                          <span className={`text-[10px] font-mono ${step.is_safe ? 'text-cyan' : 'text-coral'}`}>
+                          <span className="text-[10px] font-mono"
+                            style={{ color: step.is_safe ? 'rgba(165,184,255,0.85)' : 'rgba(141,152,165,0.55)' }}>
                             {step.status}
                           </span>
                         </div>
                         <p className="text-[12px] font-semibold text-primary">{step.title}</p>
                       </div>
                       <div className="text-right">
-                        <span className={`text-[14px] font-bold font-mono ${step.is_safe ? 'text-cyan' : 'text-muted'}`}>
+                        <span className="text-[14px] font-bold font-mono"
+                          style={{ color: step.is_safe ? 'rgba(165,184,255,0.85)' : 'rgba(141,152,165,0.5)' }}>
                           {step.score}/100
                         </span>
                       </div>
@@ -1371,23 +1631,32 @@ export default function Dashboard() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setCoachTipModal(null)}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)' }}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+              exit={{ scale: 0.96, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-md rounded-2xl p-6 bg-[#0E141D] border border-blue/40 shadow-2xl"
+              className="relative w-full max-w-md rounded-2xl p-6 flex flex-col"
+              style={{
+                background: 'rgba(17,24,33,0.97)',
+                border: '1px solid rgba(79,124,255,0.25)',
+                boxShadow: '0 24px 80px rgba(0,0,0,0.8)'
+              }}
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 text-cyan font-semibold text-sm">
+              <div className="flex items-center justify-between mb-3 pb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                <div className="flex items-center gap-2 font-semibold text-sm" style={{ color: 'rgba(165,184,255,0.9)' }}>
                   <Sparkles className="w-4 h-4" />
                   <span>Tactical Coach Advice</span>
                 </div>
                 <button 
                   onClick={() => setCoachTipModal(null)}
-                  className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-muted hover:text-primary transition-colors"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors duration-200"
+                  style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(141,152,165,0.5)' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#E8EDF2'; e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'rgba(141,152,165,0.5)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1399,7 +1668,14 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setCoachTipModal(null)}
-                  className="px-4 py-2 rounded-xl bg-blue text-white text-xs font-medium hover:bg-blue/90 transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-[0.1em] transition-all"
+                  style={{
+                    background: '#4F7CFF',
+                    boxShadow: '0 0 20px rgba(79,124,255,0.25)',
+                    color: '#FFFFFF'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                 >
                   Understood
                 </button>

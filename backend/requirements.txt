@@ -20,6 +20,9 @@ spacy
 tiktoken
 langchain
 langchain-community
+langchain-openai
+langgraph
+langsmith
 
 # Document Ingestion & Parsing
 pypdf

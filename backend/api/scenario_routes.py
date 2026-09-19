@@ -7,11 +7,11 @@ from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
-from agents.scenario_agent import generate_scenario
 from nlp.ner import sanitize_input
 from rag.retrieval import get_org_context
 from runtime_store import save_scenario, get_scenario as get_cached_scenario
 from security.auth_bearer import get_current_user, CurrentUser
+from graph.cyberguard_graph import scenario_graph  # ← LangGraph
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
@@ -35,7 +35,7 @@ class ScenarioRequest(BaseModel):
     difficulty: Optional[str] = Field(default=None, pattern="^(beginner|medium|advanced)$")
     company: Optional[str] = None
     topic: Optional[str] = Field(default=None, max_length=120)
-    # Optional: specific attack channel from Training Arena (e.g. voice_phone, email, slack_teams)
+    # Optional: specific attack channel from Training Arena
     channel: Optional[str] = None
 
 
@@ -45,10 +45,10 @@ def create_scenario(
     current_user: CurrentUser = Depends(get_current_user)
 ):
     """
-    Member 1 Core Endpoint:
+    Member 1 Core Endpoint (LangGraph):
     1. Retrieves organizational context via RAG (org_knowledge).
     2. Sanitizes context via spaCy NER to mask PII.
-    3. Calls Scenario Agent to generate realistic threat situation.
+    3. Invokes the LangGraph scenario_graph → scenario_node (LangSmith traced).
     4. Persists the scenario in Supabase (public.scenarios) and returns scenario_id.
     """
     try:
@@ -57,11 +57,9 @@ def create_scenario(
         user_id = current_user.id
         company = current_user.company
         topic = request.topic
-        channel = request.channel  # e.g. "voice_phone", "email", "slack_teams"
+        channel = request.channel
 
-        # Onboarding can update a learner's role and organization after the JWT
-        # was issued. Prefer the current server-side profile so personalization
-        # does not remain stuck on the signup defaults until the next login.
+        # Refresh role/company from DB in case onboarding updated them after JWT issuance
         if supabase:
             try:
                 user_res = (
@@ -77,27 +75,42 @@ def create_scenario(
             except Exception as e:
                 print(f"Notice: Supabase user profile fetch in create_scenario: {e}")
 
-        # 1. Retrieve Org Context (prioritizing custom company policy if uploaded)
+        # 1. Retrieve Org Context
         org_context = get_org_context(user_role, query=topic, company_name=company, user_id=user_id)
-        
+
         # 2. Sanitize Context via spaCy PII filter
         safe_context = sanitize_input(org_context)
-        
-        # 3. Generate Scenario via Scenario Agent (channel-aware when provided)
-        scenario_json_str = generate_scenario(user_role, difficulty, safe_context, channel=channel, topic=topic)
-        try:
-            scenario_data = json.loads(scenario_json_str) if isinstance(scenario_json_str, str) else scenario_json_str
-        except Exception:
-            raise HTTPException(status_code=502, detail="Scenario Agent returned invalid JSON")
-        if not isinstance(scenario_data, dict) or not isinstance(scenario_data.get("choices"), list) or len(scenario_data["choices"]) < 2:
-            raise HTTPException(status_code=502, detail="Scenario Agent returned an invalid scenario")
 
         scenario_id = str(uuid.uuid4())
+
+        # 3. Run scenario_graph (LangGraph — LangSmith traces every LLM call automatically)
+        graph_state = scenario_graph.invoke(
+            {
+                "user_id": user_id,
+                "role": user_role,
+                "difficulty": difficulty,
+                "channel": channel,
+                "topic": topic,
+                "company": company,
+                "org_context": safe_context,
+                "agent_trace": [],
+            },
+            config={
+                "configurable": {"thread_id": scenario_id},
+                "tags": ["scenario_generation", f"user:{user_id}"],
+                "metadata": {"user_id": user_id, "difficulty": difficulty},
+            },
+        )
+
+        scenario_data = graph_state.get("scenario")
+        if not isinstance(scenario_data, dict) or not isinstance(scenario_data.get("choices"), list) or len(scenario_data["choices"]) < 2:
+            raise HTTPException(status_code=502, detail="Scenario Agent returned an invalid scenario")
 
         # 4. Save generated scenario to Supabase
         if supabase:
             try:
                 db_record = {
+                    "id": scenario_id,
                     "user_id": user_id,
                     "difficulty": difficulty,
                     "target_role": user_role,
@@ -109,6 +122,18 @@ def create_scenario(
                     scenario_id = str(res.data[0]["id"])
                 else:
                     raise HTTPException(status_code=503, detail="Scenario persistence returned no record")
+                supabase.table("agent_audit_logs").insert({
+                    "agent_name": "ScenarioAgent (Member 1)",
+                    "user_id": user_id,
+                    "action": "GENERATE_SCENARIO",
+                    "details": {
+                        "scenario_id": scenario_id,
+                        "input": {"role": user_role, "difficulty": difficulty, "company": company,
+                                  "topic": topic, "channel": channel, "org_context": safe_context},
+                        "output": scenario_data,
+                        "agent_trace": graph_state.get("agent_trace", []),
+                    },
+                }).execute()
             except HTTPException:
                 raise
             except Exception as e:
@@ -120,12 +145,14 @@ def create_scenario(
             "status": "success",
             "scenario_id": scenario_id,
             "scenario": scenario_data,
-            "org_context_applied": safe_context[:100] + "..." if safe_context else ""
+            "org_context_applied": safe_context[:100] + "..." if safe_context else "",
+            "agent_trace": graph_state.get("agent_trace", []),
         }
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.get("/scenarios/{scenario_id}")
@@ -139,8 +166,10 @@ def get_scenario(
             res = supabase.table("scenarios").select("*").eq("id", scenario_id).eq("user_id", current_user.id).execute()
             if res.data and len(res.data) > 0:
                 return {"status": "success", "scenario": res.data[0]}
-        except Exception:
-            pass
+        except Exception as e:
+            raise HTTPException(status_code=503, detail="Scenario database retrieval failed") from e
+
+        raise HTTPException(status_code=404, detail="Scenario not found")
 
     cached = get_cached_scenario(scenario_id, current_user.id)
     if cached:
