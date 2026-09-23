@@ -542,5 +542,1671 @@
       "extraction_method": "manual_paraphrase",
       "last_verified": "2026-09-16"
     }
+  },
+  {
+    "category": "phishing_recognition",
+    "channel": "email",
+    "target_risk_surface": "financial_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Finance Manager facing targeted spear-phishing email through email: Do not reply, open the attachment, or use the embedded link. Inspect the full sender address, open the relevant system from a trusted bookmark, verify independently, and report the message. Before attempting to release a payment or change remittance details, verify using the vendor-master telephone number and the CFO's directory extension and follow FIN-WF-01 plus COM-EMAIL-01. Preserve the message, call, prompt, or device details and report scenario SYN-FIN-EMAIL through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect payment authority, bank details, invoice records, and financial forecasts, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-001",
+      "scenario_id": "SYN-FIN-EMAIL",
+      "paired_threat_id": "THR-SYN-001",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "channel": "email",
+      "risk_surface": "financial_access",
+      "related_policy_ids": [
+        "FIN-WF-01",
+        "COM-EMAIL-01"
+      ],
+      "learning_objectives": [
+        "Recognize targeted spear-phishing email",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "vishing_defense",
+    "channel": "voice_phone",
+    "target_risk_surface": "financial_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Finance Manager facing vishing and voice-clone impersonation through phone or voicemail: End the call without sharing information. Call the person or service through a known directory number, state that voice familiarity is not proof, and report the call details. Before attempting to release a payment or change remittance details, verify using the vendor-master telephone number and the CFO's directory extension and follow FIN-WF-01 plus COM-VOICE-01. Preserve the message, call, prompt, or device details and report scenario SYN-FIN-VOICE_PHONE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect payment authority, bank details, invoice records, and financial forecasts, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-002",
+      "scenario_id": "SYN-FIN-VOICE_PHONE",
+      "paired_threat_id": "THR-SYN-002",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "channel": "voice_phone",
+      "risk_surface": "financial_access",
+      "related_policy_ids": [
+        "FIN-WF-01",
+        "COM-VOICE-01"
+      ],
+      "learning_objectives": [
+        "Recognize vishing and voice-clone impersonation",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "chat_compromise_defense",
+    "channel": "slack_teams",
+    "target_risk_surface": "financial_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Finance Manager facing compromised collaboration-account message through Slack or Teams direct message: Do not share data, secrets, or run commands from chat. Verify using the official ticket or case and contact the sender through a second trusted channel before reporting the message. Before attempting to release a payment or change remittance details, verify using the vendor-master telephone number and the CFO's directory extension and follow FIN-WF-01 plus COM-CHAT-01. Preserve the message, call, prompt, or device details and report scenario SYN-FIN-SLACK_TEAMS through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect payment authority, bank details, invoice records, and financial forecasts, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-003",
+      "scenario_id": "SYN-FIN-SLACK_TEAMS",
+      "paired_threat_id": "THR-SYN-003",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "channel": "slack_teams",
+      "risk_surface": "financial_access",
+      "related_policy_ids": [
+        "FIN-WF-01",
+        "COM-CHAT-01"
+      ],
+      "learning_objectives": [
+        "Recognize compromised collaboration-account message",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "quishing_detection",
+    "channel": "qr_code",
+    "target_risk_surface": "financial_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Finance Manager facing QR-code phishing (quishing) through QR code: Do not scan the code. Check the notice owner and destination through an approved portal, photograph or preserve the notice without visiting it, and report it for removal or investigation. Before attempting to release a payment or change remittance details, verify using the vendor-master telephone number and the CFO's directory extension and follow FIN-WF-01 plus COM-QR-01. Preserve the message, call, prompt, or device details and report scenario SYN-FIN-QR_CODE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect payment authority, bank details, invoice records, and financial forecasts, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-004",
+      "scenario_id": "SYN-FIN-QR_CODE",
+      "paired_threat_id": "THR-SYN-004",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "channel": "qr_code",
+      "risk_surface": "financial_access",
+      "related_policy_ids": [
+        "FIN-WF-01",
+        "COM-QR-01"
+      ],
+      "learning_objectives": [
+        "Recognize QR-code phishing (quishing)",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "oauth_consent_defense",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "financial_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Finance Manager facing malicious OAuth application consent through cloud OAuth consent screen: Deny consent and close the screen. Check the approved application catalog, report the app and requested scopes, and ask Security Operations to revoke consent if it was already granted. Before attempting to release a payment or change remittance details, verify using the vendor-master telephone number and the CFO's directory extension and follow FIN-WF-01 plus COM-OAUTH-01. Preserve the message, call, prompt, or device details and report scenario SYN-FIN-CLOUD_OAUTH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect payment authority, bank details, invoice records, and financial forecasts, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-005",
+      "scenario_id": "SYN-FIN-CLOUD_OAUTH",
+      "paired_threat_id": "THR-SYN-005",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "channel": "cloud_oauth",
+      "risk_surface": "financial_access",
+      "related_policy_ids": [
+        "FIN-WF-01",
+        "COM-OAUTH-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious OAuth application consent",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "mfa_fatigue_defense",
+    "channel": "sms_push",
+    "target_risk_surface": "financial_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Finance Manager facing MFA fatigue and helpdesk SMS pretext through SMS or authentication push: Deny every uninitiated prompt and never share a code. Change the password from a known device, contact Security Operations through the official directory, and preserve the prompt details. Before attempting to release a payment or change remittance details, verify using the vendor-master telephone number and the CFO's directory extension and follow FIN-WF-01 plus COM-MFA-01. Preserve the message, call, prompt, or device details and report scenario SYN-FIN-SMS_PUSH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect payment authority, bank details, invoice records, and financial forecasts, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-006",
+      "scenario_id": "SYN-FIN-SMS_PUSH",
+      "paired_threat_id": "THR-SYN-006",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "channel": "sms_push",
+      "risk_surface": "financial_access",
+      "related_policy_ids": [
+        "FIN-WF-01",
+        "COM-MFA-01"
+      ],
+      "learning_objectives": [
+        "Recognize MFA fatigue and helpdesk SMS pretext",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "removable_media_defense",
+    "channel": "physical_media",
+    "target_risk_surface": "financial_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Finance Manager facing malicious removable-media baiting through removable media or cable: Do not connect the device to any corporate or personal system. Note where it was found, avoid altering it, and hand it to Corporate Security or IT for controlled analysis. Before attempting to release a payment or change remittance details, verify using the vendor-master telephone number and the CFO's directory extension and follow FIN-WF-01 plus COM-MEDIA-01. Preserve the message, call, prompt, or device details and report scenario SYN-FIN-PHYSICAL_MEDIA through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect payment authority, bank details, invoice records, and financial forecasts, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-007",
+      "scenario_id": "SYN-FIN-PHYSICAL_MEDIA",
+      "paired_threat_id": "THR-SYN-007",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "channel": "physical_media",
+      "risk_surface": "financial_access",
+      "related_policy_ids": [
+        "FIN-WF-01",
+        "COM-MEDIA-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious removable-media baiting",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "phishing_recognition",
+    "channel": "email",
+    "target_risk_surface": "pii_and_payroll",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a HR Officer facing targeted spear-phishing email through email: Do not reply, open the attachment, or use the embedded link. Inspect the full sender address, open the relevant system from a trusted bookmark, verify independently, and report the message. Before attempting to change payroll data or disclose an employee record, verify using the employee's registered Workday contact method or an in-person HR check and follow HR-WF-01 plus COM-EMAIL-01. Preserve the message, call, prompt, or device details and report scenario SYN-HR-EMAIL through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect employee personal data, payroll details, identity documents, and candidate records, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-008",
+      "scenario_id": "SYN-HR-EMAIL",
+      "paired_threat_id": "THR-SYN-008",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "channel": "email",
+      "risk_surface": "pii_and_payroll",
+      "related_policy_ids": [
+        "HR-WF-01",
+        "COM-EMAIL-01"
+      ],
+      "learning_objectives": [
+        "Recognize targeted spear-phishing email",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "vishing_defense",
+    "channel": "voice_phone",
+    "target_risk_surface": "pii_and_payroll",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a HR Officer facing vishing and voice-clone impersonation through phone or voicemail: End the call without sharing information. Call the person or service through a known directory number, state that voice familiarity is not proof, and report the call details. Before attempting to change payroll data or disclose an employee record, verify using the employee's registered Workday contact method or an in-person HR check and follow HR-WF-01 plus COM-VOICE-01. Preserve the message, call, prompt, or device details and report scenario SYN-HR-VOICE_PHONE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect employee personal data, payroll details, identity documents, and candidate records, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-009",
+      "scenario_id": "SYN-HR-VOICE_PHONE",
+      "paired_threat_id": "THR-SYN-009",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "channel": "voice_phone",
+      "risk_surface": "pii_and_payroll",
+      "related_policy_ids": [
+        "HR-WF-01",
+        "COM-VOICE-01"
+      ],
+      "learning_objectives": [
+        "Recognize vishing and voice-clone impersonation",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "chat_compromise_defense",
+    "channel": "slack_teams",
+    "target_risk_surface": "pii_and_payroll",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a HR Officer facing compromised collaboration-account message through Slack or Teams direct message: Do not share data, secrets, or run commands from chat. Verify using the official ticket or case and contact the sender through a second trusted channel before reporting the message. Before attempting to change payroll data or disclose an employee record, verify using the employee's registered Workday contact method or an in-person HR check and follow HR-WF-01 plus COM-CHAT-01. Preserve the message, call, prompt, or device details and report scenario SYN-HR-SLACK_TEAMS through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect employee personal data, payroll details, identity documents, and candidate records, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-010",
+      "scenario_id": "SYN-HR-SLACK_TEAMS",
+      "paired_threat_id": "THR-SYN-010",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "channel": "slack_teams",
+      "risk_surface": "pii_and_payroll",
+      "related_policy_ids": [
+        "HR-WF-01",
+        "COM-CHAT-01"
+      ],
+      "learning_objectives": [
+        "Recognize compromised collaboration-account message",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "quishing_detection",
+    "channel": "qr_code",
+    "target_risk_surface": "pii_and_payroll",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a HR Officer facing QR-code phishing (quishing) through QR code: Do not scan the code. Check the notice owner and destination through an approved portal, photograph or preserve the notice without visiting it, and report it for removal or investigation. Before attempting to change payroll data or disclose an employee record, verify using the employee's registered Workday contact method or an in-person HR check and follow HR-WF-01 plus COM-QR-01. Preserve the message, call, prompt, or device details and report scenario SYN-HR-QR_CODE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect employee personal data, payroll details, identity documents, and candidate records, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-011",
+      "scenario_id": "SYN-HR-QR_CODE",
+      "paired_threat_id": "THR-SYN-011",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "channel": "qr_code",
+      "risk_surface": "pii_and_payroll",
+      "related_policy_ids": [
+        "HR-WF-01",
+        "COM-QR-01"
+      ],
+      "learning_objectives": [
+        "Recognize QR-code phishing (quishing)",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "oauth_consent_defense",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "pii_and_payroll",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a HR Officer facing malicious OAuth application consent through cloud OAuth consent screen: Deny consent and close the screen. Check the approved application catalog, report the app and requested scopes, and ask Security Operations to revoke consent if it was already granted. Before attempting to change payroll data or disclose an employee record, verify using the employee's registered Workday contact method or an in-person HR check and follow HR-WF-01 plus COM-OAUTH-01. Preserve the message, call, prompt, or device details and report scenario SYN-HR-CLOUD_OAUTH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect employee personal data, payroll details, identity documents, and candidate records, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-012",
+      "scenario_id": "SYN-HR-CLOUD_OAUTH",
+      "paired_threat_id": "THR-SYN-012",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "channel": "cloud_oauth",
+      "risk_surface": "pii_and_payroll",
+      "related_policy_ids": [
+        "HR-WF-01",
+        "COM-OAUTH-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious OAuth application consent",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "mfa_fatigue_defense",
+    "channel": "sms_push",
+    "target_risk_surface": "pii_and_payroll",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a HR Officer facing MFA fatigue and helpdesk SMS pretext through SMS or authentication push: Deny every uninitiated prompt and never share a code. Change the password from a known device, contact Security Operations through the official directory, and preserve the prompt details. Before attempting to change payroll data or disclose an employee record, verify using the employee's registered Workday contact method or an in-person HR check and follow HR-WF-01 plus COM-MFA-01. Preserve the message, call, prompt, or device details and report scenario SYN-HR-SMS_PUSH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect employee personal data, payroll details, identity documents, and candidate records, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-013",
+      "scenario_id": "SYN-HR-SMS_PUSH",
+      "paired_threat_id": "THR-SYN-013",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "channel": "sms_push",
+      "risk_surface": "pii_and_payroll",
+      "related_policy_ids": [
+        "HR-WF-01",
+        "COM-MFA-01"
+      ],
+      "learning_objectives": [
+        "Recognize MFA fatigue and helpdesk SMS pretext",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "removable_media_defense",
+    "channel": "physical_media",
+    "target_risk_surface": "pii_and_payroll",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a HR Officer facing malicious removable-media baiting through removable media or cable: Do not connect the device to any corporate or personal system. Note where it was found, avoid altering it, and hand it to Corporate Security or IT for controlled analysis. Before attempting to change payroll data or disclose an employee record, verify using the employee's registered Workday contact method or an in-person HR check and follow HR-WF-01 plus COM-MEDIA-01. Preserve the message, call, prompt, or device details and report scenario SYN-HR-PHYSICAL_MEDIA through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect employee personal data, payroll details, identity documents, and candidate records, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-014",
+      "scenario_id": "SYN-HR-PHYSICAL_MEDIA",
+      "paired_threat_id": "THR-SYN-014",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "channel": "physical_media",
+      "risk_surface": "pii_and_payroll",
+      "related_policy_ids": [
+        "HR-WF-01",
+        "COM-MEDIA-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious removable-media baiting",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "phishing_recognition",
+    "channel": "email",
+    "target_risk_surface": "privileged_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a IT Administrator facing targeted spear-phishing email through email: Do not reply, open the attachment, or use the embedded link. Inspect the full sender address, open the relevant system from a trusted bookmark, verify independently, and report the message. Before attempting to reset an account, grant access, or run an administrative command, verify using the Jira ticket, corporate directory callback, and privileged-access approval record and follow ITA-WF-01 plus COM-EMAIL-01. Preserve the message, call, prompt, or device details and report scenario SYN-ITA-EMAIL through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect privileged identities, endpoint controls, cloud administration, and recovery mechanisms, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-015",
+      "scenario_id": "SYN-ITA-EMAIL",
+      "paired_threat_id": "THR-SYN-015",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "channel": "email",
+      "risk_surface": "privileged_access",
+      "related_policy_ids": [
+        "ITA-WF-01",
+        "COM-EMAIL-01"
+      ],
+      "learning_objectives": [
+        "Recognize targeted spear-phishing email",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "vishing_defense",
+    "channel": "voice_phone",
+    "target_risk_surface": "privileged_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a IT Administrator facing vishing and voice-clone impersonation through phone or voicemail: End the call without sharing information. Call the person or service through a known directory number, state that voice familiarity is not proof, and report the call details. Before attempting to reset an account, grant access, or run an administrative command, verify using the Jira ticket, corporate directory callback, and privileged-access approval record and follow ITA-WF-01 plus COM-VOICE-01. Preserve the message, call, prompt, or device details and report scenario SYN-ITA-VOICE_PHONE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect privileged identities, endpoint controls, cloud administration, and recovery mechanisms, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-016",
+      "scenario_id": "SYN-ITA-VOICE_PHONE",
+      "paired_threat_id": "THR-SYN-016",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "channel": "voice_phone",
+      "risk_surface": "privileged_access",
+      "related_policy_ids": [
+        "ITA-WF-01",
+        "COM-VOICE-01"
+      ],
+      "learning_objectives": [
+        "Recognize vishing and voice-clone impersonation",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "chat_compromise_defense",
+    "channel": "slack_teams",
+    "target_risk_surface": "privileged_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a IT Administrator facing compromised collaboration-account message through Slack or Teams direct message: Do not share data, secrets, or run commands from chat. Verify using the official ticket or case and contact the sender through a second trusted channel before reporting the message. Before attempting to reset an account, grant access, or run an administrative command, verify using the Jira ticket, corporate directory callback, and privileged-access approval record and follow ITA-WF-01 plus COM-CHAT-01. Preserve the message, call, prompt, or device details and report scenario SYN-ITA-SLACK_TEAMS through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect privileged identities, endpoint controls, cloud administration, and recovery mechanisms, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-017",
+      "scenario_id": "SYN-ITA-SLACK_TEAMS",
+      "paired_threat_id": "THR-SYN-017",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "channel": "slack_teams",
+      "risk_surface": "privileged_access",
+      "related_policy_ids": [
+        "ITA-WF-01",
+        "COM-CHAT-01"
+      ],
+      "learning_objectives": [
+        "Recognize compromised collaboration-account message",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "quishing_detection",
+    "channel": "qr_code",
+    "target_risk_surface": "privileged_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a IT Administrator facing QR-code phishing (quishing) through QR code: Do not scan the code. Check the notice owner and destination through an approved portal, photograph or preserve the notice without visiting it, and report it for removal or investigation. Before attempting to reset an account, grant access, or run an administrative command, verify using the Jira ticket, corporate directory callback, and privileged-access approval record and follow ITA-WF-01 plus COM-QR-01. Preserve the message, call, prompt, or device details and report scenario SYN-ITA-QR_CODE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect privileged identities, endpoint controls, cloud administration, and recovery mechanisms, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-018",
+      "scenario_id": "SYN-ITA-QR_CODE",
+      "paired_threat_id": "THR-SYN-018",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "channel": "qr_code",
+      "risk_surface": "privileged_access",
+      "related_policy_ids": [
+        "ITA-WF-01",
+        "COM-QR-01"
+      ],
+      "learning_objectives": [
+        "Recognize QR-code phishing (quishing)",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "oauth_consent_defense",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "privileged_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a IT Administrator facing malicious OAuth application consent through cloud OAuth consent screen: Deny consent and close the screen. Check the approved application catalog, report the app and requested scopes, and ask Security Operations to revoke consent if it was already granted. Before attempting to reset an account, grant access, or run an administrative command, verify using the Jira ticket, corporate directory callback, and privileged-access approval record and follow ITA-WF-01 plus COM-OAUTH-01. Preserve the message, call, prompt, or device details and report scenario SYN-ITA-CLOUD_OAUTH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect privileged identities, endpoint controls, cloud administration, and recovery mechanisms, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-019",
+      "scenario_id": "SYN-ITA-CLOUD_OAUTH",
+      "paired_threat_id": "THR-SYN-019",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "channel": "cloud_oauth",
+      "risk_surface": "privileged_access",
+      "related_policy_ids": [
+        "ITA-WF-01",
+        "COM-OAUTH-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious OAuth application consent",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "mfa_fatigue_defense",
+    "channel": "sms_push",
+    "target_risk_surface": "privileged_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a IT Administrator facing MFA fatigue and helpdesk SMS pretext through SMS or authentication push: Deny every uninitiated prompt and never share a code. Change the password from a known device, contact Security Operations through the official directory, and preserve the prompt details. Before attempting to reset an account, grant access, or run an administrative command, verify using the Jira ticket, corporate directory callback, and privileged-access approval record and follow ITA-WF-01 plus COM-MFA-01. Preserve the message, call, prompt, or device details and report scenario SYN-ITA-SMS_PUSH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect privileged identities, endpoint controls, cloud administration, and recovery mechanisms, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-020",
+      "scenario_id": "SYN-ITA-SMS_PUSH",
+      "paired_threat_id": "THR-SYN-020",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "channel": "sms_push",
+      "risk_surface": "privileged_access",
+      "related_policy_ids": [
+        "ITA-WF-01",
+        "COM-MFA-01"
+      ],
+      "learning_objectives": [
+        "Recognize MFA fatigue and helpdesk SMS pretext",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "removable_media_defense",
+    "channel": "physical_media",
+    "target_risk_surface": "privileged_access",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a IT Administrator facing malicious removable-media baiting through removable media or cable: Do not connect the device to any corporate or personal system. Note where it was found, avoid altering it, and hand it to Corporate Security or IT for controlled analysis. Before attempting to reset an account, grant access, or run an administrative command, verify using the Jira ticket, corporate directory callback, and privileged-access approval record and follow ITA-WF-01 plus COM-MEDIA-01. Preserve the message, call, prompt, or device details and report scenario SYN-ITA-PHYSICAL_MEDIA through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect privileged identities, endpoint controls, cloud administration, and recovery mechanisms, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-021",
+      "scenario_id": "SYN-ITA-PHYSICAL_MEDIA",
+      "paired_threat_id": "THR-SYN-021",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "channel": "physical_media",
+      "risk_surface": "privileged_access",
+      "related_policy_ids": [
+        "ITA-WF-01",
+        "COM-MEDIA-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious removable-media baiting",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "phishing_recognition",
+    "channel": "email",
+    "target_risk_surface": "source_code_and_ci_cd",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Software Developer facing targeted spear-phishing email through email: Do not reply, open the attachment, or use the embedded link. Inspect the full sender address, open the relevant system from a trusted bookmark, verify independently, and report the message. Before attempting to run code, expose a token, install a package, or approve a production change, verify using the linked Jira issue, signed repository identity, and protected pull-request review and follow DEV-WF-01 plus COM-EMAIL-01. Preserve the message, call, prompt, or device details and report scenario SYN-DEV-EMAIL through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect source code, API tokens, build pipelines, package integrity, and customer-facing services, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-022",
+      "scenario_id": "SYN-DEV-EMAIL",
+      "paired_threat_id": "THR-SYN-022",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "channel": "email",
+      "risk_surface": "source_code_and_ci_cd",
+      "related_policy_ids": [
+        "DEV-WF-01",
+        "COM-EMAIL-01"
+      ],
+      "learning_objectives": [
+        "Recognize targeted spear-phishing email",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "vishing_defense",
+    "channel": "voice_phone",
+    "target_risk_surface": "source_code_and_ci_cd",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Software Developer facing vishing and voice-clone impersonation through phone or voicemail: End the call without sharing information. Call the person or service through a known directory number, state that voice familiarity is not proof, and report the call details. Before attempting to run code, expose a token, install a package, or approve a production change, verify using the linked Jira issue, signed repository identity, and protected pull-request review and follow DEV-WF-01 plus COM-VOICE-01. Preserve the message, call, prompt, or device details and report scenario SYN-DEV-VOICE_PHONE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect source code, API tokens, build pipelines, package integrity, and customer-facing services, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-023",
+      "scenario_id": "SYN-DEV-VOICE_PHONE",
+      "paired_threat_id": "THR-SYN-023",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "channel": "voice_phone",
+      "risk_surface": "source_code_and_ci_cd",
+      "related_policy_ids": [
+        "DEV-WF-01",
+        "COM-VOICE-01"
+      ],
+      "learning_objectives": [
+        "Recognize vishing and voice-clone impersonation",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "chat_compromise_defense",
+    "channel": "slack_teams",
+    "target_risk_surface": "source_code_and_ci_cd",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Software Developer facing compromised collaboration-account message through Slack or Teams direct message: Do not share data, secrets, or run commands from chat. Verify using the official ticket or case and contact the sender through a second trusted channel before reporting the message. Before attempting to run code, expose a token, install a package, or approve a production change, verify using the linked Jira issue, signed repository identity, and protected pull-request review and follow DEV-WF-01 plus COM-CHAT-01. Preserve the message, call, prompt, or device details and report scenario SYN-DEV-SLACK_TEAMS through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect source code, API tokens, build pipelines, package integrity, and customer-facing services, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-024",
+      "scenario_id": "SYN-DEV-SLACK_TEAMS",
+      "paired_threat_id": "THR-SYN-024",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "channel": "slack_teams",
+      "risk_surface": "source_code_and_ci_cd",
+      "related_policy_ids": [
+        "DEV-WF-01",
+        "COM-CHAT-01"
+      ],
+      "learning_objectives": [
+        "Recognize compromised collaboration-account message",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "quishing_detection",
+    "channel": "qr_code",
+    "target_risk_surface": "source_code_and_ci_cd",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Software Developer facing QR-code phishing (quishing) through QR code: Do not scan the code. Check the notice owner and destination through an approved portal, photograph or preserve the notice without visiting it, and report it for removal or investigation. Before attempting to run code, expose a token, install a package, or approve a production change, verify using the linked Jira issue, signed repository identity, and protected pull-request review and follow DEV-WF-01 plus COM-QR-01. Preserve the message, call, prompt, or device details and report scenario SYN-DEV-QR_CODE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect source code, API tokens, build pipelines, package integrity, and customer-facing services, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-025",
+      "scenario_id": "SYN-DEV-QR_CODE",
+      "paired_threat_id": "THR-SYN-025",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "channel": "qr_code",
+      "risk_surface": "source_code_and_ci_cd",
+      "related_policy_ids": [
+        "DEV-WF-01",
+        "COM-QR-01"
+      ],
+      "learning_objectives": [
+        "Recognize QR-code phishing (quishing)",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "oauth_consent_defense",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "source_code_and_ci_cd",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Software Developer facing malicious OAuth application consent through cloud OAuth consent screen: Deny consent and close the screen. Check the approved application catalog, report the app and requested scopes, and ask Security Operations to revoke consent if it was already granted. Before attempting to run code, expose a token, install a package, or approve a production change, verify using the linked Jira issue, signed repository identity, and protected pull-request review and follow DEV-WF-01 plus COM-OAUTH-01. Preserve the message, call, prompt, or device details and report scenario SYN-DEV-CLOUD_OAUTH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect source code, API tokens, build pipelines, package integrity, and customer-facing services, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-026",
+      "scenario_id": "SYN-DEV-CLOUD_OAUTH",
+      "paired_threat_id": "THR-SYN-026",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "channel": "cloud_oauth",
+      "risk_surface": "source_code_and_ci_cd",
+      "related_policy_ids": [
+        "DEV-WF-01",
+        "COM-OAUTH-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious OAuth application consent",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "mfa_fatigue_defense",
+    "channel": "sms_push",
+    "target_risk_surface": "source_code_and_ci_cd",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Software Developer facing MFA fatigue and helpdesk SMS pretext through SMS or authentication push: Deny every uninitiated prompt and never share a code. Change the password from a known device, contact Security Operations through the official directory, and preserve the prompt details. Before attempting to run code, expose a token, install a package, or approve a production change, verify using the linked Jira issue, signed repository identity, and protected pull-request review and follow DEV-WF-01 plus COM-MFA-01. Preserve the message, call, prompt, or device details and report scenario SYN-DEV-SMS_PUSH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect source code, API tokens, build pipelines, package integrity, and customer-facing services, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-027",
+      "scenario_id": "SYN-DEV-SMS_PUSH",
+      "paired_threat_id": "THR-SYN-027",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "channel": "sms_push",
+      "risk_surface": "source_code_and_ci_cd",
+      "related_policy_ids": [
+        "DEV-WF-01",
+        "COM-MFA-01"
+      ],
+      "learning_objectives": [
+        "Recognize MFA fatigue and helpdesk SMS pretext",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "removable_media_defense",
+    "channel": "physical_media",
+    "target_risk_surface": "source_code_and_ci_cd",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Software Developer facing malicious removable-media baiting through removable media or cable: Do not connect the device to any corporate or personal system. Note where it was found, avoid altering it, and hand it to Corporate Security or IT for controlled analysis. Before attempting to run code, expose a token, install a package, or approve a production change, verify using the linked Jira issue, signed repository identity, and protected pull-request review and follow DEV-WF-01 plus COM-MEDIA-01. Preserve the message, call, prompt, or device details and report scenario SYN-DEV-PHYSICAL_MEDIA through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect source code, API tokens, build pipelines, package integrity, and customer-facing services, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-028",
+      "scenario_id": "SYN-DEV-PHYSICAL_MEDIA",
+      "paired_threat_id": "THR-SYN-028",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "channel": "physical_media",
+      "risk_surface": "source_code_and_ci_cd",
+      "related_policy_ids": [
+        "DEV-WF-01",
+        "COM-MEDIA-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious removable-media baiting",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "phishing_recognition",
+    "channel": "email",
+    "target_risk_surface": "customer_data_and_recovery",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Customer Support Agent facing targeted spear-phishing email through email: Do not reply, open the attachment, or use the embedded link. Inspect the full sender address, open the relevant system from a trusted bookmark, verify independently, and report the message. Before attempting to reset an account, change a customer identity, or export support data, verify using the approved customer identity challenge and the account's registered contact details and follow CS-WF-01 plus COM-EMAIL-01. Preserve the message, call, prompt, or device details and report scenario SYN-CS-EMAIL through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect customer identities, support history, contact data, and account-recovery controls, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-029",
+      "scenario_id": "SYN-CS-EMAIL",
+      "paired_threat_id": "THR-SYN-029",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "channel": "email",
+      "risk_surface": "customer_data_and_recovery",
+      "related_policy_ids": [
+        "CS-WF-01",
+        "COM-EMAIL-01"
+      ],
+      "learning_objectives": [
+        "Recognize targeted spear-phishing email",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "vishing_defense",
+    "channel": "voice_phone",
+    "target_risk_surface": "customer_data_and_recovery",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Customer Support Agent facing vishing and voice-clone impersonation through phone or voicemail: End the call without sharing information. Call the person or service through a known directory number, state that voice familiarity is not proof, and report the call details. Before attempting to reset an account, change a customer identity, or export support data, verify using the approved customer identity challenge and the account's registered contact details and follow CS-WF-01 plus COM-VOICE-01. Preserve the message, call, prompt, or device details and report scenario SYN-CS-VOICE_PHONE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect customer identities, support history, contact data, and account-recovery controls, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-030",
+      "scenario_id": "SYN-CS-VOICE_PHONE",
+      "paired_threat_id": "THR-SYN-030",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "channel": "voice_phone",
+      "risk_surface": "customer_data_and_recovery",
+      "related_policy_ids": [
+        "CS-WF-01",
+        "COM-VOICE-01"
+      ],
+      "learning_objectives": [
+        "Recognize vishing and voice-clone impersonation",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "chat_compromise_defense",
+    "channel": "slack_teams",
+    "target_risk_surface": "customer_data_and_recovery",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Customer Support Agent facing compromised collaboration-account message through Slack or Teams direct message: Do not share data, secrets, or run commands from chat. Verify using the official ticket or case and contact the sender through a second trusted channel before reporting the message. Before attempting to reset an account, change a customer identity, or export support data, verify using the approved customer identity challenge and the account's registered contact details and follow CS-WF-01 plus COM-CHAT-01. Preserve the message, call, prompt, or device details and report scenario SYN-CS-SLACK_TEAMS through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect customer identities, support history, contact data, and account-recovery controls, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-031",
+      "scenario_id": "SYN-CS-SLACK_TEAMS",
+      "paired_threat_id": "THR-SYN-031",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "channel": "slack_teams",
+      "risk_surface": "customer_data_and_recovery",
+      "related_policy_ids": [
+        "CS-WF-01",
+        "COM-CHAT-01"
+      ],
+      "learning_objectives": [
+        "Recognize compromised collaboration-account message",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "quishing_detection",
+    "channel": "qr_code",
+    "target_risk_surface": "customer_data_and_recovery",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Customer Support Agent facing QR-code phishing (quishing) through QR code: Do not scan the code. Check the notice owner and destination through an approved portal, photograph or preserve the notice without visiting it, and report it for removal or investigation. Before attempting to reset an account, change a customer identity, or export support data, verify using the approved customer identity challenge and the account's registered contact details and follow CS-WF-01 plus COM-QR-01. Preserve the message, call, prompt, or device details and report scenario SYN-CS-QR_CODE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect customer identities, support history, contact data, and account-recovery controls, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-032",
+      "scenario_id": "SYN-CS-QR_CODE",
+      "paired_threat_id": "THR-SYN-032",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "channel": "qr_code",
+      "risk_surface": "customer_data_and_recovery",
+      "related_policy_ids": [
+        "CS-WF-01",
+        "COM-QR-01"
+      ],
+      "learning_objectives": [
+        "Recognize QR-code phishing (quishing)",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "oauth_consent_defense",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "customer_data_and_recovery",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Customer Support Agent facing malicious OAuth application consent through cloud OAuth consent screen: Deny consent and close the screen. Check the approved application catalog, report the app and requested scopes, and ask Security Operations to revoke consent if it was already granted. Before attempting to reset an account, change a customer identity, or export support data, verify using the approved customer identity challenge and the account's registered contact details and follow CS-WF-01 plus COM-OAUTH-01. Preserve the message, call, prompt, or device details and report scenario SYN-CS-CLOUD_OAUTH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect customer identities, support history, contact data, and account-recovery controls, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-033",
+      "scenario_id": "SYN-CS-CLOUD_OAUTH",
+      "paired_threat_id": "THR-SYN-033",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "channel": "cloud_oauth",
+      "risk_surface": "customer_data_and_recovery",
+      "related_policy_ids": [
+        "CS-WF-01",
+        "COM-OAUTH-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious OAuth application consent",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "mfa_fatigue_defense",
+    "channel": "sms_push",
+    "target_risk_surface": "customer_data_and_recovery",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Customer Support Agent facing MFA fatigue and helpdesk SMS pretext through SMS or authentication push: Deny every uninitiated prompt and never share a code. Change the password from a known device, contact Security Operations through the official directory, and preserve the prompt details. Before attempting to reset an account, change a customer identity, or export support data, verify using the approved customer identity challenge and the account's registered contact details and follow CS-WF-01 plus COM-MFA-01. Preserve the message, call, prompt, or device details and report scenario SYN-CS-SMS_PUSH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect customer identities, support history, contact data, and account-recovery controls, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-034",
+      "scenario_id": "SYN-CS-SMS_PUSH",
+      "paired_threat_id": "THR-SYN-034",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "channel": "sms_push",
+      "risk_surface": "customer_data_and_recovery",
+      "related_policy_ids": [
+        "CS-WF-01",
+        "COM-MFA-01"
+      ],
+      "learning_objectives": [
+        "Recognize MFA fatigue and helpdesk SMS pretext",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "removable_media_defense",
+    "channel": "physical_media",
+    "target_risk_surface": "customer_data_and_recovery",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Customer Support Agent facing malicious removable-media baiting through removable media or cable: Do not connect the device to any corporate or personal system. Note where it was found, avoid altering it, and hand it to Corporate Security or IT for controlled analysis. Before attempting to reset an account, change a customer identity, or export support data, verify using the approved customer identity challenge and the account's registered contact details and follow CS-WF-01 plus COM-MEDIA-01. Preserve the message, call, prompt, or device details and report scenario SYN-CS-PHYSICAL_MEDIA through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect customer identities, support history, contact data, and account-recovery controls, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-035",
+      "scenario_id": "SYN-CS-PHYSICAL_MEDIA",
+      "paired_threat_id": "THR-SYN-035",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "channel": "physical_media",
+      "risk_surface": "customer_data_and_recovery",
+      "related_policy_ids": [
+        "CS-WF-01",
+        "COM-MEDIA-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious removable-media baiting",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "phishing_recognition",
+    "channel": "email",
+    "target_risk_surface": "executive_and_board_data",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Executive Assistant facing targeted spear-phishing email through email: Do not reply, open the attachment, or use the embedded link. Inspect the full sender address, open the relevant system from a trusted bookmark, verify independently, and report the message. Before attempting to release board material, alter executive access, or authorize a confidential request, verify using the executive's directory number, board-portal identity, or an in-person confirmation and follow EA-WF-01 plus COM-EMAIL-01. Preserve the message, call, prompt, or device details and report scenario SYN-EA-EMAIL through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect executive schedules, board documents, strategic plans, and high-trust communication paths, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-036",
+      "scenario_id": "SYN-EA-EMAIL",
+      "paired_threat_id": "THR-SYN-036",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "channel": "email",
+      "risk_surface": "executive_and_board_data",
+      "related_policy_ids": [
+        "EA-WF-01",
+        "COM-EMAIL-01"
+      ],
+      "learning_objectives": [
+        "Recognize targeted spear-phishing email",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "vishing_defense",
+    "channel": "voice_phone",
+    "target_risk_surface": "executive_and_board_data",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Executive Assistant facing vishing and voice-clone impersonation through phone or voicemail: End the call without sharing information. Call the person or service through a known directory number, state that voice familiarity is not proof, and report the call details. Before attempting to release board material, alter executive access, or authorize a confidential request, verify using the executive's directory number, board-portal identity, or an in-person confirmation and follow EA-WF-01 plus COM-VOICE-01. Preserve the message, call, prompt, or device details and report scenario SYN-EA-VOICE_PHONE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect executive schedules, board documents, strategic plans, and high-trust communication paths, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-037",
+      "scenario_id": "SYN-EA-VOICE_PHONE",
+      "paired_threat_id": "THR-SYN-037",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "channel": "voice_phone",
+      "risk_surface": "executive_and_board_data",
+      "related_policy_ids": [
+        "EA-WF-01",
+        "COM-VOICE-01"
+      ],
+      "learning_objectives": [
+        "Recognize vishing and voice-clone impersonation",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "chat_compromise_defense",
+    "channel": "slack_teams",
+    "target_risk_surface": "executive_and_board_data",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Executive Assistant facing compromised collaboration-account message through Slack or Teams direct message: Do not share data, secrets, or run commands from chat. Verify using the official ticket or case and contact the sender through a second trusted channel before reporting the message. Before attempting to release board material, alter executive access, or authorize a confidential request, verify using the executive's directory number, board-portal identity, or an in-person confirmation and follow EA-WF-01 plus COM-CHAT-01. Preserve the message, call, prompt, or device details and report scenario SYN-EA-SLACK_TEAMS through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect executive schedules, board documents, strategic plans, and high-trust communication paths, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-038",
+      "scenario_id": "SYN-EA-SLACK_TEAMS",
+      "paired_threat_id": "THR-SYN-038",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "channel": "slack_teams",
+      "risk_surface": "executive_and_board_data",
+      "related_policy_ids": [
+        "EA-WF-01",
+        "COM-CHAT-01"
+      ],
+      "learning_objectives": [
+        "Recognize compromised collaboration-account message",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "quishing_detection",
+    "channel": "qr_code",
+    "target_risk_surface": "executive_and_board_data",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Executive Assistant facing QR-code phishing (quishing) through QR code: Do not scan the code. Check the notice owner and destination through an approved portal, photograph or preserve the notice without visiting it, and report it for removal or investigation. Before attempting to release board material, alter executive access, or authorize a confidential request, verify using the executive's directory number, board-portal identity, or an in-person confirmation and follow EA-WF-01 plus COM-QR-01. Preserve the message, call, prompt, or device details and report scenario SYN-EA-QR_CODE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect executive schedules, board documents, strategic plans, and high-trust communication paths, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-039",
+      "scenario_id": "SYN-EA-QR_CODE",
+      "paired_threat_id": "THR-SYN-039",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "channel": "qr_code",
+      "risk_surface": "executive_and_board_data",
+      "related_policy_ids": [
+        "EA-WF-01",
+        "COM-QR-01"
+      ],
+      "learning_objectives": [
+        "Recognize QR-code phishing (quishing)",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "oauth_consent_defense",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "executive_and_board_data",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Executive Assistant facing malicious OAuth application consent through cloud OAuth consent screen: Deny consent and close the screen. Check the approved application catalog, report the app and requested scopes, and ask Security Operations to revoke consent if it was already granted. Before attempting to release board material, alter executive access, or authorize a confidential request, verify using the executive's directory number, board-portal identity, or an in-person confirmation and follow EA-WF-01 plus COM-OAUTH-01. Preserve the message, call, prompt, or device details and report scenario SYN-EA-CLOUD_OAUTH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect executive schedules, board documents, strategic plans, and high-trust communication paths, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-040",
+      "scenario_id": "SYN-EA-CLOUD_OAUTH",
+      "paired_threat_id": "THR-SYN-040",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "channel": "cloud_oauth",
+      "risk_surface": "executive_and_board_data",
+      "related_policy_ids": [
+        "EA-WF-01",
+        "COM-OAUTH-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious OAuth application consent",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "mfa_fatigue_defense",
+    "channel": "sms_push",
+    "target_risk_surface": "executive_and_board_data",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Executive Assistant facing MFA fatigue and helpdesk SMS pretext through SMS or authentication push: Deny every uninitiated prompt and never share a code. Change the password from a known device, contact Security Operations through the official directory, and preserve the prompt details. Before attempting to release board material, alter executive access, or authorize a confidential request, verify using the executive's directory number, board-portal identity, or an in-person confirmation and follow EA-WF-01 plus COM-MFA-01. Preserve the message, call, prompt, or device details and report scenario SYN-EA-SMS_PUSH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect executive schedules, board documents, strategic plans, and high-trust communication paths, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-041",
+      "scenario_id": "SYN-EA-SMS_PUSH",
+      "paired_threat_id": "THR-SYN-041",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "channel": "sms_push",
+      "risk_surface": "executive_and_board_data",
+      "related_policy_ids": [
+        "EA-WF-01",
+        "COM-MFA-01"
+      ],
+      "learning_objectives": [
+        "Recognize MFA fatigue and helpdesk SMS pretext",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "removable_media_defense",
+    "channel": "physical_media",
+    "target_risk_surface": "executive_and_board_data",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Executive Assistant facing malicious removable-media baiting through removable media or cable: Do not connect the device to any corporate or personal system. Note where it was found, avoid altering it, and hand it to Corporate Security or IT for controlled analysis. Before attempting to release board material, alter executive access, or authorize a confidential request, verify using the executive's directory number, board-portal identity, or an in-person confirmation and follow EA-WF-01 plus COM-MEDIA-01. Preserve the message, call, prompt, or device details and report scenario SYN-EA-PHYSICAL_MEDIA through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect executive schedules, board documents, strategic plans, and high-trust communication paths, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-042",
+      "scenario_id": "SYN-EA-PHYSICAL_MEDIA",
+      "paired_threat_id": "THR-SYN-042",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "channel": "physical_media",
+      "risk_surface": "executive_and_board_data",
+      "related_policy_ids": [
+        "EA-WF-01",
+        "COM-MEDIA-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious removable-media baiting",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "phishing_recognition",
+    "channel": "email",
+    "target_risk_surface": "supply_chain_and_payments",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Procurement Specialist facing targeted spear-phishing email through email: Do not reply, open the attachment, or use the embedded link. Inspect the full sender address, open the relevant system from a trusted bookmark, verify independently, and report the message. Before attempting to onboard a supplier, change vendor details, or approve a purchase-order exception, verify using the master supplier record, known contract contact, and vendor-risk approval and follow PROC-WF-01 plus COM-EMAIL-01. Preserve the message, call, prompt, or device details and report scenario SYN-PROC-EMAIL through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect supplier identities, contracts, purchase orders, pricing, and payment-routing data, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-043",
+      "scenario_id": "SYN-PROC-EMAIL",
+      "paired_threat_id": "THR-SYN-043",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "channel": "email",
+      "risk_surface": "supply_chain_and_payments",
+      "related_policy_ids": [
+        "PROC-WF-01",
+        "COM-EMAIL-01"
+      ],
+      "learning_objectives": [
+        "Recognize targeted spear-phishing email",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "vishing_defense",
+    "channel": "voice_phone",
+    "target_risk_surface": "supply_chain_and_payments",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Procurement Specialist facing vishing and voice-clone impersonation through phone or voicemail: End the call without sharing information. Call the person or service through a known directory number, state that voice familiarity is not proof, and report the call details. Before attempting to onboard a supplier, change vendor details, or approve a purchase-order exception, verify using the master supplier record, known contract contact, and vendor-risk approval and follow PROC-WF-01 plus COM-VOICE-01. Preserve the message, call, prompt, or device details and report scenario SYN-PROC-VOICE_PHONE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect supplier identities, contracts, purchase orders, pricing, and payment-routing data, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-044",
+      "scenario_id": "SYN-PROC-VOICE_PHONE",
+      "paired_threat_id": "THR-SYN-044",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "channel": "voice_phone",
+      "risk_surface": "supply_chain_and_payments",
+      "related_policy_ids": [
+        "PROC-WF-01",
+        "COM-VOICE-01"
+      ],
+      "learning_objectives": [
+        "Recognize vishing and voice-clone impersonation",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "chat_compromise_defense",
+    "channel": "slack_teams",
+    "target_risk_surface": "supply_chain_and_payments",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Procurement Specialist facing compromised collaboration-account message through Slack or Teams direct message: Do not share data, secrets, or run commands from chat. Verify using the official ticket or case and contact the sender through a second trusted channel before reporting the message. Before attempting to onboard a supplier, change vendor details, or approve a purchase-order exception, verify using the master supplier record, known contract contact, and vendor-risk approval and follow PROC-WF-01 plus COM-CHAT-01. Preserve the message, call, prompt, or device details and report scenario SYN-PROC-SLACK_TEAMS through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect supplier identities, contracts, purchase orders, pricing, and payment-routing data, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-045",
+      "scenario_id": "SYN-PROC-SLACK_TEAMS",
+      "paired_threat_id": "THR-SYN-045",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "channel": "slack_teams",
+      "risk_surface": "supply_chain_and_payments",
+      "related_policy_ids": [
+        "PROC-WF-01",
+        "COM-CHAT-01"
+      ],
+      "learning_objectives": [
+        "Recognize compromised collaboration-account message",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "quishing_detection",
+    "channel": "qr_code",
+    "target_risk_surface": "supply_chain_and_payments",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Procurement Specialist facing QR-code phishing (quishing) through QR code: Do not scan the code. Check the notice owner and destination through an approved portal, photograph or preserve the notice without visiting it, and report it for removal or investigation. Before attempting to onboard a supplier, change vendor details, or approve a purchase-order exception, verify using the master supplier record, known contract contact, and vendor-risk approval and follow PROC-WF-01 plus COM-QR-01. Preserve the message, call, prompt, or device details and report scenario SYN-PROC-QR_CODE through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect supplier identities, contracts, purchase orders, pricing, and payment-routing data, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-046",
+      "scenario_id": "SYN-PROC-QR_CODE",
+      "paired_threat_id": "THR-SYN-046",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "channel": "qr_code",
+      "risk_surface": "supply_chain_and_payments",
+      "related_policy_ids": [
+        "PROC-WF-01",
+        "COM-QR-01"
+      ],
+      "learning_objectives": [
+        "Recognize QR-code phishing (quishing)",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "oauth_consent_defense",
+    "channel": "cloud_oauth",
+    "target_risk_surface": "supply_chain_and_payments",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Procurement Specialist facing malicious OAuth application consent through cloud OAuth consent screen: Deny consent and close the screen. Check the approved application catalog, report the app and requested scopes, and ask Security Operations to revoke consent if it was already granted. Before attempting to onboard a supplier, change vendor details, or approve a purchase-order exception, verify using the master supplier record, known contract contact, and vendor-risk approval and follow PROC-WF-01 plus COM-OAUTH-01. Preserve the message, call, prompt, or device details and report scenario SYN-PROC-CLOUD_OAUTH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect supplier identities, contracts, purchase orders, pricing, and payment-routing data, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-047",
+      "scenario_id": "SYN-PROC-CLOUD_OAUTH",
+      "paired_threat_id": "THR-SYN-047",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "channel": "cloud_oauth",
+      "risk_surface": "supply_chain_and_payments",
+      "related_policy_ids": [
+        "PROC-WF-01",
+        "COM-OAUTH-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious OAuth application consent",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "mfa_fatigue_defense",
+    "channel": "sms_push",
+    "target_risk_surface": "supply_chain_and_payments",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Procurement Specialist facing MFA fatigue and helpdesk SMS pretext through SMS or authentication push: Deny every uninitiated prompt and never share a code. Change the password from a known device, contact Security Operations through the official directory, and preserve the prompt details. Before attempting to onboard a supplier, change vendor details, or approve a purchase-order exception, verify using the master supplier record, known contract contact, and vendor-risk approval and follow PROC-WF-01 plus COM-MFA-01. Preserve the message, call, prompt, or device details and report scenario SYN-PROC-SMS_PUSH through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect supplier identities, contracts, purchase orders, pricing, and payment-routing data, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-048",
+      "scenario_id": "SYN-PROC-SMS_PUSH",
+      "paired_threat_id": "THR-SYN-048",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "channel": "sms_push",
+      "risk_surface": "supply_chain_and_payments",
+      "related_policy_ids": [
+        "PROC-WF-01",
+        "COM-MFA-01"
+      ],
+      "learning_objectives": [
+        "Recognize MFA fatigue and helpdesk SMS pretext",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "removable_media_defense",
+    "channel": "physical_media",
+    "target_risk_surface": "supply_chain_and_payments",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Role-specific exercise for a Procurement Specialist facing malicious removable-media baiting through removable media or cable: Do not connect the device to any corporate or personal system. Note where it was found, avoid altering it, and hand it to Corporate Security or IT for controlled analysis. Before attempting to onboard a supplier, change vendor details, or approve a purchase-order exception, verify using the master supplier record, known contract contact, and vendor-risk approval and follow PROC-WF-01 plus COM-MEDIA-01. Preserve the message, call, prompt, or device details and report scenario SYN-PROC-PHYSICAL_MEDIA through the simulated Security Alert channel. Successful behavior is to stop, verify independently, protect supplier identities, contracts, purchase orders, pricing, and payment-routing data, and report without interacting with the lure.",
+    "metadata": {
+      "record_id": "TRN-SYN-049",
+      "scenario_id": "SYN-PROC-PHYSICAL_MEDIA",
+      "paired_threat_id": "THR-SYN-049",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_training_guidance",
+      "dataset_type": "synthetic_training_module",
+      "provenance_note": "Fictional defensive exercise generated for CyberGuard AI demonstration; not an external standard.",
+      "framework": "NovaTech Synthetic Controls",
+      "level": "role_based",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "channel": "physical_media",
+      "risk_surface": "supply_chain_and_payments",
+      "related_policy_ids": [
+        "PROC-WF-01",
+        "COM-MEDIA-01"
+      ],
+      "learning_objectives": [
+        "Recognize malicious removable-media baiting",
+        "Verify through a trusted independent channel",
+        "Preserve evidence and report promptly"
+      ],
+      "expected_behavior": "stop_verify_report",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
   }
 ]
