@@ -245,16 +245,19 @@ def get_org_context(
     )
     if not records:
         company_label = company_name or "NovaTech"
-        return f"{company_label} Standard Operating Procedure: Mandatory out-of-band verification for all critical communications."
+        return (
+            f"[ORG-SAFE-BASELINE] {company_label} Standard Operating Procedure: "
+            "Mandatory out-of-band verification for all critical communications."
+        )
         
     contexts = []
     for r in records:
         content = r.get("content", "")
         metadata = r.get("metadata") or {}
-        policy_id = metadata.get("policy_id", "")
-        if policy_id:
-            contexts.append(f"[{policy_id}] {content}")
-        else:
-            contexts.append(content)
+        record_id = metadata.get("record_id") or metadata.get("policy_id") or r.get("id")
+        if not record_id:
+            from rag.grounding import normalize_evidence
+            record_id = normalize_evidence([r], "ORG")[0]["record_id"]
+        contexts.append(f"[{record_id}] {content}")
             
     return "\n".join(contexts)
