@@ -1,31 +1,54 @@
 {
-  "dataset_name": "CyberGuard AI curated knowledge corpus",
-  "version": "2026-09-16",
-  "method": "Manual paraphrase and normalization from linked authoritative public sources; no raw personal data.",
+  "dataset_name": "CyberGuard AI hybrid knowledge corpus",
+  "version": "2026-09-23",
+  "method": "Deterministic synthetic NovaTech role/channel matrix combined with the existing manually paraphrased authoritative public guidance. Synthetic records contain no personal data and are explicitly labeled; public guidance retains direct source URLs.",
+  "coverage": {
+    "roles": [
+      "Finance Manager",
+      "HR Officer",
+      "IT Administrator",
+      "Software Developer",
+      "Customer Support Agent",
+      "Executive Assistant",
+      "Procurement Specialist"
+    ],
+    "channels": [
+      "email",
+      "voice_phone",
+      "slack_teams",
+      "qr_code",
+      "cloud_oauth",
+      "sms_push",
+      "physical_media"
+    ],
+    "synthetic_role_channel_combinations": 49
+  },
   "files": {
+    "org_knowledge_chunks.json": {
+      "records": 50,
+      "purpose": "Scenario Agent organization-context RAG",
+      "provenance": "Fictional NovaTech organization policies, roles, workflows, communication norms, and attack exposure",
+      "synthetic_records": 50
+    },
     "threat_chunks.json": {
-      "records": 32,
+      "records": 81,
       "purpose": "Evaluation Agent threat-pattern RAG",
-      "provenance": "FBI IC3, CISA, NIST, MITRE ATT&CK, FTC"
+      "provenance": "Existing FBI IC3, CISA, NIST, MITRE ATT&CK, and FTC paraphrases plus explicit synthetic scenarios",
+      "authoritative_records": 32,
+      "synthetic_records": 49
     },
     "training_chunks.json": {
-      "records": 32,
+      "records": 81,
       "purpose": "Coach Agent remediation RAG",
-      "provenance": "CISA, NIST, FBI IC3, MITRE ATT&CK"
-    },
-    "org_knowledge_chunks.json": {
-      "records": 12,
-      "purpose": "Scenario Agent organization-context RAG",
-      "provenance": "Fictional NovaTech demonstration policies"
+      "provenance": "Existing CISA, NIST, FBI IC3, and MITRE ATT&CK paraphrases plus explicit synthetic role-based exercises",
+      "authoritative_records": 32,
+      "synthetic_records": 49
     }
   },
   "source_policy": {
-    "allowed": [
-      "United States government publications",
-      "MITRE ATT&CK official technique pages"
-    ],
-    "content_form": "Original paraphrases with direct source URLs",
-    "statistics": "Included only when tied to a named official report and reporting year",
-    "personal_data": "None"
+    "authoritative_content_form": "Original paraphrases with direct source URLs",
+    "synthetic_content_form": "Clearly labeled fictional defensive examples with no claim of external authority",
+    "personal_data": "None",
+    "live_malicious_content": "None"
   }
 }
