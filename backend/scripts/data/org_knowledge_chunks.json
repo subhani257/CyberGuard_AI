@@ -1,0 +1,892 @@
+[
+  {
+    "category": "company_profile",
+    "content": "NovaTech Solutions is a fictional regional software and managed-services company used only for CyberGuard AI demonstrations. Its official simulated domain is novatech.example. The company operates Finance, Human Resources, IT and Security, Engineering, Customer Support, Executive, and Procurement functions. Security reports use the simulated Security Alert button or security@novatech.example; no record in this corpus describes a real person, company, incident, or credential.",
+    "metadata": {
+      "record_id": "ORG-001",
+      "title": "Company profile and safe simulation boundary",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "General Enterprise",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "ORG-GEN-01"
+    }
+  },
+  {
+    "category": "role_profile",
+    "content": "Finance Manager role profile: This employee works in Finance using NetSuite ERP, the approved banking portal, Coupa procurement, and Microsoft 365. They communicate with the CFO, Accounts Payable, Procurement, approved suppliers, and external auditors and normally receive invoices, purchase-order exceptions, vendor bank-detail changes, and payment approvals. Their authority is limited as follows: may approve routine payments up to USD 10,000; larger or redirected payments require dual approval. High-value assets include payment authority, bank details, invoice records, and financial forecasts.",
+    "metadata": {
+      "record_id": "ORG-002",
+      "title": "Finance Manager role profile",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Finance",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "role_id": "ROLE-FIN-01",
+      "role": "Finance Manager",
+      "risk_surface": "financial_access"
+    }
+  },
+  {
+    "category": "workflow",
+    "content": "FIN-WF-01: Standard Finance Manager workflow. Before the employee may release a payment or change remittance details, they must match the purchase order, goods receipt, and invoice before recording approval in NetSuite. Requests arriving through email, phone, chat, QR code, OAuth prompt, MFA notification, or physical media do not replace any approval or identity-verification step.",
+    "metadata": {
+      "record_id": "ORG-003",
+      "title": "Finance Manager standard workflow",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Finance",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "FIN-WF-01",
+      "role": "Finance Manager",
+      "applies_to": "Finance Manager",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "FIN-SEC-01: Independent verification for Finance. Any unexpected request to release a payment or change remittance details must be verified using the vendor-master telephone number and the CFO's directory extension, never contact details supplied by the requester. Finance Manager staff must preserve the request, stop processing when identity is uncertain, and report suspected impersonation to Security Operations.",
+    "metadata": {
+      "record_id": "ORG-004",
+      "title": "Finance Manager independent verification",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Finance",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "FIN-SEC-01",
+      "role": "Finance Manager",
+      "applies_to": "Finance Manager",
+      "risk_level": "critical",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "data_handling",
+    "content": "FIN-DATA-01: Payment authority, bank details, invoice records, and financial forecasts may be accessed only through approved systems and shared only with verified, authorized recipients. Finance Manager staff must not send the data to personal accounts, paste it into unapproved applications, upload it through message links, or copy it to unapproved removable media.",
+    "metadata": {
+      "record_id": "ORG-005",
+      "title": "Finance Manager data handling",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Finance",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "FIN-DATA-01",
+      "role": "Finance Manager",
+      "applies_to": "Finance Manager",
+      "risk_level": "high",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "communication_norm",
+    "content": "FIN-COM-01: Normal Finance communication is linked to an approved case, ticket, purchase order, or system record. Colleagues do not object to verification, ask the recipient to bypass controls, or request passwords, MFA codes, secrets, or confidential exports in a message. Unexpected requests concerning invoices, purchase-order exceptions, vendor bank-detail changes, and payment approvals must be checked through the vendor-master telephone number and the CFO's directory extension.",
+    "metadata": {
+      "record_id": "ORG-006",
+      "title": "Finance communication norm",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Finance",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "FIN-COM-01",
+      "role": "Finance Manager",
+      "applies_to": "Finance Manager"
+    }
+  },
+  {
+    "category": "attack_exposure",
+    "content": "FIN-RISK-01: The Finance Manager is a likely social-engineering target because the role can influence payment authority, bank details, invoice records, and financial forecasts. Likely pretexts imitate the CFO, Accounts Payable, Procurement, approved suppliers, and external auditors and reference invoices, purchase-order exceptions, vendor bank-detail changes, and payment approvals. Pressure, secrecy, a change of channel, or instructions to ignore the standard workflow are indicators that require independent verification and reporting.",
+    "metadata": {
+      "record_id": "ORG-007",
+      "title": "Finance Manager attack exposure",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Finance",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "FIN-RISK-01",
+      "role": "Finance Manager",
+      "risk_surface": "financial_access"
+    }
+  },
+  {
+    "category": "role_profile",
+    "content": "HR Officer role profile: This employee works in Human Resources using Workday, the recruitment portal, DocuSign, and Microsoft 365. They communicate with employees, candidates, payroll, hiring managers, and benefits providers and normally receive onboarding documents, payroll changes, benefit questions, and employee-record updates. Their authority is limited as follows: may prepare personnel updates but payroll and bank-detail changes require employee re-authentication and payroll review. High-value assets include employee personal data, payroll details, identity documents, and candidate records.",
+    "metadata": {
+      "record_id": "ORG-008",
+      "title": "HR Officer role profile",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Human Resources",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "role_id": "ROLE-HR-01",
+      "role": "HR Officer",
+      "risk_surface": "pii_and_payroll"
+    }
+  },
+  {
+    "category": "workflow",
+    "content": "HR-WF-01: Standard HR Officer workflow. Before the employee may change payroll data or disclose an employee record, they must open the case in Workday, validate identity, obtain Payroll review, and retain the audit entry. Requests arriving through email, phone, chat, QR code, OAuth prompt, MFA notification, or physical media do not replace any approval or identity-verification step.",
+    "metadata": {
+      "record_id": "ORG-009",
+      "title": "HR Officer standard workflow",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Human Resources",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "HR-WF-01",
+      "role": "HR Officer",
+      "applies_to": "HR Officer",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "HR-SEC-01: Independent verification for Human Resources. Any unexpected request to change payroll data or disclose an employee record must be verified using the employee's registered Workday contact method or an in-person HR check, never contact details supplied by the requester. HR Officer staff must preserve the request, stop processing when identity is uncertain, and report suspected impersonation to Security Operations.",
+    "metadata": {
+      "record_id": "ORG-010",
+      "title": "HR Officer independent verification",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Human Resources",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "HR-SEC-01",
+      "role": "HR Officer",
+      "applies_to": "HR Officer",
+      "risk_level": "critical",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "data_handling",
+    "content": "HR-DATA-01: Employee personal data, payroll details, identity documents, and candidate records may be accessed only through approved systems and shared only with verified, authorized recipients. HR Officer staff must not send the data to personal accounts, paste it into unapproved applications, upload it through message links, or copy it to unapproved removable media.",
+    "metadata": {
+      "record_id": "ORG-011",
+      "title": "HR Officer data handling",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Human Resources",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "HR-DATA-01",
+      "role": "HR Officer",
+      "applies_to": "HR Officer",
+      "risk_level": "high",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "communication_norm",
+    "content": "HR-COM-01: Normal Human Resources communication is linked to an approved case, ticket, purchase order, or system record. Colleagues do not object to verification, ask the recipient to bypass controls, or request passwords, MFA codes, secrets, or confidential exports in a message. Unexpected requests concerning onboarding documents, payroll changes, benefit questions, and employee-record updates must be checked through the employee's registered Workday contact method or an in-person HR check.",
+    "metadata": {
+      "record_id": "ORG-012",
+      "title": "Human Resources communication norm",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Human Resources",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "HR-COM-01",
+      "role": "HR Officer",
+      "applies_to": "HR Officer"
+    }
+  },
+  {
+    "category": "attack_exposure",
+    "content": "HR-RISK-01: The HR Officer is a likely social-engineering target because the role can influence employee personal data, payroll details, identity documents, and candidate records. Likely pretexts imitate employees, candidates, payroll, hiring managers, and benefits providers and reference onboarding documents, payroll changes, benefit questions, and employee-record updates. Pressure, secrecy, a change of channel, or instructions to ignore the standard workflow are indicators that require independent verification and reporting.",
+    "metadata": {
+      "record_id": "ORG-013",
+      "title": "HR Officer attack exposure",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Human Resources",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "HR-RISK-01",
+      "role": "HR Officer",
+      "risk_surface": "pii_and_payroll"
+    }
+  },
+  {
+    "category": "role_profile",
+    "content": "IT Administrator role profile: This employee works in IT & Security using Entra ID, Okta, Jira Service Management, endpoint management, and the privileged-access vault. They communicate with employees, managed-service providers, Security Operations, and application owners and normally receive password resets, access grants, device enrollment, incident triage, and system changes. Their authority is limited as follows: may perform approved administrative changes only against a valid ticket and never shares vault credentials. High-value assets include privileged identities, endpoint controls, cloud administration, and recovery mechanisms.",
+    "metadata": {
+      "record_id": "ORG-014",
+      "title": "IT Administrator role profile",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "IT & Security",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "role_id": "ROLE-ITA-01",
+      "role": "IT Administrator",
+      "risk_surface": "privileged_access"
+    }
+  },
+  {
+    "category": "workflow",
+    "content": "ITA-WF-01: Standard IT Administrator workflow. Before the employee may reset an account, grant access, or run an administrative command, they must confirm the ticket requester, obtain system-owner approval, use the vault, and log the completed change. Requests arriving through email, phone, chat, QR code, OAuth prompt, MFA notification, or physical media do not replace any approval or identity-verification step.",
+    "metadata": {
+      "record_id": "ORG-015",
+      "title": "IT Administrator standard workflow",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "IT & Security",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "ITA-WF-01",
+      "role": "IT Administrator",
+      "applies_to": "IT Administrator",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "ITA-SEC-01: Independent verification for IT & Security. Any unexpected request to reset an account, grant access, or run an administrative command must be verified using the Jira ticket, corporate directory callback, and privileged-access approval record, never contact details supplied by the requester. IT Administrator staff must preserve the request, stop processing when identity is uncertain, and report suspected impersonation to Security Operations.",
+    "metadata": {
+      "record_id": "ORG-016",
+      "title": "IT Administrator independent verification",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "IT & Security",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "ITA-SEC-01",
+      "role": "IT Administrator",
+      "applies_to": "IT Administrator",
+      "risk_level": "critical",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "data_handling",
+    "content": "ITA-DATA-01: Privileged identities, endpoint controls, cloud administration, and recovery mechanisms may be accessed only through approved systems and shared only with verified, authorized recipients. IT Administrator staff must not send the data to personal accounts, paste it into unapproved applications, upload it through message links, or copy it to unapproved removable media.",
+    "metadata": {
+      "record_id": "ORG-017",
+      "title": "IT Administrator data handling",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "IT & Security",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "ITA-DATA-01",
+      "role": "IT Administrator",
+      "applies_to": "IT Administrator",
+      "risk_level": "high",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "communication_norm",
+    "content": "ITA-COM-01: Normal IT & Security communication is linked to an approved case, ticket, purchase order, or system record. Colleagues do not object to verification, ask the recipient to bypass controls, or request passwords, MFA codes, secrets, or confidential exports in a message. Unexpected requests concerning password resets, access grants, device enrollment, incident triage, and system changes must be checked through the Jira ticket, corporate directory callback, and privileged-access approval record.",
+    "metadata": {
+      "record_id": "ORG-018",
+      "title": "IT & Security communication norm",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "IT & Security",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "ITA-COM-01",
+      "role": "IT Administrator",
+      "applies_to": "IT Administrator"
+    }
+  },
+  {
+    "category": "attack_exposure",
+    "content": "ITA-RISK-01: The IT Administrator is a likely social-engineering target because the role can influence privileged identities, endpoint controls, cloud administration, and recovery mechanisms. Likely pretexts imitate employees, managed-service providers, Security Operations, and application owners and reference password resets, access grants, device enrollment, incident triage, and system changes. Pressure, secrecy, a change of channel, or instructions to ignore the standard workflow are indicators that require independent verification and reporting.",
+    "metadata": {
+      "record_id": "ORG-019",
+      "title": "IT Administrator attack exposure",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "IT & Security",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "ITA-RISK-01",
+      "role": "IT Administrator",
+      "risk_surface": "privileged_access"
+    }
+  },
+  {
+    "category": "role_profile",
+    "content": "Software Developer role profile: This employee works in Engineering / DevOps using GitHub Enterprise, Jira, the CI/CD platform, package registries, and the secrets vault. They communicate with engineering peers, reviewers, DevOps, product managers, and approved technology vendors and normally receive code reviews, build failures, package updates, repository invitations, and API integration changes. Their authority is limited as follows: may merge reviewed code within owned repositories but production changes and secrets require protected workflows. High-value assets include source code, API tokens, build pipelines, package integrity, and customer-facing services.",
+    "metadata": {
+      "record_id": "ORG-020",
+      "title": "Software Developer role profile",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Engineering / DevOps",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "role_id": "ROLE-DEV-01",
+      "role": "Software Developer",
+      "risk_surface": "source_code_and_ci_cd"
+    }
+  },
+  {
+    "category": "workflow",
+    "content": "DEV-WF-01: Standard Software Developer workflow. Before the employee may run code, expose a token, install a package, or approve a production change, they must link the Jira issue, inspect the diff and dependency provenance, obtain review, and use the protected pipeline. Requests arriving through email, phone, chat, QR code, OAuth prompt, MFA notification, or physical media do not replace any approval or identity-verification step.",
+    "metadata": {
+      "record_id": "ORG-021",
+      "title": "Software Developer standard workflow",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Engineering / DevOps",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "DEV-WF-01",
+      "role": "Software Developer",
+      "applies_to": "Software Developer",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "DEV-SEC-01: Independent verification for Engineering / DevOps. Any unexpected request to run code, expose a token, install a package, or approve a production change must be verified using the linked Jira issue, signed repository identity, and protected pull-request review, never contact details supplied by the requester. Software Developer staff must preserve the request, stop processing when identity is uncertain, and report suspected impersonation to Security Operations.",
+    "metadata": {
+      "record_id": "ORG-022",
+      "title": "Software Developer independent verification",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Engineering / DevOps",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "DEV-SEC-01",
+      "role": "Software Developer",
+      "applies_to": "Software Developer",
+      "risk_level": "critical",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "data_handling",
+    "content": "DEV-DATA-01: Source code, api tokens, build pipelines, package integrity, and customer-facing services may be accessed only through approved systems and shared only with verified, authorized recipients. Software Developer staff must not send the data to personal accounts, paste it into unapproved applications, upload it through message links, or copy it to unapproved removable media.",
+    "metadata": {
+      "record_id": "ORG-023",
+      "title": "Software Developer data handling",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Engineering / DevOps",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "DEV-DATA-01",
+      "role": "Software Developer",
+      "applies_to": "Software Developer",
+      "risk_level": "high",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "communication_norm",
+    "content": "DEV-COM-01: Normal Engineering / DevOps communication is linked to an approved case, ticket, purchase order, or system record. Colleagues do not object to verification, ask the recipient to bypass controls, or request passwords, MFA codes, secrets, or confidential exports in a message. Unexpected requests concerning code reviews, build failures, package updates, repository invitations, and API integration changes must be checked through the linked Jira issue, signed repository identity, and protected pull-request review.",
+    "metadata": {
+      "record_id": "ORG-024",
+      "title": "Engineering / DevOps communication norm",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Engineering / DevOps",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "DEV-COM-01",
+      "role": "Software Developer",
+      "applies_to": "Software Developer"
+    }
+  },
+  {
+    "category": "attack_exposure",
+    "content": "DEV-RISK-01: The Software Developer is a likely social-engineering target because the role can influence source code, API tokens, build pipelines, package integrity, and customer-facing services. Likely pretexts imitate engineering peers, reviewers, DevOps, product managers, and approved technology vendors and reference code reviews, build failures, package updates, repository invitations, and API integration changes. Pressure, secrecy, a change of channel, or instructions to ignore the standard workflow are indicators that require independent verification and reporting.",
+    "metadata": {
+      "record_id": "ORG-025",
+      "title": "Software Developer attack exposure",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Engineering / DevOps",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "DEV-RISK-01",
+      "role": "Software Developer",
+      "risk_surface": "source_code_and_ci_cd"
+    }
+  },
+  {
+    "category": "role_profile",
+    "content": "Customer Support Agent role profile: This employee works in Customer Support using Zendesk, the customer identity console, the CRM, telephony, and Microsoft 365. They communicate with customers, account managers, engineering escalation teams, and support supervisors and normally receive account recovery, billing questions, profile updates, data exports, and incident escalation. Their authority is limited as follows: may handle standard support cases but cannot bypass identity checks or export restricted customer data. High-value assets include customer identities, support history, contact data, and account-recovery controls.",
+    "metadata": {
+      "record_id": "ORG-026",
+      "title": "Customer Support Agent role profile",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Customer Support",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "role_id": "ROLE-CS-01",
+      "role": "Customer Support Agent",
+      "risk_surface": "customer_data_and_recovery"
+    }
+  },
+  {
+    "category": "workflow",
+    "content": "CS-WF-01: Standard Customer Support Agent workflow. Before the employee may reset an account, change a customer identity, or export support data, they must record the case in Zendesk, complete the identity challenge, apply least privilege, and document the outcome. Requests arriving through email, phone, chat, QR code, OAuth prompt, MFA notification, or physical media do not replace any approval or identity-verification step.",
+    "metadata": {
+      "record_id": "ORG-027",
+      "title": "Customer Support Agent standard workflow",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Customer Support",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "CS-WF-01",
+      "role": "Customer Support Agent",
+      "applies_to": "Customer Support Agent",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "CS-SEC-01: Independent verification for Customer Support. Any unexpected request to reset an account, change a customer identity, or export support data must be verified using the approved customer identity challenge and the account's registered contact details, never contact details supplied by the requester. Customer Support Agent staff must preserve the request, stop processing when identity is uncertain, and report suspected impersonation to Security Operations.",
+    "metadata": {
+      "record_id": "ORG-028",
+      "title": "Customer Support Agent independent verification",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Customer Support",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "CS-SEC-01",
+      "role": "Customer Support Agent",
+      "applies_to": "Customer Support Agent",
+      "risk_level": "critical",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "data_handling",
+    "content": "CS-DATA-01: Customer identities, support history, contact data, and account-recovery controls may be accessed only through approved systems and shared only with verified, authorized recipients. Customer Support Agent staff must not send the data to personal accounts, paste it into unapproved applications, upload it through message links, or copy it to unapproved removable media.",
+    "metadata": {
+      "record_id": "ORG-029",
+      "title": "Customer Support Agent data handling",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Customer Support",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "CS-DATA-01",
+      "role": "Customer Support Agent",
+      "applies_to": "Customer Support Agent",
+      "risk_level": "high",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "communication_norm",
+    "content": "CS-COM-01: Normal Customer Support communication is linked to an approved case, ticket, purchase order, or system record. Colleagues do not object to verification, ask the recipient to bypass controls, or request passwords, MFA codes, secrets, or confidential exports in a message. Unexpected requests concerning account recovery, billing questions, profile updates, data exports, and incident escalation must be checked through the approved customer identity challenge and the account's registered contact details.",
+    "metadata": {
+      "record_id": "ORG-030",
+      "title": "Customer Support communication norm",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Customer Support",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "CS-COM-01",
+      "role": "Customer Support Agent",
+      "applies_to": "Customer Support Agent"
+    }
+  },
+  {
+    "category": "attack_exposure",
+    "content": "CS-RISK-01: The Customer Support Agent is a likely social-engineering target because the role can influence customer identities, support history, contact data, and account-recovery controls. Likely pretexts imitate customers, account managers, engineering escalation teams, and support supervisors and reference account recovery, billing questions, profile updates, data exports, and incident escalation. Pressure, secrecy, a change of channel, or instructions to ignore the standard workflow are indicators that require independent verification and reporting.",
+    "metadata": {
+      "record_id": "ORG-031",
+      "title": "Customer Support Agent attack exposure",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Customer Support",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "CS-RISK-01",
+      "role": "Customer Support Agent",
+      "risk_surface": "customer_data_and_recovery"
+    }
+  },
+  {
+    "category": "role_profile",
+    "content": "Executive Assistant role profile: This employee works in Executive Office using Microsoft 365, the board portal, travel systems, DocuSign, and the visitor platform. They communicate with executives, board members, Finance, Legal, investors, and travel providers and normally receive calendar changes, confidential documents, travel arrangements, signatures, and executive introductions. Their authority is limited as follows: may coordinate executive logistics but cannot approve payments, disclose board material, or waive policy. High-value assets include executive schedules, board documents, strategic plans, and high-trust communication paths.",
+    "metadata": {
+      "record_id": "ORG-032",
+      "title": "Executive Assistant role profile",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Executive Office",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "role_id": "ROLE-EA-01",
+      "role": "Executive Assistant",
+      "risk_surface": "executive_and_board_data"
+    }
+  },
+  {
+    "category": "workflow",
+    "content": "EA-WF-01: Standard Executive Assistant workflow. Before the employee may release board material, alter executive access, or authorize a confidential request, they must confirm the requester through the executive directory, classify the material, and use the approved board or document portal. Requests arriving through email, phone, chat, QR code, OAuth prompt, MFA notification, or physical media do not replace any approval or identity-verification step.",
+    "metadata": {
+      "record_id": "ORG-033",
+      "title": "Executive Assistant standard workflow",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Executive Office",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "EA-WF-01",
+      "role": "Executive Assistant",
+      "applies_to": "Executive Assistant",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "EA-SEC-01: Independent verification for Executive Office. Any unexpected request to release board material, alter executive access, or authorize a confidential request must be verified using the executive's directory number, board-portal identity, or an in-person confirmation, never contact details supplied by the requester. Executive Assistant staff must preserve the request, stop processing when identity is uncertain, and report suspected impersonation to Security Operations.",
+    "metadata": {
+      "record_id": "ORG-034",
+      "title": "Executive Assistant independent verification",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Executive Office",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "EA-SEC-01",
+      "role": "Executive Assistant",
+      "applies_to": "Executive Assistant",
+      "risk_level": "critical",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "data_handling",
+    "content": "EA-DATA-01: Executive schedules, board documents, strategic plans, and high-trust communication paths may be accessed only through approved systems and shared only with verified, authorized recipients. Executive Assistant staff must not send the data to personal accounts, paste it into unapproved applications, upload it through message links, or copy it to unapproved removable media.",
+    "metadata": {
+      "record_id": "ORG-035",
+      "title": "Executive Assistant data handling",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Executive Office",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "EA-DATA-01",
+      "role": "Executive Assistant",
+      "applies_to": "Executive Assistant",
+      "risk_level": "high",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "communication_norm",
+    "content": "EA-COM-01: Normal Executive Office communication is linked to an approved case, ticket, purchase order, or system record. Colleagues do not object to verification, ask the recipient to bypass controls, or request passwords, MFA codes, secrets, or confidential exports in a message. Unexpected requests concerning calendar changes, confidential documents, travel arrangements, signatures, and executive introductions must be checked through the executive's directory number, board-portal identity, or an in-person confirmation.",
+    "metadata": {
+      "record_id": "ORG-036",
+      "title": "Executive Office communication norm",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Executive Office",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "EA-COM-01",
+      "role": "Executive Assistant",
+      "applies_to": "Executive Assistant"
+    }
+  },
+  {
+    "category": "attack_exposure",
+    "content": "EA-RISK-01: The Executive Assistant is a likely social-engineering target because the role can influence executive schedules, board documents, strategic plans, and high-trust communication paths. Likely pretexts imitate executives, board members, Finance, Legal, investors, and travel providers and reference calendar changes, confidential documents, travel arrangements, signatures, and executive introductions. Pressure, secrecy, a change of channel, or instructions to ignore the standard workflow are indicators that require independent verification and reporting.",
+    "metadata": {
+      "record_id": "ORG-037",
+      "title": "Executive Assistant attack exposure",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Executive Office",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "EA-RISK-01",
+      "role": "Executive Assistant",
+      "risk_surface": "executive_and_board_data"
+    }
+  },
+  {
+    "category": "role_profile",
+    "content": "Procurement Specialist role profile: This employee works in Procurement using Coupa, the vendor-management portal, NetSuite ERP, DocuSign, and Microsoft 365. They communicate with suppliers, Legal, Finance, budget owners, and vendor-risk reviewers and normally receive supplier onboarding, quotations, contract signatures, purchase orders, and bank-detail updates. Their authority is limited as follows: may create supplier and purchase-order records after due diligence but cannot independently approve payment redirection. High-value assets include supplier identities, contracts, purchase orders, pricing, and payment-routing data.",
+    "metadata": {
+      "record_id": "ORG-038",
+      "title": "Procurement Specialist role profile",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Procurement",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "role_id": "ROLE-PROC-01",
+      "role": "Procurement Specialist",
+      "risk_surface": "supply_chain_and_payments"
+    }
+  },
+  {
+    "category": "workflow",
+    "content": "PROC-WF-01: Standard Procurement Specialist workflow. Before the employee may onboard a supplier, change vendor details, or approve a purchase-order exception, they must complete due diligence, validate tax and banking evidence, obtain Legal and Finance approvals, and activate the supplier in Coupa. Requests arriving through email, phone, chat, QR code, OAuth prompt, MFA notification, or physical media do not replace any approval or identity-verification step.",
+    "metadata": {
+      "record_id": "ORG-039",
+      "title": "Procurement Specialist standard workflow",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Procurement",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "PROC-WF-01",
+      "role": "Procurement Specialist",
+      "applies_to": "Procurement Specialist",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "policy",
+    "content": "PROC-SEC-01: Independent verification for Procurement. Any unexpected request to onboard a supplier, change vendor details, or approve a purchase-order exception must be verified using the master supplier record, known contract contact, and vendor-risk approval, never contact details supplied by the requester. Procurement Specialist staff must preserve the request, stop processing when identity is uncertain, and report suspected impersonation to Security Operations.",
+    "metadata": {
+      "record_id": "ORG-040",
+      "title": "Procurement Specialist independent verification",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Procurement",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "PROC-SEC-01",
+      "role": "Procurement Specialist",
+      "applies_to": "Procurement Specialist",
+      "risk_level": "critical",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "data_handling",
+    "content": "PROC-DATA-01: Supplier identities, contracts, purchase orders, pricing, and payment-routing data may be accessed only through approved systems and shared only with verified, authorized recipients. Procurement Specialist staff must not send the data to personal accounts, paste it into unapproved applications, upload it through message links, or copy it to unapproved removable media.",
+    "metadata": {
+      "record_id": "ORG-041",
+      "title": "Procurement Specialist data handling",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Procurement",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "PROC-DATA-01",
+      "role": "Procurement Specialist",
+      "applies_to": "Procurement Specialist",
+      "risk_level": "high",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "communication_norm",
+    "content": "PROC-COM-01: Normal Procurement communication is linked to an approved case, ticket, purchase order, or system record. Colleagues do not object to verification, ask the recipient to bypass controls, or request passwords, MFA codes, secrets, or confidential exports in a message. Unexpected requests concerning supplier onboarding, quotations, contract signatures, purchase orders, and bank-detail updates must be checked through the master supplier record, known contract contact, and vendor-risk approval.",
+    "metadata": {
+      "record_id": "ORG-042",
+      "title": "Procurement communication norm",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Procurement",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "PROC-COM-01",
+      "role": "Procurement Specialist",
+      "applies_to": "Procurement Specialist"
+    }
+  },
+  {
+    "category": "attack_exposure",
+    "content": "PROC-RISK-01: The Procurement Specialist is a likely social-engineering target because the role can influence supplier identities, contracts, purchase orders, pricing, and payment-routing data. Likely pretexts imitate suppliers, Legal, Finance, budget owners, and vendor-risk reviewers and reference supplier onboarding, quotations, contract signatures, purchase orders, and bank-detail updates. Pressure, secrecy, a change of channel, or instructions to ignore the standard workflow are indicators that require independent verification and reporting.",
+    "metadata": {
+      "record_id": "ORG-043",
+      "title": "Procurement Specialist attack exposure",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "Procurement",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "PROC-RISK-01",
+      "role": "Procurement Specialist",
+      "risk_surface": "supply_chain_and_payments"
+    }
+  },
+  {
+    "category": "channel_policy",
+    "content": "COM-EMAIL-01: NovaTech email rule. A request delivered through email must never be treated as identity proof or as authorization to bypass an established workflow. Warning indicators include look-alike sender domain, unexpected attachment or link, artificial deadline. Required response: Do not reply, open the attachment, or use the embedded link. Inspect the full sender address, open the relevant system from a trusted bookmark, verify independently, and report the message.",
+    "metadata": {
+      "record_id": "ORG-044",
+      "title": "Email security rule",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "General Enterprise",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "COM-EMAIL-01",
+      "channel": "email",
+      "applies_to": "All Employees",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "channel_policy",
+    "content": "COM-VOICE-01: NovaTech phone or voicemail rule. A request delivered through phone or voicemail must never be treated as identity proof or as authorization to bypass an established workflow. Warning indicators include caller-ID trust, refusal of callback, request for secret or urgent action. Required response: End the call without sharing information. Call the person or service through a known directory number, state that voice familiarity is not proof, and report the call details.",
+    "metadata": {
+      "record_id": "ORG-045",
+      "title": "Phone Or Voicemail security rule",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "General Enterprise",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "COM-VOICE-01",
+      "channel": "voice_phone",
+      "applies_to": "All Employees",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "channel_policy",
+    "content": "COM-CHAT-01: NovaTech Slack or Teams direct message rule. A request delivered through Slack or Teams direct message must never be treated as identity proof or as authorization to bypass an established workflow. Warning indicators include unexpected direct message, missing ticket or case, request for token, script, or sensitive file. Required response: Do not share data, secrets, or run commands from chat. Verify using the official ticket or case and contact the sender through a second trusted channel before reporting the message.",
+    "metadata": {
+      "record_id": "ORG-046",
+      "title": "Slack Or Teams Direct Message security rule",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "General Enterprise",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "COM-CHAT-01",
+      "channel": "slack_teams",
+      "applies_to": "All Employees",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "channel_policy",
+    "content": "COM-QR-01: NovaTech QR code rule. A request delivered through QR code must never be treated as identity proof or as authorization to bypass an established workflow. Warning indicators include obscured destination, unapproved physical or PDF notice, credential request after scan. Required response: Do not scan the code. Check the notice owner and destination through an approved portal, photograph or preserve the notice without visiting it, and report it for removal or investigation.",
+    "metadata": {
+      "record_id": "ORG-047",
+      "title": "Qr Code security rule",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "General Enterprise",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "COM-QR-01",
+      "channel": "qr_code",
+      "applies_to": "All Employees",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "channel_policy",
+    "content": "COM-OAUTH-01: NovaTech cloud OAuth consent screen rule. A request delivered through cloud OAuth consent screen must never be treated as identity proof or as authorization to bypass an established workflow. Warning indicators include unverified publisher, excessive permissions, persistent offline access. Required response: Deny consent and close the screen. Check the approved application catalog, report the app and requested scopes, and ask Security Operations to revoke consent if it was already granted.",
+    "metadata": {
+      "record_id": "ORG-048",
+      "title": "Cloud Oauth Consent Screen security rule",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "General Enterprise",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "COM-OAUTH-01",
+      "channel": "cloud_oauth",
+      "applies_to": "All Employees",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "channel_policy",
+    "content": "COM-MFA-01: NovaTech SMS or authentication push rule. A request delivered through SMS or authentication push must never be treated as identity proof or as authorization to bypass an established workflow. Warning indicators include uninitiated authentication, repeated prompts, request to approve or disclose a one-time code. Required response: Deny every uninitiated prompt and never share a code. Change the password from a known device, contact Security Operations through the official directory, and preserve the prompt details.",
+    "metadata": {
+      "record_id": "ORG-049",
+      "title": "Sms Or Authentication Push security rule",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "General Enterprise",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "COM-MFA-01",
+      "channel": "sms_push",
+      "applies_to": "All Employees",
+      "enforcement_level": "MANDATORY"
+    }
+  },
+  {
+    "category": "channel_policy",
+    "content": "COM-MEDIA-01: NovaTech removable media or cable rule. A request delivered through removable media or cable must never be treated as identity proof or as authorization to bypass an established workflow. Warning indicators include unknown physical origin, sensitive or tempting label, prompt to run a file or connect a device. Required response: Do not connect the device to any corporate or personal system. Note where it was found, avoid altering it, and hand it to Corporate Security or IT for controlled analysis.",
+    "metadata": {
+      "record_id": "ORG-050",
+      "title": "Removable Media Or Cable security rule",
+      "source": "NovaTech Synthetic Organization Handbook v1.0",
+      "department": "General Enterprise",
+      "dataset_type": "fictional_demo_organization_policy",
+      "organization": "NovaTech (fictional)",
+      "provenance_note": "Synthetic policy used for CyberGuard AI demonstration; not an external standard.",
+      "last_reviewed": "2026-09-23",
+      "policy_id": "COM-MEDIA-01",
+      "channel": "physical_media",
+      "applies_to": "All Employees",
+      "enforcement_level": "MANDATORY"
+    }
+  }
+]
