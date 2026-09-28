@@ -141,6 +141,14 @@ export default function PoliciesPage() {
         headers
       });
 
+      if (res.status === 401) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('cyberguard_token');
+          localStorage.removeItem('cyberguard_user');
+          window.location.href = '/login';
+        }
+        return;
+      }
       if (!res.ok) {
         throw new Error(`Failed to load policies (Status ${res.status})`);
       }

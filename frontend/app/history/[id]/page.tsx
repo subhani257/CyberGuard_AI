@@ -70,7 +70,7 @@ export default function CompletedScenarioDetailPage() {
     fetch(`http://localhost:8000/api/coach/completed-scenarios/${encodeURIComponent(decisionId)}`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then(async response => {
-      if (response.status === 401) { router.replace('/login'); return null; }
+      if (response.status === 401) { localStorage.removeItem('cyberguard_token'); localStorage.removeItem('cyberguard_user'); router.replace('/login'); return null; }
       if (response.status === 404) throw new Error('This completed scenario was not found.');
       if (!response.ok) throw new Error('Could not load scenario details.');
       return response.json();

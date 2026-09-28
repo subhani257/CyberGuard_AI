@@ -53,7 +53,7 @@ export default function LoginPage() {
     setLoading(true);
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ktivturksaummardilyu.supabase.co';
     const redirectTo = `${window.location.origin}/dashboard`;
-    window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
+    window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}&response_type=token`;
   };
 
   return <AuthShell mode="signin">

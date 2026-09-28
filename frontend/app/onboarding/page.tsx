@@ -31,12 +31,16 @@ export default function OnboardingPage() {
       // Parse hash fragment
       if (window.location.hash) {
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const err = hashParams.get('error_description') || hashParams.get('error');
+        if (err) { alert('Supabase Auth Error: ' + err); router.replace('/login'); return; }
         accessToken = hashParams.get('access_token');
       }
 
       // Parse query params fallback
       if (!accessToken && window.location.search) {
         const searchParams = new URLSearchParams(window.location.search);
+        const err = searchParams.get('error_description') || searchParams.get('error');
+        if (err) { alert('Supabase Auth Error: ' + err); router.replace('/login'); return; }
         accessToken = searchParams.get('access_token') || searchParams.get('token');
       }
 
@@ -66,16 +70,16 @@ export default function OnboardingPage() {
           fetch('http://localhost:8000/api/auth/google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ access_token: accessToken })
+            body: JSON.stringify({ access_token: accessToken, email: oauthUser.email, full_name: oauthUser.full_name, role: oauthUser.role, company: oauthUser.company, id: oauthUser.id })
           })
             .then(r => r.ok ? r.json() : Promise.reject(r))
             .then(session => {
               localStorage.setItem('cyberguard_token', session.access_token);
               localStorage.setItem('cyberguard_user', JSON.stringify(session.user));
+              window.history.replaceState(null, '', window.location.pathname);
             })
             .catch(() => setErrorMessage('Google session verification failed. Please sign in again.'));
         } catch (e) {}
-        window.history.replaceState(null, '', window.location.pathname);
       }
     }
 

@@ -38,6 +38,8 @@ export default function HistoryPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.status === 401) {
+        localStorage.removeItem('cyberguard_token');
+        localStorage.removeItem('cyberguard_user');
         router.replace('/login');
         return;
       }

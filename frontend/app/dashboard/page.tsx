@@ -220,8 +220,20 @@ export default function Dashboard() {
       }
     }
 
+    if (typeof window !== 'undefined') {
+      console.error('--- CYBERGUARD URL DEBUG ---', window.location.href);
+      if (window.location.search.includes('code=') || window.location.hash || window.location.search.includes('error')) {
+         console.error('Supabase Auth tokens detected in URL:', window.location.href);
+      }
+    }
     if (typeof window !== 'undefined' && window.location.hash) {
       const hp = new URLSearchParams(window.location.hash.substring(1));
+      const errorParam = hp.get('error_description') || hp.get('error');
+      if (errorParam) {
+        alert('Supabase Auth Error: ' + errorParam);
+        router.replace('/login');
+        return;
+      }
       const at = hp.get('access_token');
       if (at) {
         try {
@@ -242,14 +254,21 @@ export default function Dashboard() {
           fetch('http://localhost:8000/api/auth/google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ access_token: at })
-          }).then(r => r.ok ? r.json() : Promise.reject(r)).then(session => {
+            body: JSON.stringify({ access_token: at, email: ou.email, full_name: ou.full_name, role: ou.role, company: ou.company, id: ou.id })
+          }).then(async r => {
+            if (!r.ok) {
+               const text = await r.text();
+               throw new Error(text);
+            }
+            return r.json();
+          }).then(session => {
             localStorage.setItem('cyberguard_token', session.access_token);
             localStorage.setItem('cyberguard_user', JSON.stringify({ ...session.user, ...(ep ? { learning_profile: ep } : {}) }));
+            window.history.replaceState(null, '', window.location.pathname);
             window.location.reload();
-          }).catch(() => router.replace('/login'));
-        } catch (_) {}
-        window.history.replaceState(null, '', window.location.pathname);
+          }).catch((err) => { alert('Backend error during Google Login: ' + err.message); router.replace('/login'); });
+        } catch (err: any) { alert('Token parsing error: ' + err.message); }
+        
         // ── Wait for the Google token exchange to complete (reload) before
         //    running the rest of this effect. Without this return the
         //    dashboard-summary fetch fires immediately with no token → 401.
@@ -292,9 +311,28 @@ export default function Dashboard() {
 
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
-    fetch(`http://localhost:8000/api/org/policies/${encodeURIComponent(company)}`, { headers }).then(r => { if (!r.ok) throw new Error(); return r.json(); }).then(d => { if (d?.success && typeof d.count === 'number') setPoliciesCount(d.source === 'database' || d.source === 'memory' ? d.count : 0); }).catch(() => setPoliciesCount(0));
+    fetch(`http://localhost:8000/api/org/policies/${encodeURIComponent(company)}`, { headers }).then(r => { 
+      if (r.status === 401) {
+        localStorage.removeItem('cyberguard_token');
+        localStorage.removeItem('cyberguard_user');
+        router.push('/login');
+        throw new Error('401');
+      }
+      if (!r.ok) throw new Error(); 
+      return r.json(); 
+    }).then(d => { if (d?.success && typeof d.count === 'number') setPoliciesCount(d.source === 'database' || d.source === 'memory' ? d.count : 0); }).catch(() => setPoliciesCount(0));
+
     fetch('http://localhost:8000/api/coach/dashboard-summary', { headers })
-      .then(r => { if (!r.ok) throw new Error('unauth'); return r.json(); })
+      .then(r => { 
+        if (r.status === 401) {
+          localStorage.removeItem('cyberguard_token');
+          localStorage.removeItem('cyberguard_user');
+          router.push('/login');
+          throw new Error('401');
+        }
+        if (!r.ok) throw new Error('unauth'); 
+        return r.json(); 
+      })
       .then(d => {
         if (!d?.success) throw new Error('Dashboard summary unavailable');
         if (d?.success) {
@@ -306,7 +344,12 @@ export default function Dashboard() {
           else if (d.learning_profile?.training_map && Array.isArray(d.learning_profile.training_map)) setPersonalizedMap(d.learning_profile.training_map);
           setDashboardLoading(false);
         }
-      }).catch(() => { setDashboardError('Dashboard data could not be loaded from the database. Please try again.'); setDashboardLoading(false); });
+      }).catch((e) => { 
+        if (e.message !== '401') {
+          setDashboardError('Dashboard data could not be loaded from the database. Please try again.'); 
+          setDashboardLoading(false); 
+        }
+      });
 
     if (!localStorage.getItem('cyberguard_tour_completed')) setShowTour(true);
   }, []);
@@ -322,6 +365,10 @@ export default function Dashboard() {
       const response = await fetch(`http://localhost:8000/api/coach/completed-scenarios?limit=20&offset=${offset}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (response.status === 401) {
+        localStorage.removeItem('cyberguard_token'); localStorage.removeItem('cyberguard_user'); router.push('/login');
+        return;
+      }
       if (!response.ok) throw new Error('Completed scenarios could not be loaded.');
       const result = await response.json();
       if (!result.success || !Array.isArray(result.items)) throw new Error('Completed scenarios could not be loaded.');
@@ -351,6 +398,10 @@ export default function Dashboard() {
       const response = await fetch(`http://localhost:8000/api/coach/completed-scenarios?channel=${encodeURIComponent(channel)}&limit=20&offset=${offset}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (response.status === 401) {
+        localStorage.removeItem('cyberguard_token'); localStorage.removeItem('cyberguard_user'); router.push('/login');
+        return;
+      }
       if (!response.ok) throw new Error('Sector history could not be loaded.');
       const result = await response.json();
       if (!result.success || !Array.isArray(result.items)) throw new Error('Sector history could not be loaded.');

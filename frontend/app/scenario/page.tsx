@@ -113,7 +113,7 @@ function ScenarioFlow() {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     fetch('http://localhost:8000/api/coach/dashboard-summary', { headers })
-      .then(r => (r.ok ? r.json() : Promise.reject(r)))
+      .then(r => { if (r.status === 401) { localStorage.removeItem('cyberguard_token'); localStorage.removeItem('cyberguard_user'); router.push('/login'); return Promise.reject(new Error('401')); } return r.ok ? r.json() : Promise.reject(r); })
       .then(d => {
         if (d?.success) {
           if (typeof d.readiness_score === 'number') {
@@ -225,6 +225,8 @@ function ScenarioFlow() {
     })
       .then(async res => {
         if (res.status === 401) {
+          localStorage.removeItem('cyberguard_token');
+          localStorage.removeItem('cyberguard_user');
           router.replace('/login');
           throw new Error('Your session expired. Please sign in again.');
         }

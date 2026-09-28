@@ -129,7 +129,7 @@ export default function AdminDashboard() {
 
     // 1. Verify admin role
     fetch('http://localhost:8000/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } })
-      .then(r => r.ok ? r.json() : Promise.reject(r))
+      .then(r => { if (r.status === 401) { localStorage.removeItem('cyberguard_token'); localStorage.removeItem('cyberguard_user'); router.push('/login'); return Promise.reject(new Error('401')); } return r.ok ? r.json() : Promise.reject(r); })
       .then(data => {
         const role = data?.user?.access_role;
         setCurrentUserRole(role || 'learner');
