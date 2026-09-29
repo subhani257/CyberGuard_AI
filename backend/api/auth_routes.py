@@ -366,7 +366,8 @@ async def google_auth(request: GoogleAuthRequest):
             if existing.data and len(existing.data) > 0:
                 user_id = existing.data[0]["id"]
                 full_name = existing.data[0].get("full_name") or full_name
-                role = existing.data[0].get("role") or role
+                role = existing.data[0].get('role') or role
+                company = existing.data[0].get('company') or company
             else:
                 supabase.table("users").upsert({
                     "id": user_id,
