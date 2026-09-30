@@ -220,12 +220,6 @@ export default function Dashboard() {
       }
     }
 
-    if (typeof window !== 'undefined') {
-      console.error('--- CYBERGUARD URL DEBUG ---', window.location.href);
-      if (window.location.search.includes('code=') || window.location.hash || window.location.search.includes('error')) {
-         console.error('Supabase Auth tokens detected in URL:', window.location.href);
-      }
-    }
     if (typeof window !== 'undefined' && window.location.hash) {
       const hp = new URLSearchParams(window.location.hash.substring(1));
       const errorParam = hp.get('error_description') || hp.get('error');
@@ -251,6 +245,12 @@ export default function Dashboard() {
           let ep = null;
           if (ex) { try { const ep2 = JSON.parse(ex); if (ep2.id === ou.id) ep = ep2.learning_profile || null; } catch (_) {} }
           localStorage.setItem('cyberguard_user', JSON.stringify({ ...ou, ...(ep ? { learning_profile: ep } : {}) }));
+
+          // OAuth implicit-flow credentials arrive in the URL fragment. Remove
+          // them immediately so they are not exposed by screenshots, logs, or
+          // later errors while the backend exchanges the Supabase session.
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+
           fetch('http://localhost:8000/api/auth/google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -264,9 +264,14 @@ export default function Dashboard() {
           }).then(session => {
             localStorage.setItem('cyberguard_token', session.access_token);
             localStorage.setItem('cyberguard_user', JSON.stringify({ ...session.user, ...(ep ? { learning_profile: ep } : {}) }));
-            window.history.replaceState(null, '', window.location.pathname);
             window.location.reload();
-          }).catch((err) => { alert('Backend error during Google Login: ' + err.message); router.replace('/login'); });
+          }).catch((err) => {
+            const message = err instanceof TypeError && err.message === 'Failed to fetch'
+              ? 'Cannot reach the CyberGuard backend at http://localhost:8000. Start the backend and try again.'
+              : err.message;
+            alert('Backend error during Google Login: ' + message);
+            router.replace('/login');
+          });
         } catch (err: any) { alert('Token parsing error: ' + err.message); }
         
         // ── Wait for the Google token exchange to complete (reload) before
