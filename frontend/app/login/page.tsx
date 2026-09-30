@@ -2,25 +2,24 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import AuthShell, { GoogleMark } from '@/components/auth/AuthShell';
+import { clearAuthSession, readAuthSession, saveAuthSession } from '@/lib/auth_session';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    const stored = localStorage.getItem('cyberguard_user');
-    if (!stored) return;
-    try {
-      const user = JSON.parse(stored);
-      if (user && (user.id || user.email)) router.replace('/dashboard');
-    } catch (_) {}
-  }, [router]);
+    const session = readAuthSession(localStorage);
+    if (!session) {
+      clearAuthSession(localStorage);
+      return;
+    }
+    window.location.replace(session.user.access_role === 'admin' ? '/admin' : '/dashboard');
+  }, []);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -39,9 +38,8 @@ export default function LoginPage() {
       }
 
       const data = await response.json();
-      localStorage.setItem('cyberguard_token', data.access_token);
-      localStorage.setItem('cyberguard_user', JSON.stringify(data.user));
-      router.push(data.user.access_role === 'admin' ? '/admin' : '/dashboard');
+      saveAuthSession(localStorage, data.access_token, data.user);
+      window.location.assign(data.user.access_role === 'admin' ? '/admin' : '/dashboard');
     } catch (error: any) {
       setErrorMessage(error.message || 'Unable to connect to the authentication service. Make sure the backend is running.');
     } finally {

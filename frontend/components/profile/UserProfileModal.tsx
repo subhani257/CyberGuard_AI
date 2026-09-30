@@ -185,7 +185,8 @@ export default function UserProfileModal({
     } else if (typeof window !== 'undefined') {
       localStorage.removeItem('cyberguard_token');
       localStorage.removeItem('cyberguard_user');
-      window.location.href = '/login';
+      localStorage.removeItem('cyberguard_current_decision');
+      window.location.replace('/login');
     }
   };
 

@@ -899,7 +899,8 @@ export default function PoliciesPage() {
         onLogout={() => {
           localStorage.removeItem('cyberguard_token');
           localStorage.removeItem('cyberguard_user');
-          router.push('/login');
+          localStorage.removeItem('cyberguard_current_decision');
+          window.location.replace('/login');
         }}
       />
     </div>

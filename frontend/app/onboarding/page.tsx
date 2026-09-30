@@ -1,8 +1,9 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { clearAuthSession, decodeJwtClaims, isAccessTokenValid, saveAuthSession } from '@/lib/auth_session';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -22,8 +23,12 @@ export default function OnboardingPage() {
   const [ingestedResult, setIngestedResult] = useState<any>(null);
   const [coachProfile, setCoachProfile] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const initializationStarted = useRef(false);
 
   useEffect(() => {
+    if (initializationStarted.current) return;
+    initializationStarted.current = true;
+
     // 0. Handle OAuth callback from Supabase (Google signup/login)
     if (typeof window !== 'undefined') {
       let accessToken = null;
@@ -46,7 +51,11 @@ export default function OnboardingPage() {
 
       if (accessToken) {
         try {
-          const payload = JSON.parse(atob(accessToken.split('.')[1]));
+          if (!isAccessTokenValid(accessToken)) {
+            throw new Error('The Google session has expired. Please sign in again.');
+          }
+          const payload = decodeJwtClaims(accessToken) as any;
+          if (!payload) throw new Error('The Google session token is malformed.');
           const name = payload.user_metadata?.full_name || payload.user_metadata?.name || payload.email?.split('@')[0] || 'Team Member';
           const email = payload.email || '';
           const oauthId = payload.sub || payload.id || '11111111-1111-1111-1111-111111111111';
@@ -74,12 +83,15 @@ export default function OnboardingPage() {
           })
             .then(r => r.ok ? r.json() : Promise.reject(r))
             .then(session => {
-              localStorage.setItem('cyberguard_token', session.access_token);
-              localStorage.setItem('cyberguard_user', JSON.stringify(session.user));
+              saveAuthSession(localStorage, session.access_token, session.user);
               window.history.replaceState(null, '', window.location.pathname);
             })
             .catch(() => setErrorMessage('Google session verification failed. Please sign in again.'));
-        } catch (e) {}
+        } catch (err: any) {
+          clearAuthSession(localStorage);
+          window.history.replaceState(null, '', window.location.pathname);
+          setErrorMessage(err.message || 'Google session verification failed. Please sign in again.');
+        }
       }
     }
 

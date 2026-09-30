@@ -512,7 +512,7 @@ async def get_completed_scenario_detail(
 
 
 @router.get("/dashboard-summary", response_model=DashboardSummaryResponse)
-async def get_dashboard_summary(
+def get_dashboard_summary(
     current_user: CurrentUser = Depends(get_current_user)
 ):
     """

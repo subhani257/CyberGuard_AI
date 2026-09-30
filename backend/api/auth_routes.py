@@ -2,7 +2,7 @@ import os
 import uuid
 import time
 from typing import Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends, status
 from pydantic import BaseModel, EmailStr
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -137,7 +137,7 @@ class LogoutResponse(BaseModel):
 
 
 @router.post("/sync-user")
-async def sync_user(
+def sync_user(
     request: SyncUserRequest,
     current_user: CurrentUser = Depends(get_current_user)
 ):
@@ -167,8 +167,21 @@ async def sync_user(
     return {"success": True, "user_id": user_id, "email": email, "synced": False, "mode": "in-memory"}
 
 
+def _record_login_audit(user_id: str, email: str, access_role: str) -> None:
+    if supabase:
+        try:
+            supabase.table("agent_audit_logs").insert({
+                "agent_name": "AuthService (Member 3)",
+                "user_id": user_id,
+                "action": "USER_LOGIN_SUCCESS",
+                "details": {"email": email, "access_role": access_role}
+            }).execute()
+        except Exception:
+            pass
+
+
 @router.post("/login", response_model=LoginResponse)
-async def login(request: LoginRequest):
+def login(request: LoginRequest, background_tasks: BackgroundTasks):
     """
     Authenticate user via Supabase Auth or verified system accounts.
     Issues a cryptographically signed JWT token containing access roles.
@@ -234,15 +247,12 @@ async def login(request: LoginRequest):
     access_token = create_access_token(token_claims)
 
     if supabase:
-        try:
-            supabase.table("agent_audit_logs").insert({
-                "agent_name": "AuthService (Member 3)",
-                "user_id": user_record["id"],
-                "action": "USER_LOGIN_SUCCESS",
-                "details": {"email": user_record["email"], "access_role": user_record["access_role"]}
-            }).execute()
-        except Exception:
-            pass
+        background_tasks.add_task(
+            _record_login_audit,
+            user_record["id"],
+            user_record["email"],
+            user_record["access_role"],
+        )
 
     return LoginResponse(
         success=True,
@@ -253,7 +263,7 @@ async def login(request: LoginRequest):
 
 
 @router.post("/signup", response_model=LoginResponse)
-async def signup(request: SignupRequest):
+def signup(request: SignupRequest):
     """
     Register a new user account.
     Creates profile in Supabase and issues access token.
@@ -333,7 +343,7 @@ async def signup(request: SignupRequest):
 
 
 @router.post("/google", response_model=LoginResponse)
-async def google_auth(request: GoogleAuthRequest):
+def google_auth(request: GoogleAuthRequest):
     """
     Authenticate or register user via Google identity.
     Provides immediate one-tap OAuth session with demo fallback.
@@ -411,19 +421,30 @@ async def google_auth(request: GoogleAuthRequest):
     )
 
 
-@router.post("/logout", response_model=LogoutResponse)
-async def logout(current_user: CurrentUser = Depends(get_current_user)):
-    """Terminate user session and record audit event."""
+def _record_logout_audit(user_id: str, email: str) -> None:
+    """Record logout without blocking FastAPI's async request loop."""
     if supabase:
         try:
             supabase.table("agent_audit_logs").insert({
                 "agent_name": "AuthService (Member 3)",
-                "user_id": current_user.id,
+                "user_id": user_id,
                 "action": "USER_LOGOUT",
-                "details": {"email": current_user.email}
+                "details": {"email": email}
             }).execute()
         except Exception:
             pass
+
+
+@router.post("/logout", response_model=LogoutResponse)
+async def logout(
+    background_tasks: BackgroundTasks,
+    current_user: CurrentUser = Depends(get_current_user)
+):
+    """Terminate user session and record its audit event asynchronously."""
+    if supabase:
+        # supabase-py is synchronous. A background task keeps a slow database
+        # write from freezing the event loop and blocking the next login.
+        background_tasks.add_task(_record_logout_audit, current_user.id, current_user.email)
             
     return LogoutResponse(
         success=True,
@@ -456,7 +477,7 @@ async def list_users_admin(current_user: CurrentUser = Depends(get_current_user)
 
 
 @router.put("/profile")
-async def update_user_profile(
+def update_user_profile(
     request: ProfileUpdateRequest,
     current_user: CurrentUser = Depends(get_current_user)
 ):

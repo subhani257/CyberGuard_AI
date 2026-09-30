@@ -1,7 +1,12 @@
 import pytest
+import asyncio
+import inspect
+from unittest.mock import Mock
+
 from fastapi.testclient import TestClient
 from main import app
-from security.auth_bearer import create_access_token
+from api import auth_routes, coach_routes
+from security.auth_bearer import CurrentUser, create_access_token
 
 client = TestClient(app)
 
@@ -96,4 +101,47 @@ def test_google_auth_endpoint():
     assert data["success"] is True
     assert "access_token" in data
     assert data["user"]["email"] == "google_test@novatech.com"
+
+
+def test_logout_schedules_supabase_audit_without_executing_it_in_request(monkeypatch):
+    monkeypatch.setattr(auth_routes, "supabase", Mock())
+    background_tasks = Mock()
+    current_user = CurrentUser(
+        id="logout-user-id",
+        email="logout@example.com",
+        access_role="learner",
+    )
+
+    response = asyncio.run(auth_routes.logout(background_tasks, current_user))
+
+    assert response.success is True
+    background_tasks.add_task.assert_called_once_with(
+        auth_routes._record_logout_audit,
+        "logout-user-id",
+        "logout@example.com",
+    )
+
+
+def test_database_backed_auth_and_dashboard_handlers_use_worker_threads():
+    assert inspect.iscoroutinefunction(auth_routes.login) is False
+    assert inspect.iscoroutinefunction(auth_routes.google_auth) is False
+    assert inspect.iscoroutinefunction(coach_routes.get_dashboard_summary) is False
+
+
+def test_login_schedules_audit_outside_the_response_path(monkeypatch):
+    monkeypatch.setattr(auth_routes, "supabase", Mock())
+    background_tasks = Mock()
+
+    response = auth_routes.login(
+        auth_routes.LoginRequest(email="nimal@novatech.com", password="password123"),
+        background_tasks,
+    )
+
+    assert response.success is True
+    background_tasks.add_task.assert_called_once_with(
+        auth_routes._record_login_audit,
+        "11111111-1111-1111-1111-111111111111",
+        "nimal@novatech.com",
+        "learner",
+    )
 

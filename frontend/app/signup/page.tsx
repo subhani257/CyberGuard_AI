@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import AuthShell, { GoogleMark } from '@/components/auth/AuthShell';
+import { clearAuthSession, readAuthSession, saveAuthSession } from '@/lib/auth_session';
 
 export default function SignupPage() {
-  const router = useRouter();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,13 +15,13 @@ export default function SignupPage() {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    const stored = localStorage.getItem('cyberguard_user');
-    if (!stored) return;
-    try {
-      const user = JSON.parse(stored);
-      if (user && (user.id || user.email)) router.replace('/dashboard');
-    } catch (_) {}
-  }, [router]);
+    const session = readAuthSession(localStorage);
+    if (!session) {
+      clearAuthSession(localStorage);
+      return;
+    }
+    window.location.replace('/dashboard');
+  }, []);
 
   const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -48,9 +47,8 @@ export default function SignupPage() {
       }
 
       const data = await response.json();
-      localStorage.setItem('cyberguard_token', data.access_token);
-      localStorage.setItem('cyberguard_user', JSON.stringify(data.user));
-      router.push('/onboarding');
+      saveAuthSession(localStorage, data.access_token, data.user);
+      window.location.assign('/onboarding');
     } catch (error: any) {
       setErrorMessage(error.message || 'Unable to connect to authentication service.');
     } finally {

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { FirstUserGuide } from '@/components/FirstUserGuide';
 import UserProfileModal from '@/components/profile/UserProfileModal';
+import { clearAuthSession, decodeJwtClaims, isAccessTokenValid, saveAuthSession } from '@/lib/auth_session';
 import {
   Lightbulb, ScrollText, X, Shield, Compass, Target,
   Phone, Mail, MessageSquare, QrCode, Cloud, Smartphone, HardDrive,
@@ -208,8 +209,15 @@ export default function Dashboard() {
   const [sectorLoading, setSectorLoading] = useState(false);
   const [sectorError, setSectorError] = useState<string | null>(null);
   const sectorRequestId = useRef(0);
+  const initializationStarted = useRef(false);
 
   useEffect(() => {
+    // React Strict Mode intentionally re-runs effects in development. Without
+    // this guard the second run can redirect to /login while the first run is
+    // still exchanging the Google token for the application token.
+    if (initializationStarted.current) return;
+    initializationStarted.current = true;
+
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
       const tabParam = searchParams.get('tab');
@@ -231,7 +239,11 @@ export default function Dashboard() {
       const at = hp.get('access_token');
       if (at) {
         try {
-          const p = JSON.parse(atob(at.split('.')[1]));
+          if (!isAccessTokenValid(at)) {
+            throw new Error('The Google session has expired. Please sign in again.');
+          }
+          const p = decodeJwtClaims(at) as any;
+          if (!p) throw new Error('The Google session token is malformed.');
           const ou = { 
             id: p.sub || p.id, 
             email: p.email, 
@@ -244,7 +256,6 @@ export default function Dashboard() {
           const ex = localStorage.getItem('cyberguard_user');
           let ep = null;
           if (ex) { try { const ep2 = JSON.parse(ex); if (ep2.id === ou.id) ep = ep2.learning_profile || null; } catch (_) {} }
-          localStorage.setItem('cyberguard_user', JSON.stringify({ ...ou, ...(ep ? { learning_profile: ep } : {}) }));
 
           // OAuth implicit-flow credentials arrive in the URL fragment. Remove
           // them immediately so they are not exposed by screenshots, logs, or
@@ -262,17 +273,22 @@ export default function Dashboard() {
             }
             return r.json();
           }).then(session => {
-            localStorage.setItem('cyberguard_token', session.access_token);
-            localStorage.setItem('cyberguard_user', JSON.stringify({ ...session.user, ...(ep ? { learning_profile: ep } : {}) }));
-            window.location.reload();
+            saveAuthSession(localStorage, session.access_token, { ...session.user, ...(ep ? { learning_profile: ep } : {}) });
+            window.location.replace('/dashboard');
           }).catch((err) => {
             const message = err instanceof TypeError && err.message === 'Failed to fetch'
               ? 'Cannot reach the CyberGuard backend at http://localhost:8000. Start the backend and try again.'
               : err.message;
             alert('Backend error during Google Login: ' + message);
-            router.replace('/login');
+            clearAuthSession(localStorage);
+            window.location.replace('/login');
           });
-        } catch (err: any) { alert('Token parsing error: ' + err.message); }
+        } catch (err: any) {
+          clearAuthSession(localStorage);
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+          alert('Google login error: ' + err.message);
+          window.location.replace('/login');
+        }
         
         // ── Wait for the Google token exchange to complete (reload) before
         //    running the rest of this effect. Without this return the
@@ -294,6 +310,11 @@ export default function Dashboard() {
 
     const stored = localStorage.getItem('cyberguard_user');
     const token  = localStorage.getItem('cyberguard_token');
+    if (!stored || !isAccessTokenValid(token)) {
+      clearAuthSession(localStorage);
+      window.location.replace('/login');
+      return;
+    }
     let company  = 'Your Organization';
     if (stored) {
       try {
@@ -327,7 +348,12 @@ export default function Dashboard() {
       return r.json(); 
     }).then(d => { if (d?.success && typeof d.count === 'number') setPoliciesCount(d.source === 'database' || d.source === 'memory' ? d.count : 0); }).catch(() => setPoliciesCount(0));
 
-    fetch('http://localhost:8000/api/coach/dashboard-summary', { headers })
+    const dashboardAbortController = new AbortController();
+    const dashboardTimeout = window.setTimeout(() => dashboardAbortController.abort(), 10_000);
+    fetch('http://localhost:8000/api/coach/dashboard-summary', {
+      headers,
+      signal: dashboardAbortController.signal,
+    })
       .then(r => { 
         if (r.status === 401) {
           localStorage.removeItem('cyberguard_token');
@@ -351,15 +377,25 @@ export default function Dashboard() {
         }
       }).catch((e) => { 
         if (e.message !== '401') {
-          setDashboardError('Dashboard data could not be loaded from the database. Please try again.'); 
+          setDashboardError(
+            e?.name === 'AbortError'
+              ? 'Dashboard data timed out. The training dashboard is available with cached defaults; retry when the database is reachable.'
+              : 'Dashboard data could not be loaded from the database. Please try again.'
+          );
           setDashboardLoading(false); 
         }
-      });
+      }).finally(() => window.clearTimeout(dashboardTimeout));
 
     if (!localStorage.getItem('cyberguard_tour_completed')) setShowTour(true);
   }, []);
 
-  const handleLogout = () => { localStorage.removeItem('cyberguard_token'); localStorage.removeItem('cyberguard_user'); router.push('/login'); };
+  const handleLogout = () => {
+    clearAuthSession(localStorage);
+
+    // A hard replacement discards dashboard state and prevents Back from
+    // reopening the authenticated page after logout.
+    window.location.replace('/login');
+  };
 
   const loadCompletedScenarios = async (offset: number) => {
     setCompletedLoading(true);
@@ -456,7 +492,6 @@ export default function Dashboard() {
   const userInitial = data.user.name ? data.user.name.charAt(0).toUpperCase() : 'U';
 
   if (dashboardLoading) return <main className="min-h-screen bg-background text-primary flex items-center justify-center">Loading dashboard data…</main>;
-  if (dashboardError) return <main role="alert" className="min-h-screen bg-background text-primary flex flex-col gap-4 items-center justify-center"><p>{dashboardError}</p><button onClick={() => window.location.reload()} className="px-4 py-2 rounded-lg border border-white/20">Retry</button></main>;
 
   return (
     <main className="h-screen overflow-hidden bg-background text-primary font-sans selection:bg-white/10 flex flex-col relative">
@@ -594,6 +629,21 @@ export default function Dashboard() {
           </div>
         </div>
       </nav>
+      {dashboardError && (
+        <div
+          role="alert"
+          className="shrink-0 mx-6 md:mx-10 mt-2.5 rounded-lg px-4 py-2.5 flex items-center justify-between gap-4 text-xs"
+          style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.22)', color: '#FBBF24' }}
+        >
+          <span>{dashboardError} Showing the locally available dashboard in the meantime.</span>
+          <button
+            onClick={() => window.location.reload()}
+            className="shrink-0 px-3 py-1 rounded-md border border-amber-400/25 hover:bg-amber-400/10 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
       <div className="px-6 py-1 text-[10px] font-mono text-muted">Metrics source: {data.data_source === 'supabase' ? 'database' : 'local demo memory'} · {data.decision_count} evaluated decisions</div>
 
       {/* ── Main Content ─────────────────────────────────────────────────── */}
