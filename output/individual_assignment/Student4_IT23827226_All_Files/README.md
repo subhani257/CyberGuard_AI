@@ -17,4 +17,16 @@ Specialization: Student 4 Information Retrieval and Security Assessment
 
 `01_Final_Submission/Individual_Assignment_IT23827226_Student4.docx`
 
+## Viva demonstration
+
+From PowerShell, run:
+
+`powershell -ExecutionPolicy Bypass -File .\Run_Student4_Viva_Demo.ps1`
+
+For the audit plus the selected 33-test regression suite, run:
+
+`powershell -ExecutionPolicy Bypass -File .\Run_Student4_Viva_Demo.ps1 -Full`
+
+The audit uses the local FastAPI TestClient and deterministic demo data. It disables Supabase and OpenAI and updates `03_Evidence/student4_audit_results.json`.
+
 The original files outside this package were left unchanged.

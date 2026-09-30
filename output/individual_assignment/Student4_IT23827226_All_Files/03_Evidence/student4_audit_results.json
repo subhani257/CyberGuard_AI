@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-29T08:13:08.993944+00:00",
+  "generated_at": "2026-09-30T03:02:25.241152+00:00",
   "environment": "Local FastAPI TestClient; demo data only; Supabase and OpenAI disabled",
   "case_count": 23,
   "status_counts": {

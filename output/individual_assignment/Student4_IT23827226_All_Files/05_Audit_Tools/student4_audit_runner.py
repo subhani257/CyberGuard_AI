@@ -14,7 +14,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[3]
+def find_project_root(start: Path) -> Path:
+    """Locate the repository so this script works from the submission package."""
+    for candidate in (start.parent, *start.parents):
+        if (candidate / "backend").is_dir() and (candidate / "docs").is_dir():
+            return candidate
+    raise RuntimeError("Could not locate the CyberGuard AI project root.")
+
+
+SCRIPT_PATH = Path(__file__).resolve()
+ROOT = find_project_root(SCRIPT_PATH)
+PACKAGE_ROOT = SCRIPT_PATH.parents[1]
 BACKEND = ROOT / "backend"
 sys.path.insert(0, str(BACKEND))
 
@@ -419,6 +429,23 @@ summary = {
     "cases": cases,
 }
 
-output_path = ROOT / "output" / "individual_assignment" / "evidence" / "student4_audit_results.json"
+output_path = PACKAGE_ROOT / "03_Evidence" / "student4_audit_results.json"
+output_path.parent.mkdir(parents=True, exist_ok=True)
 output_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-print(json.dumps(summary, indent=2))
+
+if "--json" in sys.argv:
+    print(json.dumps(summary, indent=2))
+else:
+    print("\nCyberGuard AI Student 4 audit")
+    print("=" * 78)
+    print(f"{'Test ID':<14}{'Result':<10}Actual behaviour")
+    print("-" * 78)
+    for case in cases:
+        print(f"{case['case_id']:<14}{case['status']:<10}{case['actual']}")
+    print("-" * 78)
+    counts = summary["status_counts"]
+    print(
+        f"TOTAL {summary['case_count']} | PASS {counts['PASS']} | "
+        f"PARTIAL {counts['PARTIAL']} | FAIL {counts['FAIL']}"
+    )
+    print(f"Evidence updated: {output_path}")
