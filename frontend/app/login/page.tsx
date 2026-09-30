@@ -30,7 +30,7 @@ export default function LoginPage() {
       const response = await fetch('http://localhost:8000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
       });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -60,11 +60,11 @@ export default function LoginPage() {
     <form onSubmit={handleLogin} className="space-y-4">
       <div>
         <label htmlFor="login-email" className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-[0.13em] text-muted">Work email</label>
-        <input id="login-email" name="email" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} placeholder="you@company.com" className="auth-input" />
+        <input id="login-email" name="email" type="email" autoComplete="email" required maxLength={254} value={email} onChange={event => setEmail(event.target.value)} placeholder="you@company.com" className="auth-input" />
       </div>
       <div>
         <label htmlFor="login-password" className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-[0.13em] text-muted">Password</label>
-        <input id="login-password" name="password" type="password" autoComplete="current-password" required value={password} onChange={event => setPassword(event.target.value)} placeholder="Enter your password" className="auth-input" />
+        <input id="login-password" name="password" type="password" autoComplete="current-password" required minLength={1} maxLength={128} value={password} onChange={event => setPassword(event.target.value)} placeholder="Enter your password" className="auth-input" />
       </div>
       <button type="submit" disabled={loading} className="midnight-action mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-4 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.1em] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue disabled:cursor-wait disabled:opacity-50">
         {loading ? 'Verifying identity...' : <>Sign in <ArrowRight className="h-3.5 w-3.5" /></>}

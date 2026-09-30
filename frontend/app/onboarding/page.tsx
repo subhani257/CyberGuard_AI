@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { clearAuthSession, decodeJwtClaims, isAccessTokenValid, saveAuthSession } from '@/lib/auth_session';
+import { clearAuthSession, readAuthSession, saveAuthSession } from '@/lib/auth_session';
+import { beginSingleInitialization, parseOAuthCallback } from '@/lib/oauth_callback';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -26,49 +27,26 @@ export default function OnboardingPage() {
   const initializationStarted = useRef(false);
 
   useEffect(() => {
-    if (initializationStarted.current) return;
-    initializationStarted.current = true;
+    if (!beginSingleInitialization(initializationStarted)) return;
 
     // 0. Handle OAuth callback from Supabase (Google signup/login)
     if (typeof window !== 'undefined') {
-      let accessToken = null;
-      
-      // Parse hash fragment
-      if (window.location.hash) {
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const err = hashParams.get('error_description') || hashParams.get('error');
-        if (err) { alert('Supabase Auth Error: ' + err); router.replace('/login'); return; }
-        accessToken = hashParams.get('access_token');
+      const oauthCallback = parseOAuthCallback(window.location.hash, window.location.search, true);
+      if (oauthCallback.kind === 'error') {
+        clearAuthSession(localStorage);
+        window.history.replaceState(null, '', window.location.pathname);
+        setErrorMessage(oauthCallback.message);
+        return;
       }
 
-      // Parse query params fallback
-      if (!accessToken && window.location.search) {
-        const searchParams = new URLSearchParams(window.location.search);
-        const err = searchParams.get('error_description') || searchParams.get('error');
-        if (err) { alert('Supabase Auth Error: ' + err); router.replace('/login'); return; }
-        accessToken = searchParams.get('access_token') || searchParams.get('token');
-      }
-
-      if (accessToken) {
+      if (oauthCallback.kind === 'token') {
         try {
-          if (!isAccessTokenValid(accessToken)) {
-            throw new Error('The Google session has expired. Please sign in again.');
-          }
-          const payload = decodeJwtClaims(accessToken) as any;
-          if (!payload) throw new Error('The Google session token is malformed.');
-          const name = payload.user_metadata?.full_name || payload.user_metadata?.name || payload.email?.split('@')[0] || 'Team Member';
-          const email = payload.email || '';
-          const oauthId = payload.sub || payload.id || '11111111-1111-1111-1111-111111111111';
-          const role = payload.user_metadata?.role || 'Finance Manager';
-          const oauthUser = {
-            id: oauthId,
-            email: email,
-            full_name: name,
-            role: role,
-            company: payload.user_metadata?.company || 'NovaTech Solutions',
-            access_role: payload.app_metadata?.access_role || 'learner'
-          };
-          localStorage.setItem('cyberguard_user', JSON.stringify(oauthUser));
+          const accessToken = oauthCallback.accessToken;
+          const oauthUser = oauthCallback.user;
+          const name = oauthUser.full_name;
+          // Remove the credential from browser history before performing any
+          // network work so failures cannot leave it visible in the URL.
+          window.history.replaceState(null, '', window.location.pathname);
           if (oauthUser.id) setUserId(oauthUser.id);
           if (oauthUser.email) setUserEmail(oauthUser.email);
           if (name) setFullName(name);
@@ -84,28 +62,33 @@ export default function OnboardingPage() {
             .then(r => r.ok ? r.json() : Promise.reject(r))
             .then(session => {
               saveAuthSession(localStorage, session.access_token, session.user);
-              window.history.replaceState(null, '', window.location.pathname);
             })
-            .catch(() => setErrorMessage('Google session verification failed. Please sign in again.'));
+            .catch(() => {
+              clearAuthSession(localStorage);
+              setErrorMessage('Google session verification failed. Please sign in again.');
+            });
         } catch (err: any) {
           clearAuthSession(localStorage);
           window.history.replaceState(null, '', window.location.pathname);
           setErrorMessage(err.message || 'Google session verification failed. Please sign in again.');
         }
+        return;
       }
     }
 
-    const stored = localStorage.getItem('cyberguard_user');
-    if (stored) {
-      try {
-        const u = JSON.parse(stored);
-        if (u.id) setUserId(u.id);
-        if (u.email) setUserEmail(u.email);
-        if (u.full_name) setFullName(u.full_name);
-        if (u.company) setCompanyName(u.company);
-        if (u.role && u.role !== 'Employee') setRoleTitle(u.role);
-      } catch (e) {}
+    const session = readAuthSession(localStorage);
+    if (!session) {
+      clearAuthSession(localStorage);
+      window.location.replace('/login');
+      return;
     }
+
+    const u = session.user as any;
+    if (u.id) setUserId(u.id);
+    if (u.email) setUserEmail(u.email);
+    if (u.full_name) setFullName(u.full_name);
+    if (u.company) setCompanyName(u.company);
+    if (u.role && u.role !== 'Employee') setRoleTitle(u.role);
   }, []);
 
   const handleUseTemplate = () => {

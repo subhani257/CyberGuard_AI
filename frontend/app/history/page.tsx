@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ChevronRight, History, ShieldCheck } from 'lucide-react';
+import { getHumanReviewCopy, getHumanReviewStatus } from '@/lib/review_status';
 
 interface CompletedScenario {
   id: string;
@@ -13,9 +14,23 @@ interface CompletedScenario {
   is_safe: boolean | null;
   chosen_action: string;
   completed_at: string | null;
+  human_review_required?: boolean;
+  admin_verdict?: string | null;
 }
 
 const pageSize = 20;
+
+function ReviewStatusBadge({ required, verdict }: { required?: boolean; verdict?: string | null }) {
+  const status = getHumanReviewStatus(required, verdict);
+  if (!status) return null;
+  const copy = getHumanReviewCopy(status);
+  const color = status === 'pending'
+    ? 'border-amber-400/30 bg-amber-400/10 text-amber-200'
+    : status === 'confirmed'
+      ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'
+      : 'border-blue-400/30 bg-blue-400/10 text-blue-200';
+  return <span className={`mt-2 inline-flex rounded-full border px-2.5 py-1 text-[10px] font-mono uppercase tracking-wide ${color}`}>{copy.label}</span>;
+}
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -107,6 +122,7 @@ export default function HistoryPage() {
                     {item.completed_at && ` · ${new Date(item.completed_at).toLocaleDateString()}`}
                     {' · '}{item.is_safe === null ? 'Evaluated' : item.is_safe ? 'Safe decision' : 'Needs practice'}
                   </p>
+                  <ReviewStatusBadge required={item.human_review_required} verdict={item.admin_verdict} />
                   {item.chosen_action && <p className="text-xs text-muted mt-3 line-clamp-1">Your action: {item.chosen_action}</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">

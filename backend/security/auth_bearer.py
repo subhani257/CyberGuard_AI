@@ -3,6 +3,7 @@ import hmac
 import hashlib
 import base64
 import json
+import math
 import time
 from typing import Optional, List, Dict, Any
 from fastapi import HTTPException, Security, Depends, status
@@ -27,6 +28,8 @@ def _get_jwt_secret() -> str:
 
 JWT_ALGORITHM = "HS256"
 TOKEN_EXPIRATION_SECONDS = 86400  # 24 hours
+CLOCK_SKEW_SECONDS = 30
+ALLOWED_ACCESS_ROLES = {"learner", "trainer", "admin"}
 
 security_bearer = HTTPBearer(auto_error=False)
 
@@ -58,7 +61,7 @@ def create_access_token(
     """Create a standard HS256 cryptographically signed JWT token."""
     secret = _get_jwt_secret()
     header = {"alg": "HS256", "typ": "JWT"}
-    exp = int(time.time()) + (expires_delta if expires_delta else TOKEN_EXPIRATION_SECONDS)
+    exp = int(time.time()) + (expires_delta if expires_delta is not None else TOKEN_EXPIRATION_SECONDS)
     
     raw_payload = payload if payload is not None else (data if data is not None else {})
     token_payload = raw_payload.copy()
@@ -78,6 +81,11 @@ def create_access_token(
 def decode_access_token(token: str) -> Dict[str, Any]:
     """Decode and cryptographically verify an HS256 JWT token."""
     secret = _get_jwt_secret()
+    if not isinstance(token, str) or not token.strip() or len(token) > 8192:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token structure"
+        )
     parts = token.strip().split('.')
     if len(parts) != 3:
         raise HTTPException(
@@ -95,7 +103,13 @@ def decode_access_token(token: str) -> Dict[str, Any]:
             detail="Malformed token data"
         )
     
-    if header.get("alg") != "HS256":
+    if not isinstance(header, dict) or not isinstance(payload, dict):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Malformed token data"
+        )
+
+    if header.get("alg") != JWT_ALGORITHM or header.get("typ", "JWT") != "JWT":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Unsupported token algorithm"
@@ -111,13 +125,35 @@ def decode_access_token(token: str) -> Dict[str, Any]:
             detail="Invalid signature or corrupted token"
         )
     
-    # Check expiration
+    # Validate NumericDate claims explicitly so malformed values return a
+    # controlled 401 response instead of leaking a ValueError as a 500.
+    now = int(time.time())
     exp = payload.get("exp")
-    if exp and int(exp) < int(time.time()):
+    if isinstance(exp, bool) or not isinstance(exp, (int, float)) or not math.isfinite(exp):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token expiration claim is missing or invalid"
+        )
+    if exp <= now:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired"
         )
+
+    for claim_name in ("iat", "nbf"):
+        claim_value = payload.get(claim_name)
+        if claim_value is None:
+            continue
+        if isinstance(claim_value, bool) or not isinstance(claim_value, (int, float)) or not math.isfinite(claim_value):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Token {claim_name} claim is invalid"
+            )
+        if claim_value > now + CLOCK_SKEW_SECONDS:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token is not active yet"
+            )
         
     return payload
 
@@ -143,20 +179,26 @@ async def get_current_user(
     company = payload.get("company", "Your Organization")
     is_active = payload.get("is_active", True)
     
-    if not user_id:
+    if not isinstance(user_id, str) or not user_id.strip():
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token missing user identity subject (sub)"
         )
         
-    if not is_active:
+    if not isinstance(access_role, str) or access_role not in ALLOWED_ACCESS_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token contains an invalid access role"
+        )
+
+    if is_active is not True:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is inactive or disabled"
         )
         
     return CurrentUser(
-        id=str(user_id),
+        id=user_id.strip(),
         email=email,
         access_role=access_role,
         role=role,
@@ -176,12 +218,17 @@ async def get_optional_current_user(
         token = credentials.credentials
         payload = decode_access_token(token)
         user_id = payload.get("sub") or payload.get("id")
-        if not user_id:
+        access_role = payload.get("access_role", "learner")
+        if not isinstance(user_id, str) or not user_id.strip():
+            return None
+        if not isinstance(access_role, str) or access_role not in ALLOWED_ACCESS_ROLES:
+            return None
+        if payload.get("is_active", True) is not True:
             return None
         return CurrentUser(
-            id=str(user_id),
+            id=user_id.strip(),
             email=payload.get("email", ""),
-            access_role=payload.get("access_role", "learner"),
+            access_role=access_role,
             role=payload.get("role", "Finance Manager"),
             full_name=payload.get("full_name", "CyberGuard Learner"),
             company=payload.get("company", "Your Organization"),

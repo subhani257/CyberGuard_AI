@@ -9,6 +9,7 @@ import { ReasoningReview } from './evaluation/ReasoningReview';
 import { CoachTakeaway } from './evaluation/CoachTakeaway';
 import { ThreatKnowledge } from './evaluation/ThreatKnowledge';
 import { getDecisionVerdict, getSkillLevel, normalizeIndicators, getCoachTakeaway, formatReadableLabel } from '@/lib/evaluation_helpers';
+import { getHumanReviewCopy, getHumanReviewStatus } from '@/lib/review_status';
 import type { DecisionGapData, ReasoningReviewData, ThreatKnowledgeItem } from './evaluation/types';
 
 export interface EvaluationResultsProps {
@@ -17,6 +18,7 @@ export interface EvaluationResultsProps {
     reasoning_score: number;
     final_score: number;
     is_safe?: boolean;
+    human_review_required?: boolean;
     threat_indicators: Array<{ type: string; confidence?: number; description: string; channel?: string }>;
     reasoning_category: string;
     expected_behavior: string;
@@ -126,6 +128,8 @@ export const EvaluationResults: React.FC<EvaluationResultsProps> = ({
   const sourceCount = (threat_knowledge?.length || 0) + (scenario_clues?.length || 0);
   const verdictColor = verdictResult.verdict === 'SECURE' ? '#34D399' : verdictResult.verdict === 'COMPROMISED' ? '#F87171' : '#FBBF24';
   const boundedScore = Math.max(0, Math.min(100, Math.round(final_score)));
+  const reviewStatus = getHumanReviewStatus(evaluation.human_review_required);
+  const reviewCopy = reviewStatus ? getHumanReviewCopy(reviewStatus) : null;
   const sections = [
     { id: 'decision' as const, title: 'Your decision', subtitle: 'Choice, safer action and scores', count: 'CHOICE', Icon: CheckCircle2 },
     { id: 'signals' as const, title: 'Threat signals', subtitle: 'Evidence found in the scenario', count: `${indicators.length} SIGNALS`, Icon: ShieldAlert },
@@ -152,6 +156,16 @@ export const EvaluationResults: React.FC<EvaluationResultsProps> = ({
         </div>
       </div>
     </section>
+
+    {reviewCopy && <section role="status" aria-live="polite" className="shrink-0 rounded-xl border border-amber-400/30 bg-amber-400/[0.08] px-4 py-3">
+      <div className="flex items-start gap-3">
+        <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+        <div>
+          <div className="text-xs font-semibold text-amber-200">{reviewCopy.label}</div>
+          <p className="mt-0.5 text-xs leading-relaxed text-[#D7C9A4]">{reviewCopy.message}</p>
+        </div>
+      </div>
+    </section>}
 
     <div className="shrink-0 grid grid-cols-3 gap-2" aria-label="Score summary">
       {[
@@ -202,6 +216,10 @@ export const EvaluationResults: React.FC<EvaluationResultsProps> = ({
 
         <div className="mt-4 text-xs font-mono font-bold uppercase tracking-wider" style={{ color: verdictColor }}>{verdictResult.badgeLabel}</div>
         <div className="mt-1 text-xs text-[#AAB5C2]">{skillLevel}</div>
+        {reviewCopy && <div role="status" className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/[0.08] px-4 py-3 text-left">
+          <div className="flex items-center gap-2 text-xs font-semibold text-amber-200"><ShieldAlert className="h-4 w-4" />{reviewCopy.label}</div>
+          <p className="mt-1 text-xs leading-relaxed text-[#D7C9A4]">{reviewCopy.message}</p>
+        </div>}
         <div className="mt-5 grid grid-cols-2 gap-3 text-left">
           <div className="rounded-xl border border-white/10 bg-[#0B1119] px-4 py-3"><div className="text-[10px] font-mono uppercase tracking-wide text-[#AAB5C2]">Action</div><div className="mt-1 text-xl font-bold">{Math.round(action_score)}<span className="text-xs font-normal text-[#AAB5C2]"> / 100</span></div></div>
           <div className="rounded-xl border border-white/10 bg-[#0B1119] px-4 py-3"><div className="text-[10px] font-mono uppercase tracking-wide text-[#AAB5C2]">Reasoning</div><div className="mt-1 text-xl font-bold">{Math.round(reasoning_score)}<span className="text-xs font-normal text-[#AAB5C2]"> / 100</span></div></div>

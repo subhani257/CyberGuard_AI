@@ -84,6 +84,8 @@ class CompletedScenario(BaseModel):
     chosen_action: str
     reasoning: str
     completed_at: Optional[str]
+    human_review_required: bool = False
+    admin_verdict: Optional[str] = None
 
 
 class CompletedScenariosResponse(BaseModel):
@@ -93,6 +95,16 @@ class CompletedScenariosResponse(BaseModel):
     average_score: Optional[int]
     has_more: bool
     items: List[CompletedScenario]
+
+
+def _is_missing_database_column(error: Exception) -> bool:
+    """Recognize PostgREST/Postgres schema-cache errors without masking outages."""
+    code = str(getattr(error, "code", "")).upper()
+    message = str(error).lower()
+    return code in {"42703", "PGRST204"} or (
+        "column" in message
+        and any(fragment in message for fragment in ("does not exist", "could not find", "schema cache"))
+    )
 
 
 @router.post("/onboard-user")
@@ -363,7 +375,7 @@ async def process_decision(
 
 
 @router.get("/completed-scenarios", response_model=CompletedScenariosResponse)
-async def get_completed_scenarios(
+def get_completed_scenarios(
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     channel: Optional[str] = Query(default=None, pattern="^(email|voice_phone|slack_teams|qr_code|cloud_oauth|sms_push|physical_media)$"),
@@ -375,11 +387,28 @@ async def get_completed_scenarios(
         try:
             all_decisions = []
             cursor = 0
+            decision_field_options = (
+                "id,scenario_id,chosen_action,reasoning,evaluation,is_safe,human_review_required,admin_verdict,created_at",
+                "id,scenario_id,chosen_action,reasoning,evaluation,is_safe,human_review_required,created_at",
+                "id,scenario_id,chosen_action,reasoning,evaluation,is_safe,created_at",
+            )
+            decision_field_index = 0
             while True:
-                response = (supabase.table("decisions")
-                            .select("id,scenario_id,chosen_action,reasoning,evaluation,is_safe,created_at")
-                            .eq("user_id", user_id).order("created_at", desc=True)
-                            .range(cursor, cursor + 999).execute())
+                while True:
+                    try:
+                        response = (supabase.table("decisions")
+                                    .select(decision_field_options[decision_field_index])
+                                    .eq("user_id", user_id).order("created_at", desc=True)
+                                    .range(cursor, cursor + 999).execute())
+                        break
+                    except Exception as query_error:
+                        if not _is_missing_database_column(query_error) or decision_field_index >= len(decision_field_options) - 1:
+                            raise
+                        decision_field_index += 1
+                        print(
+                            "Notice: decisions review columns are not available in Supabase yet; "
+                            "completed history is using a legacy-compatible query. Apply backend/database/schema.sql."
+                        )
                 page = response.data or []
                 all_decisions.extend(page)
                 if len(page) < 1000:
@@ -436,6 +465,8 @@ async def get_completed_scenarios(
             chosen_action=str(decision.get("chosen_action") or ""),
             reasoning=str(decision.get("reasoning") or ""),
             completed_at=str(decision["created_at"]) if decision.get("created_at") else None,
+            human_review_required=bool(decision.get("human_review_required")),
+            admin_verdict=str(decision["admin_verdict"]) if decision.get("admin_verdict") else None,
         ))
 
     return CompletedScenariosResponse(
@@ -445,7 +476,7 @@ async def get_completed_scenarios(
 
 
 @router.get("/completed-scenarios/{decision_id}")
-async def get_completed_scenario_detail(
+def get_completed_scenario_detail(
     decision_id: str,
     current_user: CurrentUser = Depends(get_current_user),
 ):

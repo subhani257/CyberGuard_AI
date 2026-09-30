@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { getHumanReviewCopy, getHumanReviewStatus } from '@/lib/review_status';
 
 type RecordValue = string | number | boolean | null | Record<string, unknown> | unknown[];
 
@@ -92,6 +93,13 @@ export default function CompletedScenarioDetailPage() {
     'situation_title', 'situation_tagline', 'sender_name', 'sender_email', 'subject', 'body',
     'choices', 'clues_embedded', 'threat_type', 'difficulty', 'channel', 'channel_data',
   ].includes(key));
+  const reviewStatus = getHumanReviewStatus(detail?.decision.human_review_required, detail?.decision.admin_verdict);
+  const reviewCopy = reviewStatus ? getHumanReviewCopy(reviewStatus) : null;
+  const reviewStyle = reviewStatus === 'pending'
+    ? 'border-amber-400/30 bg-amber-400/[0.08] text-amber-100'
+    : reviewStatus === 'confirmed'
+      ? 'border-emerald-400/30 bg-emerald-400/[0.08] text-emerald-100'
+      : 'border-blue-400/30 bg-blue-400/[0.08] text-blue-100';
 
   return (
     <main className="min-h-screen bg-background text-primary">
@@ -121,6 +129,12 @@ export default function CompletedScenarioDetailPage() {
               <p className="text-2xl font-semibold text-[#A5B8FF]">{typeof evaluation.final_score === 'number' ? `${Math.round(evaluation.final_score)}/100` : 'Not scored'}</p>
             </div>
           </div>
+
+          {reviewCopy && <section role="status" className={`rounded-2xl border p-4 sm:p-5 ${reviewStyle}`}>
+            <h2 className="text-sm font-semibold">{reviewCopy.label}</h2>
+            <p className="mt-1 text-sm opacity-80">{reviewCopy.message}</p>
+            {detail.decision.admin_reason && <p className="mt-2 text-xs opacity-75">Reviewer note: {detail.decision.admin_reason}</p>}
+          </section>}
 
           <section className={card}>
             <h2 className="font-semibold text-base mb-4">Original scenario</h2>
@@ -175,7 +189,6 @@ export default function CompletedScenarioDetailPage() {
             {llm.weaknesses && llm.weaknesses.length > 0 && <div className="mt-4"><h3 className="text-xs font-mono uppercase tracking-wider text-muted mb-1">Missed indicators</h3><ul className="list-disc pl-5 text-sm space-y-1">{llm.weaknesses.map((weakness, index) => <li key={index}>{weakness}</li>)}</ul></div>}
             {(evaluation.safe_behavior?.expected_safe_action || evaluation.safe_behavior?.expected_action) && <div className="mt-4 rounded-xl border border-blue/20 bg-blue/5 p-4 text-sm"><p className="text-xs font-mono uppercase tracking-wider text-muted mb-1">Recommended safe action</p>{evaluation.safe_behavior.expected_safe_action || evaluation.safe_behavior.expected_action}</div>}
             {(evaluation.reasoning_classification?.category || evaluation.reasoning_category) && <p className="mt-4 text-xs text-muted">Reasoning classification: {label(evaluation.reasoning_classification?.category || evaluation.reasoning_category || '')}</p>}
-            {detail.decision.admin_verdict && <div className="mt-4 text-xs text-muted">Review verdict: {label(detail.decision.admin_verdict)}{detail.decision.admin_reason && ` · ${detail.decision.admin_reason}`}</div>}
           </section>
 
           {clues.length > 0 && <section className={card}>

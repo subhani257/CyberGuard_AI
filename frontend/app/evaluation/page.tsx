@@ -29,6 +29,7 @@ interface EvaluationData {
   reasoning_score: number;
   final_score: number;
   is_safe?: boolean;
+  human_review_required?: boolean;
   threat_indicators: Array<{
     type: string;
     confidence?: number;
@@ -430,6 +431,7 @@ function EvaluationContent() {
             reasoning_score: evalResult.reasoning_score ?? 75,
             final_score: evalResult.final_score ?? 81,
             is_safe: evalResult.is_safe,
+            human_review_required: Boolean(resData.evaluation.human_review_required),
             threat_indicators: rawIndicators,
             reasoning_category: reasoningAnalysis.category || "security-aware",
             expected_behavior: threatAnalysis.safe_behavior?.expected_safe_action || threatAnalysis.safe_behavior?.expected_action || "Verify sender identity through alternate channel before taking any action",

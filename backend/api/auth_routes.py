@@ -1,9 +1,10 @@
 import os
+import re
 import uuid
 import time
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Literal
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends, status
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
@@ -18,6 +19,7 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 router = APIRouter(tags=["Authentication & RBAC"])
 DEMO_MODE = os.environ.get("CYBERGUARD_DEMO_MODE", "false").lower() == "true"
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 # Initialize Supabase if available
 supabase_url = os.environ.get("SUPABASE_URL")
@@ -75,54 +77,102 @@ DEMO_USERS = {
 }
 
 
-class LoginRequest(BaseModel):
-    email: str
-    password: str
+def _validated_email(value: str) -> str:
+    normalized = value.strip().lower()
+    if len(normalized) > 254 or not EMAIL_PATTERN.fullmatch(normalized):
+        raise ValueError("A valid email address is required")
+    return normalized
 
 
-class SignupRequest(BaseModel):
-    email: str
-    password: str
-    full_name: Optional[str] = None
-    role: Optional[str] = "Employee"
-    company: Optional[str] = None
-    access_role: Optional[str] = "learner"
+def _clean_optional_text(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    cleaned = value.strip()
+    return cleaned or None
 
 
-class GoogleAuthRequest(BaseModel):
-    id: Optional[str] = None
-    email: Optional[str] = "alex.turner@techcorp.io"
-    full_name: Optional[str] = "Alex Turner"
-    role: Optional[str] = "Employee"
-    company: Optional[str] = "NovaTech Solutions"
-    id_token: Optional[str] = None
-    access_token: Optional[str] = None
+def _clean_required_text(value: str) -> str:
+    cleaned = value.strip()
+    if not cleaned:
+        raise ValueError("This field cannot be blank")
+    return cleaned
 
 
-class SyncUserRequest(BaseModel):
-    user_id: str
-    email: str
-    full_name: Optional[str] = None
-    role: Optional[str] = "Employee"
+def _bounded_identity_text(value: Any, fallback: str, field_name: str, max_length: int) -> str:
+    cleaned = str(value or fallback).strip()
+    if not cleaned or len(cleaned) > max_length:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Google {field_name} is missing or exceeds {max_length} characters",
+        )
+    return cleaned
 
 
-class ProfileUpdateRequest(BaseModel):
-    full_name: Optional[str] = None
-    role: Optional[str] = None
-    company: Optional[str] = None
-    department: Optional[str] = None
+class StrictRequestModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
 
 
-class LoginResponse(BaseModel):
-    success: bool
-    access_token: str
-    token_type: str = "bearer"
-    user: Dict[str, Any]
+class LoginRequest(StrictRequestModel):
+    email: str = Field(min_length=3, max_length=254)
+    password: str = Field(min_length=1, max_length=128)
+
+    _normalize_email = field_validator("email")(_validated_email)
 
 
-class LogoutResponse(BaseModel):
-    success: bool
-    message: str
+class SignupRequest(StrictRequestModel):
+    email: str = Field(min_length=3, max_length=254)
+    password: str = Field(min_length=10, max_length=128)
+    full_name: Optional[str] = Field(default=None, max_length=100)
+    role: Optional[str] = Field(default="Employee", max_length=100)
+    company: Optional[str] = Field(default=None, max_length=150)
+    access_role: Literal["learner"] = "learner"
+
+    _normalize_email = field_validator("email")(_validated_email)
+    _normalize_text = field_validator("full_name", "role", "company")(_clean_optional_text)
+
+
+class GoogleAuthRequest(StrictRequestModel):
+    id: Optional[str] = Field(default=None, max_length=128)
+    email: Optional[str] = Field(default=None, max_length=254)
+    full_name: Optional[str] = Field(default=None, max_length=100)
+    role: Optional[str] = Field(default="Employee", max_length=100)
+    company: Optional[str] = Field(default="Your Organization", max_length=150)
+    id_token: Optional[str] = Field(default=None, max_length=8192)
+    access_token: Optional[str] = Field(default=None, max_length=8192)
+
+    @field_validator("email")
+    @classmethod
+    def normalize_optional_email(cls, value: Optional[str]) -> Optional[str]:
+        return _validated_email(value) if value is not None else None
+
+    _normalize_text = field_validator("id", "full_name", "role", "company", "id_token", "access_token")(_clean_optional_text)
+
+
+class SyncUserRequest(StrictRequestModel):
+    user_id: str = Field(min_length=1, max_length=128)
+    email: str = Field(min_length=3, max_length=254)
+    full_name: Optional[str] = Field(default=None, max_length=100)
+    role: Optional[str] = Field(default="Employee", max_length=100)
+
+    _normalize_email = field_validator("email")(_validated_email)
+    _normalize_user_id = field_validator("user_id")(_clean_required_text)
+    _normalize_text = field_validator("full_name", "role")(_clean_optional_text)
+
+
+class ProfileUpdateRequest(StrictRequestModel):
+    full_name: Optional[str] = Field(default=None, max_length=100)
+    role: Optional[str] = Field(default=None, max_length=100)
+    company: Optional[str] = Field(default=None, max_length=150)
+    department: Optional[str] = Field(default=None, max_length=100)
+
+    _normalize_text = field_validator("full_name", "role", "company", "department")(_clean_optional_text)
+
+    @model_validator(mode="after")
+    def require_at_least_one_change(self):
+        if not any((self.full_name, self.role, self.company, self.department)):
+            raise ValueError("At least one profile field is required")
+        return self
+
 
 class LoginResponse(BaseModel):
     success: bool
@@ -186,8 +236,8 @@ def login(request: LoginRequest, background_tasks: BackgroundTasks):
     Authenticate user via Supabase Auth or verified system accounts.
     Issues a cryptographically signed JWT token containing access roles.
     """
-    email = request.email.strip().lower()
-    password = request.password.strip()
+    email = request.email
+    password = request.password
     
     user_record = None
 
@@ -268,8 +318,8 @@ def signup(request: SignupRequest):
     Register a new user account.
     Creates profile in Supabase and issues access token.
     """
-    email = request.email.strip().lower()
-    password = request.password.strip()
+    email = request.email
+    password = request.password
     full_name = (request.full_name or email.split("@")[0]).strip()
     role = (request.role or "Employee").strip()
     company = (request.company or "NovaTech").strip()
@@ -277,8 +327,6 @@ def signup(request: SignupRequest):
     access_role = "learner"
     user_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, email))
 
-    if len(password) < 10:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Password must contain at least 10 characters")
     if not supabase and not DEMO_MODE:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Registration service is not configured")
 
@@ -360,14 +408,30 @@ def google_auth(request: GoogleAuthRequest):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="A verified Google OAuth session is required")
 
     metadata = (getattr(verified_user, "user_metadata", {}) or {}) if verified_user else {}
-    email = (getattr(verified_user, "email", None) if verified_user else request.email) or ""
-    email = email.strip().lower()
-    if not email:
+    raw_email = (getattr(verified_user, "email", None) if verified_user else request.email) or ""
+    try:
+        email = _validated_email(raw_email)
+    except (TypeError, ValueError):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Google account email is missing")
-    full_name = str(metadata.get("full_name") or metadata.get("name") or request.full_name or email.split("@")[0]).strip()
-    role = str(metadata.get("role") or request.role or "Employee").strip()
-    company = str(metadata.get("company") or request.company or "Your Organization").strip()
-    user_id = str(getattr(verified_user, "id", None) or request.id or uuid.uuid5(uuid.NAMESPACE_DNS, email))
+    full_name = _bounded_identity_text(
+        metadata.get("full_name") or metadata.get("name") or request.full_name,
+        email.split("@")[0],
+        "full name",
+        100,
+    )
+    role = _bounded_identity_text(metadata.get("role") or request.role, "Employee", "role", 100)
+    company = _bounded_identity_text(
+        metadata.get("company") or request.company,
+        "Your Organization",
+        "company",
+        150,
+    )
+    user_id = _bounded_identity_text(
+        getattr(verified_user, "id", None) or request.id,
+        str(uuid.uuid5(uuid.NAMESPACE_DNS, email)),
+        "user id",
+        128,
+    )
 
     if supabase:
         try:
@@ -391,6 +455,13 @@ def google_auth(request: GoogleAuthRequest):
                 }).execute()
         except Exception as e:
             print(f"Notice: Supabase upsert in google_auth: {e}")
+
+    # Database profile fields are validated again because they do not pass
+    # through the request model and may contain legacy or corrupted values.
+    user_id = _bounded_identity_text(user_id, "", "user id", 128)
+    full_name = _bounded_identity_text(full_name, email.split("@")[0], "full name", 100)
+    role = _bounded_identity_text(role, "Employee", "role", 100)
+    company = _bounded_identity_text(company, "Your Organization", "company", 150)
 
     user_record = {
         "id": user_id,

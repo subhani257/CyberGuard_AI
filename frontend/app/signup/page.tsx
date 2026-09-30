@@ -33,10 +33,10 @@ export default function SignupPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          full_name: fullName,
-          email,
+          full_name: fullName.trim(),
+          email: email.trim().toLowerCase(),
           password,
-          company: company || 'Custom Organization',
+          company: company.trim() || 'Custom Organization',
           role: 'Employee',
           access_role: 'learner',
         }),
@@ -69,19 +69,19 @@ export default function SignupPage() {
     <form onSubmit={handleSignup} className="space-y-4">
       <div>
         <label htmlFor="signup-name" className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-[0.13em] text-muted">Full name</label>
-        <input id="signup-name" name="name" type="text" autoComplete="name" required value={fullName} onChange={event => setFullName(event.target.value)} placeholder="Alex Turner" className="auth-input" />
+        <input id="signup-name" name="name" type="text" autoComplete="name" required maxLength={100} value={fullName} onChange={event => setFullName(event.target.value)} placeholder="Alex Turner" className="auth-input" />
       </div>
       <div>
         <label htmlFor="signup-company" className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-[0.13em] text-muted">Company / organization</label>
-        <input id="signup-company" name="organization" type="text" autoComplete="organization" required value={company} onChange={event => setCompany(event.target.value)} placeholder="Your organization" className="auth-input" />
+        <input id="signup-company" name="organization" type="text" autoComplete="organization" required maxLength={150} value={company} onChange={event => setCompany(event.target.value)} placeholder="Your organization" className="auth-input" />
       </div>
       <div>
         <label htmlFor="signup-email" className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-[0.13em] text-muted">Work email</label>
-        <input id="signup-email" name="email" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} placeholder="you@company.com" className="auth-input" />
+        <input id="signup-email" name="email" type="email" autoComplete="email" required maxLength={254} value={email} onChange={event => setEmail(event.target.value)} placeholder="you@company.com" className="auth-input" />
       </div>
       <div>
         <label htmlFor="signup-password" className="mb-2 block font-mono text-[10px] font-medium uppercase tracking-[0.13em] text-muted">Password</label>
-        <input id="signup-password" name="password" type="password" autoComplete="new-password" required value={password} onChange={event => setPassword(event.target.value)} placeholder="Create a password" className="auth-input" />
+        <input id="signup-password" name="password" type="password" autoComplete="new-password" required minLength={10} maxLength={128} value={password} onChange={event => setPassword(event.target.value)} placeholder="At least 10 characters" className="auth-input" />
       </div>
       <button type="submit" disabled={loading} className="midnight-action mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-4 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.1em] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue disabled:cursor-wait disabled:opacity-50">
         {loading ? 'Setting up account...' : <>Create account <ArrowRight className="h-3.5 w-3.5" /></>}

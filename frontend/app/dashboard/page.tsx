@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { FirstUserGuide } from '@/components/FirstUserGuide';
 import UserProfileModal from '@/components/profile/UserProfileModal';
-import { clearAuthSession, decodeJwtClaims, isAccessTokenValid, saveAuthSession } from '@/lib/auth_session';
+import { clearAuthSession, readAuthSession, saveAuthSession } from '@/lib/auth_session';
+import { beginSingleInitialization, parseOAuthCallback } from '@/lib/oauth_callback';
 import {
   Lightbulb, ScrollText, X, Shield, Compass, Target,
   Phone, Mail, MessageSquare, QrCode, Cloud, Smartphone, HardDrive,
@@ -215,8 +216,7 @@ export default function Dashboard() {
     // React Strict Mode intentionally re-runs effects in development. Without
     // this guard the second run can redirect to /login while the first run is
     // still exchanging the Google token for the application token.
-    if (initializationStarted.current) return;
-    initializationStarted.current = true;
+    if (!beginSingleInitialization(initializationStarted)) return;
 
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
@@ -228,31 +228,19 @@ export default function Dashboard() {
       }
     }
 
-    if (typeof window !== 'undefined' && window.location.hash) {
-      const hp = new URLSearchParams(window.location.hash.substring(1));
-      const errorParam = hp.get('error_description') || hp.get('error');
-      if (errorParam) {
-        alert('Supabase Auth Error: ' + errorParam);
-        router.replace('/login');
+    if (typeof window !== 'undefined') {
+      const oauthCallback = parseOAuthCallback(window.location.hash);
+      if (oauthCallback.kind === 'error') {
+        clearAuthSession(localStorage);
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        alert('Google login error: ' + oauthCallback.message);
+        window.location.replace('/login');
         return;
       }
-      const at = hp.get('access_token');
-      if (at) {
+      if (oauthCallback.kind === 'token') {
         try {
-          if (!isAccessTokenValid(at)) {
-            throw new Error('The Google session has expired. Please sign in again.');
-          }
-          const p = decodeJwtClaims(at) as any;
-          if (!p) throw new Error('The Google session token is malformed.');
-          const ou = { 
-            id: p.sub || p.id, 
-            email: p.email, 
-            full_name: p.user_metadata?.full_name || p.user_metadata?.name || p.email?.split('@')[0], 
-            role: p.user_metadata?.role || 'Employee', 
-            company: p.user_metadata?.company || 'Your Organization', 
-            access_role: p.app_metadata?.access_role || 'learner',
-            avatar_url: p.user_metadata?.avatar_url || p.user_metadata?.picture || ''
-          };
+          const at = oauthCallback.accessToken;
+          const ou = oauthCallback.user;
           const ex = localStorage.getItem('cyberguard_user');
           let ep = null;
           if (ex) { try { const ep2 = JSON.parse(ex); if (ep2.id === ou.id) ep = ep2.learning_profile || null; } catch (_) {} }
@@ -297,43 +285,35 @@ export default function Dashboard() {
       }
     }
 
-    const raw = localStorage.getItem('cyberguard_user');
-    const onboarded = localStorage.getItem('cyberguard_onboarded') === '1';
-    if (raw && !onboarded) {
-      try {
-        const u = JSON.parse(raw);
-        if (!!localStorage.getItem('cyberguard_token') && !u.learning_profile && (!u.company || u.company === 'Your Organization')) {
-          router.replace('/onboarding'); return;
-        }
-      } catch (_) {}
-    }
-
-    const stored = localStorage.getItem('cyberguard_user');
-    const token  = localStorage.getItem('cyberguard_token');
-    if (!stored || !isAccessTokenValid(token)) {
+    const session = readAuthSession(localStorage);
+    if (!session) {
       clearAuthSession(localStorage);
       window.location.replace('/login');
       return;
     }
-    let company  = 'Your Organization';
-    if (stored) {
-      try {
-        const u = JSON.parse(stored);
-        company = u.company || company;
-        setData(prev => ({ 
-          ...prev, 
-          user: { 
-            ...prev.user, 
-            name: u.full_name || u.name || u.email || 'User', 
-            role: u.role || 'Employee', 
-            company: u.company || 'Your Organization', 
-            department: u.department || '',
-            avatar_url: u.avatar_url || u.picture || ''
-          } 
-        }));
-        // Training metrics are loaded from the authenticated dashboard endpoint.
-      } catch (_) {}
+
+    const storedUser = session.user as any;
+    const onboarded = localStorage.getItem('cyberguard_onboarded') === '1';
+    if (!onboarded && !storedUser.learning_profile && (!storedUser.company || storedUser.company === 'Your Organization')) {
+      router.replace('/onboarding');
+      return;
     }
+
+    const token = session.token;
+    let company  = 'Your Organization';
+    company = storedUser.company || company;
+    setData(prev => ({
+      ...prev,
+      user: {
+        ...prev.user,
+        name: storedUser.full_name || storedUser.name || storedUser.email || 'User',
+        role: storedUser.role || 'Employee',
+        company: storedUser.company || 'Your Organization',
+        department: storedUser.department || '',
+        avatar_url: storedUser.avatar_url || storedUser.picture || ''
+      }
+    }));
+    // Training metrics are loaded from the authenticated dashboard endpoint.
 
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;

@@ -102,6 +102,7 @@ CREATE TABLE IF NOT EXISTS public.decisions (
 );
 
 -- Idempotent column additions for admin oversight
+ALTER TABLE public.decisions ADD COLUMN IF NOT EXISTS human_review_required BOOLEAN DEFAULT false;
 ALTER TABLE public.decisions ADD COLUMN IF NOT EXISTS admin_verdict TEXT CHECK (admin_verdict IN ('confirmed', 'overridden'));
 ALTER TABLE public.decisions ADD COLUMN IF NOT EXISTS admin_reason TEXT;
 
