@@ -1,0 +1,1790 @@
+[
+  {
+    "category": "incident_report",
+    "content": "FBI IC3 recorded roughly $2.77 billion in reported Business Email Compromise losses for 2024. BEC commonly abuses trusted business identities and payment workflows to redirect funds, making unexpected account changes and urgent transfer requests high-risk signals.",
+    "metadata": {
+      "record_id": "THR-001",
+      "source": "FBI Internet Crime Report 2024",
+      "url": "https://www.ic3.gov/AnnualReport/Reports/2024_IC3Report.pdf",
+      "attack_type": "Business Email Compromise",
+      "channel": "email",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "incident_report",
+    "content": "The FBI describes BEC schemes that use convincing generated text and cloned voices to imitate executives or business contacts. A familiar writing style or recognizable voice is therefore not sufficient proof of identity for a payment or sensitive-data request.",
+    "metadata": {
+      "record_id": "THR-002",
+      "source": "FBI Internet Crime Report 2025",
+      "url": "https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf",
+      "attack_type": "AI-enabled Business Email Compromise",
+      "channel": "email_voice",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "An adversary may send a targeted attachment and persuade the recipient to open it. The file can contain malicious content or lead to further execution, so unexpected documents should be verified through a trusted channel before opening.",
+    "metadata": {
+      "record_id": "THR-003",
+      "source": "MITRE ATT&CK T1566.001",
+      "url": "https://attack.mitre.org/techniques/T1566/001/",
+      "attack_type": "Spearphishing Attachment",
+      "channel": "email",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1566.001"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "An adversary may place a link in a targeted message to send the user to credential capture, malware delivery, or another attacker-controlled destination. Display text and the true destination can differ.",
+    "metadata": {
+      "record_id": "THR-004",
+      "source": "MITRE ATT&CK T1566.002",
+      "url": "https://attack.mitre.org/techniques/T1566/002/",
+      "attack_type": "Spearphishing Link",
+      "channel": "email_chat_sms",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1566.002"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Phishing can arrive through third-party services such as social networks, personal webmail, or collaboration platforms. A message appearing inside a familiar service does not establish that the sender account is trustworthy.",
+    "metadata": {
+      "record_id": "THR-005",
+      "source": "MITRE ATT&CK T1566.003",
+      "url": "https://attack.mitre.org/techniques/T1566/003/",
+      "attack_type": "Spearphishing via Service",
+      "channel": "social_chat",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1566.003"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Some phishing operations seek information rather than immediate code execution. Requests for credentials, employee details, authentication methods, or internal processes can support later targeting and account compromise.",
+    "metadata": {
+      "record_id": "THR-006",
+      "source": "MITRE ATT&CK T1598",
+      "url": "https://attack.mitre.org/techniques/T1598/",
+      "attack_type": "Phishing for Information",
+      "channel": "email_voice_chat",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1598"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A counterfeit login page can capture credentials entered by a user. Attackers often imitate cloud identity providers and use look-alike domains, so users should navigate through a known bookmark rather than an unsolicited link.",
+    "metadata": {
+      "record_id": "THR-007",
+      "source": "MITRE ATT&CK T1056.003",
+      "url": "https://attack.mitre.org/techniques/T1056/003/",
+      "attack_type": "Credential Harvesting Web Portal",
+      "channel": "web",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1056.003"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Adversaries frequently depend on a user clicking a malicious link to continue an intrusion. Urgent account warnings, document shares, and delivery notices are common social contexts used to trigger the click.",
+    "metadata": {
+      "record_id": "THR-008",
+      "source": "MITRE ATT&CK T1204.001",
+      "url": "https://attack.mitre.org/techniques/T1204/001/",
+      "attack_type": "Malicious Link User Execution",
+      "channel": "email_chat_web",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1204.001"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A malicious file may be disguised as an invoice, resume, report, or shared document. The attacker relies on the recipient to open the file or enable active content.",
+    "metadata": {
+      "record_id": "THR-009",
+      "source": "MITRE ATT&CK T1204.002",
+      "url": "https://attack.mitre.org/techniques/T1204/002/",
+      "attack_type": "Malicious File User Execution",
+      "channel": "email_cloud_media",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1204.002"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "After obtaining a password, an adversary may generate repeated multi-factor authentication requests and pressure the account owner to approve one. Unsolicited prompts indicate a possible first-factor compromise.",
+    "metadata": {
+      "record_id": "THR-010",
+      "source": "MITRE ATT&CK T1621",
+      "url": "https://attack.mitre.org/techniques/T1621/",
+      "attack_type": "MFA Request Generation",
+      "channel": "sms_push",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1621"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "Bulk or unexpected MFA confirmations can be used to exhaust or confuse a user. CISA advises training users to reject and report unknown requests because a prompt normally follows successful entry of the password.",
+    "metadata": {
+      "record_id": "THR-011",
+      "source": "CISA Implementing Number Matching",
+      "url": "https://www.cisa.gov/sites/default/files/publications/fact-sheet-implement-number-matching-in-mfa-applications-508c.pdf",
+      "attack_type": "MFA Fatigue and Push Bombing",
+      "channel": "sms_push",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A malicious application can request OAuth permissions through a phishing link. If the user grants consent, its access token may allow continuing access to mail, files, or other cloud resources without collecting the password.",
+    "metadata": {
+      "record_id": "THR-012",
+      "source": "MITRE ATT&CK T1528",
+      "url": "https://attack.mitre.org/techniques/T1528/",
+      "attack_type": "Malicious OAuth Consent",
+      "channel": "cloud_oauth",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1528"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A stolen web session cookie can let an attacker act as an authenticated user and may bypass a fresh password or MFA challenge while the session remains valid.",
+    "metadata": {
+      "record_id": "THR-013",
+      "source": "MITRE ATT&CK T1550.004",
+      "url": "https://attack.mitre.org/techniques/T1550/004/",
+      "attack_type": "Stolen Web Session Cookie",
+      "channel": "web_cloud",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1550.004"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Compromised cloud accounts allow adversaries to use legitimate services and permissions, which can make their activity resemble normal work. Unexpected sign-ins and unusual resource access are important context.",
+    "metadata": {
+      "record_id": "THR-014",
+      "source": "MITRE ATT&CK T1078.004",
+      "url": "https://attack.mitre.org/techniques/T1078/004/",
+      "attack_type": "Valid Cloud Account Abuse",
+      "channel": "cloud",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1078.004"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Adversaries can exploit access or trust granted to suppliers, contractors, and service providers. A message from a known partner can still be malicious if that partner account or relationship has been compromised.",
+    "metadata": {
+      "record_id": "THR-015",
+      "source": "MITRE ATT&CK T1199",
+      "url": "https://attack.mitre.org/techniques/T1199/",
+      "attack_type": "Trusted Relationship Abuse",
+      "channel": "email_supply_chain",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1199"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Adversaries may introduce computer accessories, networking devices, or removable media to gain access. An unknown USB device can present more risk than ordinary file storage and should not be connected to a corporate endpoint.",
+    "metadata": {
+      "record_id": "THR-016",
+      "source": "MITRE ATT&CK T1200",
+      "url": "https://attack.mitre.org/techniques/T1200/",
+      "attack_type": "Hardware Addition and Rogue USB",
+      "channel": "physical_media",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1200"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "CISA describes removable-media attacks as a route for malware to enter systems behind network perimeter controls. Auto-execution and user-opened files can turn an inserted device into an internal compromise path.",
+    "metadata": {
+      "record_id": "THR-017",
+      "source": "CISA ICT Supply Chain Risk Management Threat Scenarios",
+      "url": "https://www.cisa.gov/sites/default/files/2023-01/ict-scrm-task-force-threat-scenarios-report_0.pdf",
+      "attack_type": "Removable Media Malware Delivery",
+      "channel": "physical_media",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "An adversary may impersonate a trusted person or organization to obtain information or induce an action. Authority, familiarity, and urgency are persuasion signals rather than identity proof.",
+    "metadata": {
+      "record_id": "THR-018",
+      "source": "MITRE ATT&CK T1656",
+      "url": "https://attack.mitre.org/techniques/T1656/",
+      "attack_type": "Impersonation",
+      "channel": "email_voice_chat_social",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1656"
+    }
+  },
+  {
+    "category": "reconnaissance",
+    "content": "Public employee names and roles can be collected to make later phishing messages more believable. References to a real manager, department, or project can come from reconnaissance rather than an internal sender.",
+    "metadata": {
+      "record_id": "THR-019",
+      "source": "MITRE ATT&CK T1589.003",
+      "url": "https://attack.mitre.org/techniques/T1589/003/",
+      "attack_type": "Employee Name Collection",
+      "channel": "public_web_social",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1589.003"
+    }
+  },
+  {
+    "category": "reconnaissance",
+    "content": "Attackers may gather corporate email addresses before password attacks or targeted phishing. A message addressed accurately to the recipient is not evidence that the sender is legitimate.",
+    "metadata": {
+      "record_id": "THR-020",
+      "source": "MITRE ATT&CK T1589.002",
+      "url": "https://attack.mitre.org/techniques/T1589/002/",
+      "attack_type": "Email Address Collection",
+      "channel": "public_web",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1589.002"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A fraudulent wireless access point may copy a legitimate network name and present a fake captive portal. Connecting can expose traffic or credentials, especially when the network is open or certificate warnings appear.",
+    "metadata": {
+      "record_id": "THR-021",
+      "source": "MITRE ATT&CK T1557.004",
+      "url": "https://attack.mitre.org/techniques/T1557/004/",
+      "attack_type": "Evil Twin Wi-Fi",
+      "channel": "wireless",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16",
+      "technique_id": "T1557.004"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "Phishing is not limited to email; malicious requests can arrive by text message. Unexpected delivery, banking, or account notices may use short links and time pressure to move a user to an attacker-controlled page.",
+    "metadata": {
+      "record_id": "THR-022",
+      "source": "NIST Small Business Cybersecurity: Phishing",
+      "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing",
+      "attack_type": "Smishing",
+      "channel": "sms",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "Phishing can be delivered through telephone calls or voicemail. Callers may pose as support staff, banks, executives, or authorities and ask for passwords, codes, remote access, or payments.",
+    "metadata": {
+      "record_id": "THR-023",
+      "source": "NIST Small Business Cybersecurity: Phishing",
+      "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing",
+      "attack_type": "Vishing",
+      "channel": "voice_phone",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "threat_definition",
+    "content": "A malicious QR code can hide a destination until it is scanned and may lead to a counterfeit payment or login site. Attackers can also replace legitimate physical codes with their own.",
+    "metadata": {
+      "record_id": "THR-024",
+      "source": "FBI IC3 QR Code PSA",
+      "url": "https://www.ic3.gov/PSA/2022/PSA220118",
+      "attack_type": "QR Code Phishing",
+      "channel": "qr_code",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Phishing messages can imitate trusted brands or people through display names and look-alike domains. Users should inspect the complete sender address and domain rather than relying on logos or the displayed name.",
+    "metadata": {
+      "record_id": "THR-025",
+      "source": "CISA Phishing Guidance: Stopping the Attack Cycle",
+      "url": "https://www.cisa.gov/sites/default/files/2025-03/Phishing%20Guidance%20-%20Stopping%20the%20Attack%20Cycle%20at%20Phase%20One%20508.pdf",
+      "attack_type": "Domain and Display-Name Spoofing",
+      "channel": "email",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Scammers may impersonate a manager or organization and demand gift cards, then request the card numbers or PINs. Gift cards are a payment method that legitimate organizations do not use to settle urgent business obligations.",
+    "metadata": {
+      "record_id": "THR-026",
+      "source": "Federal Trade Commission Gift Card Scam Guidance",
+      "url": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+      "attack_type": "Gift Card Executive Impersonation",
+      "channel": "email_sms",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A compromised or imitated vendor account can announce new bank details shortly before payment. Existing business history does not validate a new destination account; the change must be verified using previously known contact information.",
+    "metadata": {
+      "record_id": "THR-027",
+      "source": "FBI Business Email Compromise PSA",
+      "url": "https://www.ic3.gov/PSA/2023/PSA230609",
+      "attack_type": "Vendor Payment Redirection",
+      "channel": "email_supply_chain",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Social engineering may appear inside a real conversation after an account is compromised. Familiar subject lines and quoted history can lower suspicion while an attacker changes an attachment, link, or payment instruction.",
+    "metadata": {
+      "record_id": "THR-028",
+      "source": "NIST SP 800-171 Rev. 3",
+      "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/800-171r3/NIST.SP.800-171r3.html",
+      "attack_type": "Thread and Conversation Hijacking",
+      "channel": "email",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Threat actors can impersonate employees or IT personnel and contact help desks to reset credentials, enroll new authenticators, or gain remote access. Identity verification must not rely only on facts an attacker can collect publicly.",
+    "metadata": {
+      "record_id": "THR-029",
+      "source": "CISA Scattered Spider Advisory AA23-320A",
+      "url": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-320a",
+      "attack_type": "Remote Support Pretext",
+      "channel": "voice_chat",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "A user can be directed to an impostor verifier by email, search results, advertisements, or another route. The risk is the counterfeit authentication endpoint, not only the channel used to reach it.",
+    "metadata": {
+      "record_id": "THR-030",
+      "source": "NIST SP 800-63B-4",
+      "url": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "attack_type": "Search and Advertisement Login Lure",
+      "channel": "web",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Phishing links and attachments can provide initial access that precedes ransomware deployment. The visible message is therefore only the first stage of a broader intrusion and should be reported quickly.",
+    "metadata": {
+      "record_id": "THR-031",
+      "source": "CISA StopRansomware Guide",
+      "url": "https://www.cisa.gov/stopransomware/ransomware-guide",
+      "attack_type": "Ransomware Initial Access through Phishing",
+      "channel": "email",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "content": "Requests for bank details, identity numbers, credentials, or other sensitive information are common phishing objectives. The recipient should use an approved process and independently verify the requester before disclosure.",
+    "metadata": {
+      "record_id": "THR-032",
+      "source": "NIST Small Business Cybersecurity: Phishing",
+      "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/phishing",
+      "attack_type": "Sensitive Data Solicitation",
+      "channel": "email_voice_chat",
+      "source_type": "authoritative_public_guidance",
+      "extraction_method": "manual_paraphrase",
+      "last_verified": "2026-09-16"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-FIN-EMAIL targets a Finance Manager through email using targeted spear-phishing email. The fictional attacker uses a sender domain visually similar to novatech.example, a reply-chain imitation, and an urgent attachment or sign-in link and frames the request around invoices, purchase-order exceptions, vendor bank-detail changes, and payment approvals. Observable indicators are look-alike sender domain, unexpected attachment or link, artificial deadline. Compliance could expose payment authority, bank details, invoice records, and financial forecasts. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-001",
+      "scenario_id": "SYN-FIN-EMAIL",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Targeted Spear-Phishing Email",
+      "channel": "email",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "risk_surface": "financial_access",
+      "severity": "high",
+      "indicators": [
+        "look-alike sender domain",
+        "unexpected attachment or link",
+        "artificial deadline"
+      ],
+      "related_policy_id": "COM-EMAIL-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-FIN-VOICE_PHONE targets a Finance Manager through phone or voicemail using vishing and voice-clone impersonation. The fictional attacker spoofs caller ID and imitates a trusted manager while claiming that normal verification cannot be used and frames the request around invoices, purchase-order exceptions, vendor bank-detail changes, and payment approvals. Observable indicators are caller-ID trust, refusal of callback, request for secret or urgent action. Compliance could expose payment authority, bank details, invoice records, and financial forecasts. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-002",
+      "scenario_id": "SYN-FIN-VOICE_PHONE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Vishing And Voice-Clone Impersonation",
+      "channel": "voice_phone",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "risk_surface": "financial_access",
+      "severity": "high",
+      "indicators": [
+        "caller-ID trust",
+        "refusal of callback",
+        "request for secret or urgent action"
+      ],
+      "related_policy_id": "COM-VOICE-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-FIN-SLACK_TEAMS targets a Finance Manager through Slack or Teams direct message using compromised collaboration-account message. The fictional attacker uses a familiar display name to request a file, token, script, approval, or off-platform action without a ticket and frames the request around invoices, purchase-order exceptions, vendor bank-detail changes, and payment approvals. Observable indicators are unexpected direct message, missing ticket or case, request for token, script, or sensitive file. Compliance could expose payment authority, bank details, invoice records, and financial forecasts. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-003",
+      "scenario_id": "SYN-FIN-SLACK_TEAMS",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Compromised Collaboration-Account Message",
+      "channel": "slack_teams",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "risk_surface": "financial_access",
+      "severity": "high",
+      "indicators": [
+        "unexpected direct message",
+        "missing ticket or case",
+        "request for token, script, or sensitive file"
+      ],
+      "related_policy_id": "COM-CHAT-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-FIN-QR_CODE targets a Finance Manager through QR code using QR-code phishing (quishing). The fictional attacker places an unapproved QR code in a notice or PDF that claims scanning is required for authentication or document access and frames the request around invoices, purchase-order exceptions, vendor bank-detail changes, and payment approvals. Observable indicators are obscured destination, unapproved physical or PDF notice, credential request after scan. Compliance could expose payment authority, bank details, invoice records, and financial forecasts. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-004",
+      "scenario_id": "SYN-FIN-QR_CODE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Qr-Code Phishing (Quishing)",
+      "channel": "qr_code",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "risk_surface": "financial_access",
+      "severity": "high",
+      "indicators": [
+        "obscured destination",
+        "unapproved physical or PDF notice",
+        "credential request after scan"
+      ],
+      "related_policy_id": "COM-QR-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-FIN-CLOUD_OAUTH targets a Finance Manager through cloud OAuth consent screen using malicious OAuth application consent. The fictional attacker presents an unverified productivity app that asks for persistent access to mail, files, contacts, or administrative data and frames the request around invoices, purchase-order exceptions, vendor bank-detail changes, and payment approvals. Observable indicators are unverified publisher, excessive permissions, persistent offline access. Compliance could expose payment authority, bank details, invoice records, and financial forecasts. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-005",
+      "scenario_id": "SYN-FIN-CLOUD_OAUTH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Oauth Application Consent",
+      "channel": "cloud_oauth",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "risk_surface": "financial_access",
+      "severity": "high",
+      "indicators": [
+        "unverified publisher",
+        "excessive permissions",
+        "persistent offline access"
+      ],
+      "related_policy_id": "COM-OAUTH-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-FIN-SMS_PUSH targets a Finance Manager through SMS or authentication push using MFA fatigue and helpdesk SMS pretext. The fictional attacker sends repeated unsolicited approval prompts followed by a message claiming IT needs the user to accept or share a code and frames the request around invoices, purchase-order exceptions, vendor bank-detail changes, and payment approvals. Observable indicators are uninitiated authentication, repeated prompts, request to approve or disclose a one-time code. Compliance could expose payment authority, bank details, invoice records, and financial forecasts. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-006",
+      "scenario_id": "SYN-FIN-SMS_PUSH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Mfa Fatigue And Helpdesk Sms Pretext",
+      "channel": "sms_push",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "risk_surface": "financial_access",
+      "severity": "high",
+      "indicators": [
+        "uninitiated authentication",
+        "repeated prompts",
+        "request to approve or disclose a one-time code"
+      ],
+      "related_policy_id": "COM-MFA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-FIN-PHYSICAL_MEDIA targets a Finance Manager through removable media or cable using malicious removable-media baiting. The fictional attacker leaves a USB drive or cable with a curiosity-inducing work label near the employee's workspace and frames the request around invoices, purchase-order exceptions, vendor bank-detail changes, and payment approvals. Observable indicators are unknown physical origin, sensitive or tempting label, prompt to run a file or connect a device. Compliance could expose payment authority, bank details, invoice records, and financial forecasts. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-007",
+      "scenario_id": "SYN-FIN-PHYSICAL_MEDIA",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Removable-Media Baiting",
+      "channel": "physical_media",
+      "target_role": "Finance Manager",
+      "target_department": "Finance",
+      "risk_surface": "financial_access",
+      "severity": "high",
+      "indicators": [
+        "unknown physical origin",
+        "sensitive or tempting label",
+        "prompt to run a file or connect a device"
+      ],
+      "related_policy_id": "COM-MEDIA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-HR-EMAIL targets a HR Officer through email using targeted spear-phishing email. The fictional attacker uses a sender domain visually similar to novatech.example, a reply-chain imitation, and an urgent attachment or sign-in link and frames the request around onboarding documents, payroll changes, benefit questions, and employee-record updates. Observable indicators are look-alike sender domain, unexpected attachment or link, artificial deadline. Compliance could expose employee personal data, payroll details, identity documents, and candidate records. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-008",
+      "scenario_id": "SYN-HR-EMAIL",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Targeted Spear-Phishing Email",
+      "channel": "email",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "risk_surface": "pii_and_payroll",
+      "severity": "medium",
+      "indicators": [
+        "look-alike sender domain",
+        "unexpected attachment or link",
+        "artificial deadline"
+      ],
+      "related_policy_id": "COM-EMAIL-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-HR-VOICE_PHONE targets a HR Officer through phone or voicemail using vishing and voice-clone impersonation. The fictional attacker spoofs caller ID and imitates a trusted manager while claiming that normal verification cannot be used and frames the request around onboarding documents, payroll changes, benefit questions, and employee-record updates. Observable indicators are caller-ID trust, refusal of callback, request for secret or urgent action. Compliance could expose employee personal data, payroll details, identity documents, and candidate records. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-009",
+      "scenario_id": "SYN-HR-VOICE_PHONE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Vishing And Voice-Clone Impersonation",
+      "channel": "voice_phone",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "risk_surface": "pii_and_payroll",
+      "severity": "medium",
+      "indicators": [
+        "caller-ID trust",
+        "refusal of callback",
+        "request for secret or urgent action"
+      ],
+      "related_policy_id": "COM-VOICE-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-HR-SLACK_TEAMS targets a HR Officer through Slack or Teams direct message using compromised collaboration-account message. The fictional attacker uses a familiar display name to request a file, token, script, approval, or off-platform action without a ticket and frames the request around onboarding documents, payroll changes, benefit questions, and employee-record updates. Observable indicators are unexpected direct message, missing ticket or case, request for token, script, or sensitive file. Compliance could expose employee personal data, payroll details, identity documents, and candidate records. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-010",
+      "scenario_id": "SYN-HR-SLACK_TEAMS",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Compromised Collaboration-Account Message",
+      "channel": "slack_teams",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "risk_surface": "pii_and_payroll",
+      "severity": "medium",
+      "indicators": [
+        "unexpected direct message",
+        "missing ticket or case",
+        "request for token, script, or sensitive file"
+      ],
+      "related_policy_id": "COM-CHAT-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-HR-QR_CODE targets a HR Officer through QR code using QR-code phishing (quishing). The fictional attacker places an unapproved QR code in a notice or PDF that claims scanning is required for authentication or document access and frames the request around onboarding documents, payroll changes, benefit questions, and employee-record updates. Observable indicators are obscured destination, unapproved physical or PDF notice, credential request after scan. Compliance could expose employee personal data, payroll details, identity documents, and candidate records. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-011",
+      "scenario_id": "SYN-HR-QR_CODE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Qr-Code Phishing (Quishing)",
+      "channel": "qr_code",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "risk_surface": "pii_and_payroll",
+      "severity": "medium",
+      "indicators": [
+        "obscured destination",
+        "unapproved physical or PDF notice",
+        "credential request after scan"
+      ],
+      "related_policy_id": "COM-QR-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-HR-CLOUD_OAUTH targets a HR Officer through cloud OAuth consent screen using malicious OAuth application consent. The fictional attacker presents an unverified productivity app that asks for persistent access to mail, files, contacts, or administrative data and frames the request around onboarding documents, payroll changes, benefit questions, and employee-record updates. Observable indicators are unverified publisher, excessive permissions, persistent offline access. Compliance could expose employee personal data, payroll details, identity documents, and candidate records. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-012",
+      "scenario_id": "SYN-HR-CLOUD_OAUTH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Oauth Application Consent",
+      "channel": "cloud_oauth",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "risk_surface": "pii_and_payroll",
+      "severity": "medium",
+      "indicators": [
+        "unverified publisher",
+        "excessive permissions",
+        "persistent offline access"
+      ],
+      "related_policy_id": "COM-OAUTH-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-HR-SMS_PUSH targets a HR Officer through SMS or authentication push using MFA fatigue and helpdesk SMS pretext. The fictional attacker sends repeated unsolicited approval prompts followed by a message claiming IT needs the user to accept or share a code and frames the request around onboarding documents, payroll changes, benefit questions, and employee-record updates. Observable indicators are uninitiated authentication, repeated prompts, request to approve or disclose a one-time code. Compliance could expose employee personal data, payroll details, identity documents, and candidate records. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-013",
+      "scenario_id": "SYN-HR-SMS_PUSH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Mfa Fatigue And Helpdesk Sms Pretext",
+      "channel": "sms_push",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "risk_surface": "pii_and_payroll",
+      "severity": "medium",
+      "indicators": [
+        "uninitiated authentication",
+        "repeated prompts",
+        "request to approve or disclose a one-time code"
+      ],
+      "related_policy_id": "COM-MFA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-HR-PHYSICAL_MEDIA targets a HR Officer through removable media or cable using malicious removable-media baiting. The fictional attacker leaves a USB drive or cable with a curiosity-inducing work label near the employee's workspace and frames the request around onboarding documents, payroll changes, benefit questions, and employee-record updates. Observable indicators are unknown physical origin, sensitive or tempting label, prompt to run a file or connect a device. Compliance could expose employee personal data, payroll details, identity documents, and candidate records. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-014",
+      "scenario_id": "SYN-HR-PHYSICAL_MEDIA",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Removable-Media Baiting",
+      "channel": "physical_media",
+      "target_role": "HR Officer",
+      "target_department": "Human Resources",
+      "risk_surface": "pii_and_payroll",
+      "severity": "medium",
+      "indicators": [
+        "unknown physical origin",
+        "sensitive or tempting label",
+        "prompt to run a file or connect a device"
+      ],
+      "related_policy_id": "COM-MEDIA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-ITA-EMAIL targets a IT Administrator through email using targeted spear-phishing email. The fictional attacker uses a sender domain visually similar to novatech.example, a reply-chain imitation, and an urgent attachment or sign-in link and frames the request around password resets, access grants, device enrollment, incident triage, and system changes. Observable indicators are look-alike sender domain, unexpected attachment or link, artificial deadline. Compliance could expose privileged identities, endpoint controls, cloud administration, and recovery mechanisms. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-015",
+      "scenario_id": "SYN-ITA-EMAIL",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Targeted Spear-Phishing Email",
+      "channel": "email",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "risk_surface": "privileged_access",
+      "severity": "high",
+      "indicators": [
+        "look-alike sender domain",
+        "unexpected attachment or link",
+        "artificial deadline"
+      ],
+      "related_policy_id": "COM-EMAIL-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-ITA-VOICE_PHONE targets a IT Administrator through phone or voicemail using vishing and voice-clone impersonation. The fictional attacker spoofs caller ID and imitates a trusted manager while claiming that normal verification cannot be used and frames the request around password resets, access grants, device enrollment, incident triage, and system changes. Observable indicators are caller-ID trust, refusal of callback, request for secret or urgent action. Compliance could expose privileged identities, endpoint controls, cloud administration, and recovery mechanisms. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-016",
+      "scenario_id": "SYN-ITA-VOICE_PHONE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Vishing And Voice-Clone Impersonation",
+      "channel": "voice_phone",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "risk_surface": "privileged_access",
+      "severity": "high",
+      "indicators": [
+        "caller-ID trust",
+        "refusal of callback",
+        "request for secret or urgent action"
+      ],
+      "related_policy_id": "COM-VOICE-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-ITA-SLACK_TEAMS targets a IT Administrator through Slack or Teams direct message using compromised collaboration-account message. The fictional attacker uses a familiar display name to request a file, token, script, approval, or off-platform action without a ticket and frames the request around password resets, access grants, device enrollment, incident triage, and system changes. Observable indicators are unexpected direct message, missing ticket or case, request for token, script, or sensitive file. Compliance could expose privileged identities, endpoint controls, cloud administration, and recovery mechanisms. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-017",
+      "scenario_id": "SYN-ITA-SLACK_TEAMS",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Compromised Collaboration-Account Message",
+      "channel": "slack_teams",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "risk_surface": "privileged_access",
+      "severity": "high",
+      "indicators": [
+        "unexpected direct message",
+        "missing ticket or case",
+        "request for token, script, or sensitive file"
+      ],
+      "related_policy_id": "COM-CHAT-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-ITA-QR_CODE targets a IT Administrator through QR code using QR-code phishing (quishing). The fictional attacker places an unapproved QR code in a notice or PDF that claims scanning is required for authentication or document access and frames the request around password resets, access grants, device enrollment, incident triage, and system changes. Observable indicators are obscured destination, unapproved physical or PDF notice, credential request after scan. Compliance could expose privileged identities, endpoint controls, cloud administration, and recovery mechanisms. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-018",
+      "scenario_id": "SYN-ITA-QR_CODE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Qr-Code Phishing (Quishing)",
+      "channel": "qr_code",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "risk_surface": "privileged_access",
+      "severity": "high",
+      "indicators": [
+        "obscured destination",
+        "unapproved physical or PDF notice",
+        "credential request after scan"
+      ],
+      "related_policy_id": "COM-QR-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-ITA-CLOUD_OAUTH targets a IT Administrator through cloud OAuth consent screen using malicious OAuth application consent. The fictional attacker presents an unverified productivity app that asks for persistent access to mail, files, contacts, or administrative data and frames the request around password resets, access grants, device enrollment, incident triage, and system changes. Observable indicators are unverified publisher, excessive permissions, persistent offline access. Compliance could expose privileged identities, endpoint controls, cloud administration, and recovery mechanisms. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-019",
+      "scenario_id": "SYN-ITA-CLOUD_OAUTH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Oauth Application Consent",
+      "channel": "cloud_oauth",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "risk_surface": "privileged_access",
+      "severity": "high",
+      "indicators": [
+        "unverified publisher",
+        "excessive permissions",
+        "persistent offline access"
+      ],
+      "related_policy_id": "COM-OAUTH-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-ITA-SMS_PUSH targets a IT Administrator through SMS or authentication push using MFA fatigue and helpdesk SMS pretext. The fictional attacker sends repeated unsolicited approval prompts followed by a message claiming IT needs the user to accept or share a code and frames the request around password resets, access grants, device enrollment, incident triage, and system changes. Observable indicators are uninitiated authentication, repeated prompts, request to approve or disclose a one-time code. Compliance could expose privileged identities, endpoint controls, cloud administration, and recovery mechanisms. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-020",
+      "scenario_id": "SYN-ITA-SMS_PUSH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Mfa Fatigue And Helpdesk Sms Pretext",
+      "channel": "sms_push",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "risk_surface": "privileged_access",
+      "severity": "high",
+      "indicators": [
+        "uninitiated authentication",
+        "repeated prompts",
+        "request to approve or disclose a one-time code"
+      ],
+      "related_policy_id": "COM-MFA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-ITA-PHYSICAL_MEDIA targets a IT Administrator through removable media or cable using malicious removable-media baiting. The fictional attacker leaves a USB drive or cable with a curiosity-inducing work label near the employee's workspace and frames the request around password resets, access grants, device enrollment, incident triage, and system changes. Observable indicators are unknown physical origin, sensitive or tempting label, prompt to run a file or connect a device. Compliance could expose privileged identities, endpoint controls, cloud administration, and recovery mechanisms. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-021",
+      "scenario_id": "SYN-ITA-PHYSICAL_MEDIA",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Removable-Media Baiting",
+      "channel": "physical_media",
+      "target_role": "IT Administrator",
+      "target_department": "IT & Security",
+      "risk_surface": "privileged_access",
+      "severity": "high",
+      "indicators": [
+        "unknown physical origin",
+        "sensitive or tempting label",
+        "prompt to run a file or connect a device"
+      ],
+      "related_policy_id": "COM-MEDIA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-DEV-EMAIL targets a Software Developer through email using targeted spear-phishing email. The fictional attacker uses a sender domain visually similar to novatech.example, a reply-chain imitation, and an urgent attachment or sign-in link and frames the request around code reviews, build failures, package updates, repository invitations, and API integration changes. Observable indicators are look-alike sender domain, unexpected attachment or link, artificial deadline. Compliance could expose source code, API tokens, build pipelines, package integrity, and customer-facing services. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-022",
+      "scenario_id": "SYN-DEV-EMAIL",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Targeted Spear-Phishing Email",
+      "channel": "email",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "risk_surface": "source_code_and_ci_cd",
+      "severity": "medium",
+      "indicators": [
+        "look-alike sender domain",
+        "unexpected attachment or link",
+        "artificial deadline"
+      ],
+      "related_policy_id": "COM-EMAIL-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-DEV-VOICE_PHONE targets a Software Developer through phone or voicemail using vishing and voice-clone impersonation. The fictional attacker spoofs caller ID and imitates a trusted manager while claiming that normal verification cannot be used and frames the request around code reviews, build failures, package updates, repository invitations, and API integration changes. Observable indicators are caller-ID trust, refusal of callback, request for secret or urgent action. Compliance could expose source code, API tokens, build pipelines, package integrity, and customer-facing services. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-023",
+      "scenario_id": "SYN-DEV-VOICE_PHONE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Vishing And Voice-Clone Impersonation",
+      "channel": "voice_phone",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "risk_surface": "source_code_and_ci_cd",
+      "severity": "medium",
+      "indicators": [
+        "caller-ID trust",
+        "refusal of callback",
+        "request for secret or urgent action"
+      ],
+      "related_policy_id": "COM-VOICE-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-DEV-SLACK_TEAMS targets a Software Developer through Slack or Teams direct message using compromised collaboration-account message. The fictional attacker uses a familiar display name to request a file, token, script, approval, or off-platform action without a ticket and frames the request around code reviews, build failures, package updates, repository invitations, and API integration changes. Observable indicators are unexpected direct message, missing ticket or case, request for token, script, or sensitive file. Compliance could expose source code, API tokens, build pipelines, package integrity, and customer-facing services. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-024",
+      "scenario_id": "SYN-DEV-SLACK_TEAMS",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Compromised Collaboration-Account Message",
+      "channel": "slack_teams",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "risk_surface": "source_code_and_ci_cd",
+      "severity": "medium",
+      "indicators": [
+        "unexpected direct message",
+        "missing ticket or case",
+        "request for token, script, or sensitive file"
+      ],
+      "related_policy_id": "COM-CHAT-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-DEV-QR_CODE targets a Software Developer through QR code using QR-code phishing (quishing). The fictional attacker places an unapproved QR code in a notice or PDF that claims scanning is required for authentication or document access and frames the request around code reviews, build failures, package updates, repository invitations, and API integration changes. Observable indicators are obscured destination, unapproved physical or PDF notice, credential request after scan. Compliance could expose source code, API tokens, build pipelines, package integrity, and customer-facing services. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-025",
+      "scenario_id": "SYN-DEV-QR_CODE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Qr-Code Phishing (Quishing)",
+      "channel": "qr_code",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "risk_surface": "source_code_and_ci_cd",
+      "severity": "medium",
+      "indicators": [
+        "obscured destination",
+        "unapproved physical or PDF notice",
+        "credential request after scan"
+      ],
+      "related_policy_id": "COM-QR-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-DEV-CLOUD_OAUTH targets a Software Developer through cloud OAuth consent screen using malicious OAuth application consent. The fictional attacker presents an unverified productivity app that asks for persistent access to mail, files, contacts, or administrative data and frames the request around code reviews, build failures, package updates, repository invitations, and API integration changes. Observable indicators are unverified publisher, excessive permissions, persistent offline access. Compliance could expose source code, API tokens, build pipelines, package integrity, and customer-facing services. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-026",
+      "scenario_id": "SYN-DEV-CLOUD_OAUTH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Oauth Application Consent",
+      "channel": "cloud_oauth",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "risk_surface": "source_code_and_ci_cd",
+      "severity": "medium",
+      "indicators": [
+        "unverified publisher",
+        "excessive permissions",
+        "persistent offline access"
+      ],
+      "related_policy_id": "COM-OAUTH-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-DEV-SMS_PUSH targets a Software Developer through SMS or authentication push using MFA fatigue and helpdesk SMS pretext. The fictional attacker sends repeated unsolicited approval prompts followed by a message claiming IT needs the user to accept or share a code and frames the request around code reviews, build failures, package updates, repository invitations, and API integration changes. Observable indicators are uninitiated authentication, repeated prompts, request to approve or disclose a one-time code. Compliance could expose source code, API tokens, build pipelines, package integrity, and customer-facing services. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-027",
+      "scenario_id": "SYN-DEV-SMS_PUSH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Mfa Fatigue And Helpdesk Sms Pretext",
+      "channel": "sms_push",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "risk_surface": "source_code_and_ci_cd",
+      "severity": "medium",
+      "indicators": [
+        "uninitiated authentication",
+        "repeated prompts",
+        "request to approve or disclose a one-time code"
+      ],
+      "related_policy_id": "COM-MFA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-DEV-PHYSICAL_MEDIA targets a Software Developer through removable media or cable using malicious removable-media baiting. The fictional attacker leaves a USB drive or cable with a curiosity-inducing work label near the employee's workspace and frames the request around code reviews, build failures, package updates, repository invitations, and API integration changes. Observable indicators are unknown physical origin, sensitive or tempting label, prompt to run a file or connect a device. Compliance could expose source code, API tokens, build pipelines, package integrity, and customer-facing services. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-028",
+      "scenario_id": "SYN-DEV-PHYSICAL_MEDIA",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Removable-Media Baiting",
+      "channel": "physical_media",
+      "target_role": "Software Developer",
+      "target_department": "Engineering / DevOps",
+      "risk_surface": "source_code_and_ci_cd",
+      "severity": "medium",
+      "indicators": [
+        "unknown physical origin",
+        "sensitive or tempting label",
+        "prompt to run a file or connect a device"
+      ],
+      "related_policy_id": "COM-MEDIA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-CS-EMAIL targets a Customer Support Agent through email using targeted spear-phishing email. The fictional attacker uses a sender domain visually similar to novatech.example, a reply-chain imitation, and an urgent attachment or sign-in link and frames the request around account recovery, billing questions, profile updates, data exports, and incident escalation. Observable indicators are look-alike sender domain, unexpected attachment or link, artificial deadline. Compliance could expose customer identities, support history, contact data, and account-recovery controls. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-029",
+      "scenario_id": "SYN-CS-EMAIL",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Targeted Spear-Phishing Email",
+      "channel": "email",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "risk_surface": "customer_data_and_recovery",
+      "severity": "medium",
+      "indicators": [
+        "look-alike sender domain",
+        "unexpected attachment or link",
+        "artificial deadline"
+      ],
+      "related_policy_id": "COM-EMAIL-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-CS-VOICE_PHONE targets a Customer Support Agent through phone or voicemail using vishing and voice-clone impersonation. The fictional attacker spoofs caller ID and imitates a trusted manager while claiming that normal verification cannot be used and frames the request around account recovery, billing questions, profile updates, data exports, and incident escalation. Observable indicators are caller-ID trust, refusal of callback, request for secret or urgent action. Compliance could expose customer identities, support history, contact data, and account-recovery controls. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-030",
+      "scenario_id": "SYN-CS-VOICE_PHONE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Vishing And Voice-Clone Impersonation",
+      "channel": "voice_phone",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "risk_surface": "customer_data_and_recovery",
+      "severity": "medium",
+      "indicators": [
+        "caller-ID trust",
+        "refusal of callback",
+        "request for secret or urgent action"
+      ],
+      "related_policy_id": "COM-VOICE-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-CS-SLACK_TEAMS targets a Customer Support Agent through Slack or Teams direct message using compromised collaboration-account message. The fictional attacker uses a familiar display name to request a file, token, script, approval, or off-platform action without a ticket and frames the request around account recovery, billing questions, profile updates, data exports, and incident escalation. Observable indicators are unexpected direct message, missing ticket or case, request for token, script, or sensitive file. Compliance could expose customer identities, support history, contact data, and account-recovery controls. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-031",
+      "scenario_id": "SYN-CS-SLACK_TEAMS",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Compromised Collaboration-Account Message",
+      "channel": "slack_teams",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "risk_surface": "customer_data_and_recovery",
+      "severity": "medium",
+      "indicators": [
+        "unexpected direct message",
+        "missing ticket or case",
+        "request for token, script, or sensitive file"
+      ],
+      "related_policy_id": "COM-CHAT-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-CS-QR_CODE targets a Customer Support Agent through QR code using QR-code phishing (quishing). The fictional attacker places an unapproved QR code in a notice or PDF that claims scanning is required for authentication or document access and frames the request around account recovery, billing questions, profile updates, data exports, and incident escalation. Observable indicators are obscured destination, unapproved physical or PDF notice, credential request after scan. Compliance could expose customer identities, support history, contact data, and account-recovery controls. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-032",
+      "scenario_id": "SYN-CS-QR_CODE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Qr-Code Phishing (Quishing)",
+      "channel": "qr_code",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "risk_surface": "customer_data_and_recovery",
+      "severity": "medium",
+      "indicators": [
+        "obscured destination",
+        "unapproved physical or PDF notice",
+        "credential request after scan"
+      ],
+      "related_policy_id": "COM-QR-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-CS-CLOUD_OAUTH targets a Customer Support Agent through cloud OAuth consent screen using malicious OAuth application consent. The fictional attacker presents an unverified productivity app that asks for persistent access to mail, files, contacts, or administrative data and frames the request around account recovery, billing questions, profile updates, data exports, and incident escalation. Observable indicators are unverified publisher, excessive permissions, persistent offline access. Compliance could expose customer identities, support history, contact data, and account-recovery controls. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-033",
+      "scenario_id": "SYN-CS-CLOUD_OAUTH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Oauth Application Consent",
+      "channel": "cloud_oauth",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "risk_surface": "customer_data_and_recovery",
+      "severity": "medium",
+      "indicators": [
+        "unverified publisher",
+        "excessive permissions",
+        "persistent offline access"
+      ],
+      "related_policy_id": "COM-OAUTH-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-CS-SMS_PUSH targets a Customer Support Agent through SMS or authentication push using MFA fatigue and helpdesk SMS pretext. The fictional attacker sends repeated unsolicited approval prompts followed by a message claiming IT needs the user to accept or share a code and frames the request around account recovery, billing questions, profile updates, data exports, and incident escalation. Observable indicators are uninitiated authentication, repeated prompts, request to approve or disclose a one-time code. Compliance could expose customer identities, support history, contact data, and account-recovery controls. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-034",
+      "scenario_id": "SYN-CS-SMS_PUSH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Mfa Fatigue And Helpdesk Sms Pretext",
+      "channel": "sms_push",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "risk_surface": "customer_data_and_recovery",
+      "severity": "medium",
+      "indicators": [
+        "uninitiated authentication",
+        "repeated prompts",
+        "request to approve or disclose a one-time code"
+      ],
+      "related_policy_id": "COM-MFA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-CS-PHYSICAL_MEDIA targets a Customer Support Agent through removable media or cable using malicious removable-media baiting. The fictional attacker leaves a USB drive or cable with a curiosity-inducing work label near the employee's workspace and frames the request around account recovery, billing questions, profile updates, data exports, and incident escalation. Observable indicators are unknown physical origin, sensitive or tempting label, prompt to run a file or connect a device. Compliance could expose customer identities, support history, contact data, and account-recovery controls. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-035",
+      "scenario_id": "SYN-CS-PHYSICAL_MEDIA",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Removable-Media Baiting",
+      "channel": "physical_media",
+      "target_role": "Customer Support Agent",
+      "target_department": "Customer Support",
+      "risk_surface": "customer_data_and_recovery",
+      "severity": "medium",
+      "indicators": [
+        "unknown physical origin",
+        "sensitive or tempting label",
+        "prompt to run a file or connect a device"
+      ],
+      "related_policy_id": "COM-MEDIA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-EA-EMAIL targets a Executive Assistant through email using targeted spear-phishing email. The fictional attacker uses a sender domain visually similar to novatech.example, a reply-chain imitation, and an urgent attachment or sign-in link and frames the request around calendar changes, confidential documents, travel arrangements, signatures, and executive introductions. Observable indicators are look-alike sender domain, unexpected attachment or link, artificial deadline. Compliance could expose executive schedules, board documents, strategic plans, and high-trust communication paths. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-036",
+      "scenario_id": "SYN-EA-EMAIL",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Targeted Spear-Phishing Email",
+      "channel": "email",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "risk_surface": "executive_and_board_data",
+      "severity": "high",
+      "indicators": [
+        "look-alike sender domain",
+        "unexpected attachment or link",
+        "artificial deadline"
+      ],
+      "related_policy_id": "COM-EMAIL-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-EA-VOICE_PHONE targets a Executive Assistant through phone or voicemail using vishing and voice-clone impersonation. The fictional attacker spoofs caller ID and imitates a trusted manager while claiming that normal verification cannot be used and frames the request around calendar changes, confidential documents, travel arrangements, signatures, and executive introductions. Observable indicators are caller-ID trust, refusal of callback, request for secret or urgent action. Compliance could expose executive schedules, board documents, strategic plans, and high-trust communication paths. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-037",
+      "scenario_id": "SYN-EA-VOICE_PHONE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Vishing And Voice-Clone Impersonation",
+      "channel": "voice_phone",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "risk_surface": "executive_and_board_data",
+      "severity": "high",
+      "indicators": [
+        "caller-ID trust",
+        "refusal of callback",
+        "request for secret or urgent action"
+      ],
+      "related_policy_id": "COM-VOICE-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-EA-SLACK_TEAMS targets a Executive Assistant through Slack or Teams direct message using compromised collaboration-account message. The fictional attacker uses a familiar display name to request a file, token, script, approval, or off-platform action without a ticket and frames the request around calendar changes, confidential documents, travel arrangements, signatures, and executive introductions. Observable indicators are unexpected direct message, missing ticket or case, request for token, script, or sensitive file. Compliance could expose executive schedules, board documents, strategic plans, and high-trust communication paths. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-038",
+      "scenario_id": "SYN-EA-SLACK_TEAMS",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Compromised Collaboration-Account Message",
+      "channel": "slack_teams",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "risk_surface": "executive_and_board_data",
+      "severity": "high",
+      "indicators": [
+        "unexpected direct message",
+        "missing ticket or case",
+        "request for token, script, or sensitive file"
+      ],
+      "related_policy_id": "COM-CHAT-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-EA-QR_CODE targets a Executive Assistant through QR code using QR-code phishing (quishing). The fictional attacker places an unapproved QR code in a notice or PDF that claims scanning is required for authentication or document access and frames the request around calendar changes, confidential documents, travel arrangements, signatures, and executive introductions. Observable indicators are obscured destination, unapproved physical or PDF notice, credential request after scan. Compliance could expose executive schedules, board documents, strategic plans, and high-trust communication paths. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-039",
+      "scenario_id": "SYN-EA-QR_CODE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Qr-Code Phishing (Quishing)",
+      "channel": "qr_code",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "risk_surface": "executive_and_board_data",
+      "severity": "high",
+      "indicators": [
+        "obscured destination",
+        "unapproved physical or PDF notice",
+        "credential request after scan"
+      ],
+      "related_policy_id": "COM-QR-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-EA-CLOUD_OAUTH targets a Executive Assistant through cloud OAuth consent screen using malicious OAuth application consent. The fictional attacker presents an unverified productivity app that asks for persistent access to mail, files, contacts, or administrative data and frames the request around calendar changes, confidential documents, travel arrangements, signatures, and executive introductions. Observable indicators are unverified publisher, excessive permissions, persistent offline access. Compliance could expose executive schedules, board documents, strategic plans, and high-trust communication paths. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-040",
+      "scenario_id": "SYN-EA-CLOUD_OAUTH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Oauth Application Consent",
+      "channel": "cloud_oauth",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "risk_surface": "executive_and_board_data",
+      "severity": "high",
+      "indicators": [
+        "unverified publisher",
+        "excessive permissions",
+        "persistent offline access"
+      ],
+      "related_policy_id": "COM-OAUTH-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-EA-SMS_PUSH targets a Executive Assistant through SMS or authentication push using MFA fatigue and helpdesk SMS pretext. The fictional attacker sends repeated unsolicited approval prompts followed by a message claiming IT needs the user to accept or share a code and frames the request around calendar changes, confidential documents, travel arrangements, signatures, and executive introductions. Observable indicators are uninitiated authentication, repeated prompts, request to approve or disclose a one-time code. Compliance could expose executive schedules, board documents, strategic plans, and high-trust communication paths. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-041",
+      "scenario_id": "SYN-EA-SMS_PUSH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Mfa Fatigue And Helpdesk Sms Pretext",
+      "channel": "sms_push",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "risk_surface": "executive_and_board_data",
+      "severity": "high",
+      "indicators": [
+        "uninitiated authentication",
+        "repeated prompts",
+        "request to approve or disclose a one-time code"
+      ],
+      "related_policy_id": "COM-MFA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-EA-PHYSICAL_MEDIA targets a Executive Assistant through removable media or cable using malicious removable-media baiting. The fictional attacker leaves a USB drive or cable with a curiosity-inducing work label near the employee's workspace and frames the request around calendar changes, confidential documents, travel arrangements, signatures, and executive introductions. Observable indicators are unknown physical origin, sensitive or tempting label, prompt to run a file or connect a device. Compliance could expose executive schedules, board documents, strategic plans, and high-trust communication paths. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-042",
+      "scenario_id": "SYN-EA-PHYSICAL_MEDIA",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Removable-Media Baiting",
+      "channel": "physical_media",
+      "target_role": "Executive Assistant",
+      "target_department": "Executive Office",
+      "risk_surface": "executive_and_board_data",
+      "severity": "high",
+      "indicators": [
+        "unknown physical origin",
+        "sensitive or tempting label",
+        "prompt to run a file or connect a device"
+      ],
+      "related_policy_id": "COM-MEDIA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-PROC-EMAIL targets a Procurement Specialist through email using targeted spear-phishing email. The fictional attacker uses a sender domain visually similar to novatech.example, a reply-chain imitation, and an urgent attachment or sign-in link and frames the request around supplier onboarding, quotations, contract signatures, purchase orders, and bank-detail updates. Observable indicators are look-alike sender domain, unexpected attachment or link, artificial deadline. Compliance could expose supplier identities, contracts, purchase orders, pricing, and payment-routing data. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-043",
+      "scenario_id": "SYN-PROC-EMAIL",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Targeted Spear-Phishing Email",
+      "channel": "email",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "risk_surface": "supply_chain_and_payments",
+      "severity": "high",
+      "indicators": [
+        "look-alike sender domain",
+        "unexpected attachment or link",
+        "artificial deadline"
+      ],
+      "related_policy_id": "COM-EMAIL-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-PROC-VOICE_PHONE targets a Procurement Specialist through phone or voicemail using vishing and voice-clone impersonation. The fictional attacker spoofs caller ID and imitates a trusted manager while claiming that normal verification cannot be used and frames the request around supplier onboarding, quotations, contract signatures, purchase orders, and bank-detail updates. Observable indicators are caller-ID trust, refusal of callback, request for secret or urgent action. Compliance could expose supplier identities, contracts, purchase orders, pricing, and payment-routing data. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-044",
+      "scenario_id": "SYN-PROC-VOICE_PHONE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Vishing And Voice-Clone Impersonation",
+      "channel": "voice_phone",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "risk_surface": "supply_chain_and_payments",
+      "severity": "high",
+      "indicators": [
+        "caller-ID trust",
+        "refusal of callback",
+        "request for secret or urgent action"
+      ],
+      "related_policy_id": "COM-VOICE-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-PROC-SLACK_TEAMS targets a Procurement Specialist through Slack or Teams direct message using compromised collaboration-account message. The fictional attacker uses a familiar display name to request a file, token, script, approval, or off-platform action without a ticket and frames the request around supplier onboarding, quotations, contract signatures, purchase orders, and bank-detail updates. Observable indicators are unexpected direct message, missing ticket or case, request for token, script, or sensitive file. Compliance could expose supplier identities, contracts, purchase orders, pricing, and payment-routing data. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-045",
+      "scenario_id": "SYN-PROC-SLACK_TEAMS",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Compromised Collaboration-Account Message",
+      "channel": "slack_teams",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "risk_surface": "supply_chain_and_payments",
+      "severity": "high",
+      "indicators": [
+        "unexpected direct message",
+        "missing ticket or case",
+        "request for token, script, or sensitive file"
+      ],
+      "related_policy_id": "COM-CHAT-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-PROC-QR_CODE targets a Procurement Specialist through QR code using QR-code phishing (quishing). The fictional attacker places an unapproved QR code in a notice or PDF that claims scanning is required for authentication or document access and frames the request around supplier onboarding, quotations, contract signatures, purchase orders, and bank-detail updates. Observable indicators are obscured destination, unapproved physical or PDF notice, credential request after scan. Compliance could expose supplier identities, contracts, purchase orders, pricing, and payment-routing data. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-046",
+      "scenario_id": "SYN-PROC-QR_CODE",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Qr-Code Phishing (Quishing)",
+      "channel": "qr_code",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "risk_surface": "supply_chain_and_payments",
+      "severity": "high",
+      "indicators": [
+        "obscured destination",
+        "unapproved physical or PDF notice",
+        "credential request after scan"
+      ],
+      "related_policy_id": "COM-QR-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-PROC-CLOUD_OAUTH targets a Procurement Specialist through cloud OAuth consent screen using malicious OAuth application consent. The fictional attacker presents an unverified productivity app that asks for persistent access to mail, files, contacts, or administrative data and frames the request around supplier onboarding, quotations, contract signatures, purchase orders, and bank-detail updates. Observable indicators are unverified publisher, excessive permissions, persistent offline access. Compliance could expose supplier identities, contracts, purchase orders, pricing, and payment-routing data. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-047",
+      "scenario_id": "SYN-PROC-CLOUD_OAUTH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Oauth Application Consent",
+      "channel": "cloud_oauth",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "risk_surface": "supply_chain_and_payments",
+      "severity": "high",
+      "indicators": [
+        "unverified publisher",
+        "excessive permissions",
+        "persistent offline access"
+      ],
+      "related_policy_id": "COM-OAUTH-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-PROC-SMS_PUSH targets a Procurement Specialist through SMS or authentication push using MFA fatigue and helpdesk SMS pretext. The fictional attacker sends repeated unsolicited approval prompts followed by a message claiming IT needs the user to accept or share a code and frames the request around supplier onboarding, quotations, contract signatures, purchase orders, and bank-detail updates. Observable indicators are uninitiated authentication, repeated prompts, request to approve or disclose a one-time code. Compliance could expose supplier identities, contracts, purchase orders, pricing, and payment-routing data. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-048",
+      "scenario_id": "SYN-PROC-SMS_PUSH",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Mfa Fatigue And Helpdesk Sms Pretext",
+      "channel": "sms_push",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "risk_surface": "supply_chain_and_payments",
+      "severity": "high",
+      "indicators": [
+        "uninitiated authentication",
+        "repeated prompts",
+        "request to approve or disclose a one-time code"
+      ],
+      "related_policy_id": "COM-MFA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  },
+  {
+    "category": "attack_pattern",
+    "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+    "content": "Synthetic scenario SYN-PROC-PHYSICAL_MEDIA targets a Procurement Specialist through removable media or cable using malicious removable-media baiting. The fictional attacker leaves a USB drive or cable with a curiosity-inducing work label near the employee's workspace and frames the request around supplier onboarding, quotations, contract signatures, purchase orders, and bank-detail updates. Observable indicators are unknown physical origin, sensitive or tempting label, prompt to run a file or connect a device. Compliance could expose supplier identities, contracts, purchase orders, pricing, and payment-routing data. This controlled example contains no real victim, live malicious address, or executable payload.",
+    "metadata": {
+      "record_id": "THR-SYN-049",
+      "scenario_id": "SYN-PROC-PHYSICAL_MEDIA",
+      "source": "CyberGuard AI Synthetic Scenario Library v1.0",
+      "source_type": "synthetic_scenario",
+      "dataset_type": "synthetic_threat_scenario",
+      "provenance_note": "Fictional attack pattern generated for defensive CyberGuard AI training; not a real incident or external intelligence report.",
+      "attack_type": "Malicious Removable-Media Baiting",
+      "channel": "physical_media",
+      "target_role": "Procurement Specialist",
+      "target_department": "Procurement",
+      "risk_surface": "supply_chain_and_payments",
+      "severity": "high",
+      "indicators": [
+        "unknown physical origin",
+        "sensitive or tempting label",
+        "prompt to run a file or connect a device"
+      ],
+      "related_policy_id": "COM-MEDIA-01",
+      "safe_for_training": true,
+      "generated_on": "2026-09-23"
+    }
+  }
+]

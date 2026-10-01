@@ -25,6 +25,7 @@ frontend/build/
 frontend/.next/
 frontend/.nuxt/
 frontend/.vite/
+*.tsbuildinfo
 
 # Environment and secrets
 .env

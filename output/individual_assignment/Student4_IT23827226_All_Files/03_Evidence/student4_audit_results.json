@@ -1,0 +1,307 @@
+{
+  "generated_at": "2026-09-30T03:02:25.241152+00:00",
+  "environment": "Local FastAPI TestClient; demo data only; Supabase and OpenAI disabled",
+  "case_count": 23,
+  "status_counts": {
+    "PASS": 15,
+    "PARTIAL": 2,
+    "FAIL": 6
+  },
+  "cases": [
+    {
+      "case_id": "TC-IR-01",
+      "area": "Organizational retrieval relevance",
+      "status": "PASS",
+      "expected": "A finance wire-transfer query returns at least one finance-relevant policy.",
+      "actual": "Returned 2 record(s); the first record was finance/wire related.",
+      "evidence": {
+        "first_content": "FIN-SEC-04: All wire transfers exceeding $10,000 require secondary out-of-band verification (direct phone call to registered internal extension or in-person confirmation) with the CFO or Finance Director. Email or SMS approvals are strictly prohibited, even if purportedly sent by the CEO. Company payment information is never transmitted to unverified external email domains."
+      }
+    },
+    {
+      "case_id": "TC-IR-02",
+      "area": "Threat retrieval accuracy",
+      "status": "PARTIAL",
+      "expected": "Relevant threat records consistently rank in the top three with strong precision and recall.",
+      "actual": "Hit@3 and MRR were 1.000, but Precision@3 was 0.567 and Recall@3 was 0.733.",
+      "evidence": {
+        "queries": 10,
+        "precision_at_3": 0.5667,
+        "recall_at_3": 0.7333,
+        "hit_rate_at_3": 1,
+        "mean_reciprocal_rank": 1.0
+      }
+    },
+    {
+      "case_id": "TC-IR-03",
+      "area": "Training retrieval accuracy",
+      "status": "PARTIAL",
+      "expected": "Relevant training records consistently rank in the top three with strong precision and recall.",
+      "actual": "Hit@3 and MRR were 1.000, but Precision@3 was 0.542 and Recall@3 was 0.750.",
+      "evidence": {
+        "queries": 8,
+        "precision_at_3": 0.5417,
+        "recall_at_3": 0.75,
+        "hit_rate_at_3": 1,
+        "mean_reciprocal_rank": 1.0
+      }
+    },
+    {
+      "case_id": "TC-IR-04",
+      "area": "Out-of-domain retrieval",
+      "status": "FAIL",
+      "expected": "An unmatched query returns no guidance or an explicit low-confidence response.",
+      "actual": "The retriever returned 2 default module(s) despite no matching topic.",
+      "evidence": {
+        "returned_categories": [
+          "urgency_bias",
+          "vishing_defense"
+        ]
+      }
+    },
+    {
+      "case_id": "TC-IR-05",
+      "area": "Fallback source traceability",
+      "status": "FAIL",
+      "expected": "Every retrieved fallback guidance record includes a direct source URL or stable document identifier.",
+      "actual": "2 returned fallback record(s) had a source label but no direct URL in metadata.",
+      "evidence": {
+        "records_without_url": [
+          "urgency_bias",
+          "authority_abuse"
+        ],
+        "source_labels": [
+          "NIST SP 800-50 Sec 3.2",
+          "SANS Securing The Human - Executive Impersonation"
+        ]
+      }
+    },
+    {
+      "case_id": "TC-IR-06",
+      "area": "Threat retrieval fallback",
+      "status": "PASS",
+      "expected": "When vector services are unavailable, deterministic local retrieval still returns relevant threat records.",
+      "actual": "Local fallback returned 3 record(s).",
+      "evidence": {
+        "query": "financial request wire transfer payment urgency pressure immediate action authority impersonation CEO fraud",
+        "record_ids": [
+          "THR-SYN-002",
+          "THR-SYN-003",
+          "THR-001"
+        ]
+      }
+    },
+    {
+      "case_id": "TC-GR-01",
+      "area": "Fabricated citation",
+      "status": "PASS",
+      "expected": "A citation not present in retrieved evidence is rejected.",
+      "actual": "Validation accepted=False; errors reported an unknown citation.",
+      "evidence": {
+        "errors": [
+          "unknown citation ids: FAKE-999",
+          "evidence quote uses unknown citation id: FAKE-999",
+          "citations without verified quotes: FAKE-999"
+        ]
+      }
+    },
+    {
+      "case_id": "TC-GR-02",
+      "area": "Stale evidence quote",
+      "status": "PASS",
+      "expected": "A quote that is not an exact substring of the current record is rejected.",
+      "actual": "Validation accepted=False; stale quote was rejected.",
+      "evidence": {
+        "errors": [
+          "quote for THR-AUDIT-001 is not an exact evidence substring",
+          "citations without verified quotes: THR-AUDIT-001"
+        ]
+      }
+    },
+    {
+      "case_id": "TC-GR-03",
+      "area": "Missing grounding evidence",
+      "status": "PASS",
+      "expected": "A factual payload with no citations or quotes is rejected.",
+      "actual": "Validation accepted=False; missing evidence errors were returned.",
+      "evidence": {
+        "errors": [
+          "citations must be a non-empty list",
+          "evidence_quotes must be a non-empty list"
+        ]
+      }
+    },
+    {
+      "case_id": "TC-GR-04",
+      "area": "Prompt injection against retrieval grounding",
+      "status": "PASS",
+      "expected": "Injected instructions cannot create an unretrieved citation or force a perfect score.",
+      "actual": "The fake citation was replaced with THR-AUDIT-002 and the final score was 52.0.",
+      "evidence": {
+        "citations": [
+          "THR-AUDIT-002"
+        ],
+        "grounding_status": "grounded",
+        "final_score": 52.0,
+        "validation_errors": [
+          "unknown citation ids: FAKE-999",
+          "evidence quote uses unknown citation id: FAKE-999",
+          "citations without verified quotes: FAKE-999"
+        ]
+      }
+    },
+    {
+      "case_id": "TC-GR-05",
+      "area": "Unverifiable scenario output",
+      "status": "PASS",
+      "expected": "A scenario with an unretrieved policy citation is rejected and replaced with a labelled safe template.",
+      "actual": "The unsupported title was rejected; grounding status was simulation_template.",
+      "evidence": {
+        "situation_title": "A payment request that cannot wait",
+        "grounding_status": "simulation_template",
+        "validation_errors": [
+          "unknown citation ids: FAKE-ORG-999",
+          "evidence quote uses unknown citation id: FAKE-ORG-999",
+          "citations without verified quotes: FAKE-ORG-999"
+        ]
+      }
+    },
+    {
+      "case_id": "TC-API-01",
+      "area": "Missing authentication",
+      "status": "PASS",
+      "expected": "A protected scenario endpoint returns HTTP 401 without a bearer token.",
+      "actual": "HTTP 401.",
+      "evidence": {
+        "response": {
+          "detail": "Authentication required. Please provide a Bearer token in the Authorization header."
+        }
+      }
+    },
+    {
+      "case_id": "TC-API-02",
+      "area": "Malformed bearer token",
+      "status": "PASS",
+      "expected": "A malformed or invalid bearer token is rejected.",
+      "actual": "HTTP 401.",
+      "evidence": {
+        "response": {
+          "detail": "Malformed token data"
+        }
+      }
+    },
+    {
+      "case_id": "TC-AUTH-01",
+      "area": "Default JWT secret",
+      "status": "FAIL",
+      "expected": "The service refuses to start or rejects tokens when JWT_SECRET is absent or too short.",
+      "actual": "With JWT_SECRET empty, a token signed using the known fallback secret obtained HTTP 200 from the admin endpoint.",
+      "evidence": {
+        "status_code": 200,
+        "admin_access": true
+      }
+    },
+    {
+      "case_id": "TC-AUTH-02",
+      "area": "Embedded demo administrator",
+      "status": "FAIL",
+      "expected": "Hard-coded demonstration credentials are unavailable through the normal login endpoint.",
+      "actual": "The embedded administrator credentials returned HTTP 200 and an access token.",
+      "evidence": {
+        "status_code": 200,
+        "role": "admin"
+      }
+    },
+    {
+      "case_id": "TC-AUTH-03",
+      "area": "Logout token invalidation",
+      "status": "FAIL",
+      "expected": "A bearer token becomes unusable immediately after logout.",
+      "actual": "Logout returned HTTP 200; the same token still returned HTTP 200 from /api/auth/me.",
+      "evidence": {
+        "logout_status": 200,
+        "reuse_status": 200
+      }
+    },
+    {
+      "case_id": "TC-AUTHZ-01",
+      "area": "Cross-user scenario read",
+      "status": "PASS",
+      "expected": "A different authenticated learner cannot read another learner's scenario.",
+      "actual": "Cross-user request returned HTTP 404.",
+      "evidence": {
+        "status_code": 404
+      }
+    },
+    {
+      "case_id": "TC-AUTHZ-02",
+      "area": "Cross-user evaluation",
+      "status": "PASS",
+      "expected": "A different learner cannot evaluate a scenario they do not own.",
+      "actual": "Cross-user evaluation returned HTTP 404.",
+      "evidence": {
+        "status_code": 404
+      }
+    },
+    {
+      "case_id": "TC-AUTHZ-03",
+      "area": "Function-level authorization",
+      "status": "PASS",
+      "expected": "A learner token cannot access the administrator user-list endpoint.",
+      "actual": "Learner request returned HTTP 403.",
+      "evidence": {
+        "response": {
+          "detail": "Access denied. Required role(s): admin. Your role: 'learner'"
+        }
+      }
+    },
+    {
+      "case_id": "TC-API-03",
+      "area": "Unknown object identifier",
+      "status": "PASS",
+      "expected": "An unknown scenario identifier is rejected rather than replaced by demo data.",
+      "actual": "HTTP 404.",
+      "evidence": {
+        "response": {
+          "detail": "Scenario not found for authenticated user"
+        }
+      }
+    },
+    {
+      "case_id": "TC-API-04",
+      "area": "Client action manipulation",
+      "status": "PASS",
+      "expected": "The evaluation API accepts only a choice from the stored scenario.",
+      "actual": "Invented action returned HTTP 422.",
+      "evidence": {
+        "response": {
+          "detail": "Selected action is not one of this scenario's choices"
+        }
+      }
+    },
+    {
+      "case_id": "TC-API-05",
+      "area": "Forged client score",
+      "status": "PASS",
+      "expected": "The Coach uses the stored server-side evaluation and ignores a client-submitted score of 100.",
+      "actual": "Stored score was 37.2; Coach path reason referenced the stored score.",
+      "evidence": {
+        "evaluation_status": 200,
+        "coach_status": 200,
+        "stored_score": 37.2,
+        "reason_for_path": "Adaptive path set to beginner based on score of 37.2/100."
+      }
+    },
+    {
+      "case_id": "TC-COMM-01",
+      "area": "Transport security",
+      "status": "FAIL",
+      "expected": "Production-facing requests are redirected to HTTPS or rejected when sent over HTTP.",
+      "actual": "The application accepted an HTTP request and returned HTTP 200; TLS is an external deployment assumption.",
+      "evidence": {
+        "request_url": "http://testserver/",
+        "status_code": 200
+      }
+    }
+  ]
+}

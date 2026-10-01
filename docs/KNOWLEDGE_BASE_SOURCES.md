@@ -1,5 +1,25 @@
 # 📚 CyberGuard AI — Trusted Knowledge Base Sources
 
+> **Implementation status — 23 September 2026:** The checked-in hybrid corpus contains **50 organization chunks, 81 threat chunks, and 81 training chunks (212 total)**. Threat and training data each preserve 32 manually paraphrased, URL-linked authoritative records and add 49 explicitly labeled synthetic records covering every combination of seven roles and seven channels. Organization data is entirely fictional NovaTech demonstration material. See `backend/scripts/data/dataset_manifest.json` for exact counts and provenance.
+
+## Synthetic Dataset Generator
+
+The complete demonstration corpus is reproducible and deterministic:
+
+```powershell
+backend\.venv\Scripts\python.exe backend\scripts\generate_synthetic_knowledgebases.py
+backend\.venv\Scripts\python.exe backend\scripts\generate_synthetic_knowledgebases.py --check
+```
+
+The generator creates:
+
+- 50 organization records spanning company context, seven role profiles, workflows, policies, data-handling rules, communication norms, attack exposure, and seven channel policies.
+- 49 synthetic threat scenarios forming a 7-role × 7-channel coverage matrix.
+- 49 matching role-specific training modules cross-linked to those threat scenarios.
+- The original 32 authoritative threat records and 32 authoritative training records, preserved without being relabeled as synthetic.
+
+All synthetic records state their fictional provenance, contain no personal data or live malicious content, and must not be presented as external threat intelligence or an external security standard.
+
 ## Quick Reference — Which Source Goes Where
 
 ```
@@ -250,14 +270,16 @@ Write short paragraphs like:
 
 ---
 
-## ✅ How Many Documents Do You Actually Need?
+## ✅ Corpus Size Target (Superseded by the Complete Generated Corpus)
 
 ```
 cyber_threats:   30–50 chunks   (from NCSC, FBI, CISA, ENISA, Verizon, MITRE)
 cyber_training:  30–50 chunks   (from NCSC staff guides, SANS OUCH!, NIST, CISA)
 org_knowledge:   20–30 chunks   (written by your team for NovaTech)
 
-Total: ~80–130 document chunks across all 3 tables
+Original target: ~80–130 document chunks across all 3 tables
 Storage used in Supabase pgvector: ~2–4 MB
 Well within the 500 MB free tier.
 ```
+
+The implemented corpus now contains 212 chunks because it includes complete role/channel coverage in addition to the authoritative foundation.
